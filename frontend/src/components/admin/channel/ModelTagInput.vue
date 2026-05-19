@@ -17,9 +17,8 @@
           <Icon name="x" size="xs" />
         </button>
       </span>
-      <input
-        ref="inputRef"
-        v-model="inputValue"
+	      <input
+	        v-model="inputValue"
         type="text"
         class="flex-1 min-w-[120px] border-none bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white"
         :placeholder="models.length === 0 ? placeholder : ''"
@@ -55,7 +54,6 @@ const emit = defineEmits<{
 }>()
 
 const inputValue = ref('')
-const inputRef = ref<HTMLInputElement>()
 
 function addModel() {
   const val = inputValue.value.trim()

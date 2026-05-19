@@ -15,7 +15,7 @@ module.exports = {
   plugins: ["vue", "@typescript-eslint"],
   extends: [
     "eslint:recommended",
-    "plugin:vue/vue3-essential",
+    "plugin:vue/essential",
     "plugin:@typescript-eslint/recommended",
   ],
   rules: {
@@ -29,7 +29,9 @@ module.exports = {
     ],
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unsafe-function-type": "off",
     "vue/multi-word-component-names": "off",
     "vue/no-use-v-if-with-v-for": "off",
   },

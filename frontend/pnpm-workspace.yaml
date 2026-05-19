@@ -12,7 +12,37 @@ overrides:
   uuid@11: ^11.1.1
   uuid@13: ^13.0.1
   yaml@1: ^1.10.3
+  ajv@6: ^6.14.0
+  brace-expansion@1: ^1.1.13
+  brace-expansion@2: ^2.0.3
+  esbuild: ^0.27.0
+  flatted: ^3.4.2
+  lodash: ^4.18.1
+  minimatch@3: ^3.1.3
+  minimatch@9: ^9.0.7
+  picomatch@2: ^2.3.2
+  picomatch@4: ^4.0.4
+  rollup: ^4.59.0
+  ws: ^8.20.1
 
 onlyBuiltDependencies:
   - esbuild
   - vue-demi
+
+peerDependencyRules:
+  allowedVersions:
+    react: ^19.0.0
+
+minimumReleaseAgeExclude:
+  - '@typescript-eslint/eslint-plugin@8.59.4'
+  - '@typescript-eslint/parser@8.59.4'
+  - '@typescript-eslint/project-service@8.59.4'
+  - '@typescript-eslint/scope-manager@8.59.4'
+  - '@typescript-eslint/tsconfig-utils@8.59.4'
+  - '@typescript-eslint/type-utils@8.59.4'
+  - '@typescript-eslint/types@8.59.4'
+  - '@typescript-eslint/typescript-estree@8.59.4'
+  - '@typescript-eslint/utils@8.59.4'
+  - '@typescript-eslint/visitor-keys@8.59.4'
+  - '@vue/language-core@3.3.1'
+  - vue-tsc@3.3.1

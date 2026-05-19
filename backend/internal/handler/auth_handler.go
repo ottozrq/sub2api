@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
@@ -79,6 +81,39 @@ type AuthResponse struct {
 	User         *dto.User `json:"user"`
 }
 
+const refreshTokenCookieName = "sub2api_refresh_token"
+
+func (h *AuthHandler) refreshTokenCookieMaxAge() int {
+	if h == nil || h.cfg == nil || h.cfg.JWT.RefreshTokenExpireDays <= 0 {
+		return int((30 * 24 * time.Hour).Seconds())
+	}
+	return int((time.Duration(h.cfg.JWT.RefreshTokenExpireDays) * 24 * time.Hour).Seconds())
+}
+
+func (h *AuthHandler) setRefreshTokenCookie(c *gin.Context, refreshToken string) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     refreshTokenCookieName,
+		Value:    refreshToken,
+		Path:     "/api/v1/auth",
+		MaxAge:   h.refreshTokenCookieMaxAge(),
+		HttpOnly: true,
+		Secure:   isRequestHTTPS(c),
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func clearRefreshTokenCookie(c *gin.Context) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     refreshTokenCookieName,
+		Value:    "",
+		Path:     "/api/v1/auth",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   isRequestHTTPS(c),
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
 func ensureLoginUserActive(user *service.User) error {
 	if user == nil {
 		return infraerrors.Unauthorized("INVALID_USER", "user not found")
@@ -113,12 +148,12 @@ func (h *AuthHandler) respondWithTokenPair(c *gin.Context, user *service.User) {
 		})
 		return
 	}
+	h.setRefreshTokenCookie(c, tokenPair.RefreshToken)
 	response.Success(c, AuthResponse{
-		AccessToken:  tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
-		ExpiresIn:    tokenPair.ExpiresIn,
-		TokenType:    "Bearer",
-		User:         dto.UserFromService(user),
+		AccessToken: tokenPair.AccessToken,
+		ExpiresIn:   tokenPair.ExpiresIn,
+		TokenType:   "Bearer",
+		User:        dto.UserFromService(user),
 	})
 }
 
@@ -642,13 +677,13 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 
 // RefreshTokenRequest 刷新Token请求
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // RefreshTokenResponse 刷新Token响应
 type RefreshTokenResponse struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	RefreshToken string `json:"refresh_token,omitempty"`
 	ExpiresIn    int    `json:"expires_in"` // Access Token有效期（秒）
 	TokenType    string `json:"token_type"`
 }
@@ -657,13 +692,24 @@ type RefreshTokenResponse struct {
 // POST /api/v1/auth/refresh
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil && c.Request.ContentLength > 0 {
 		response.BadRequest(c, "Invalid request: "+err.Error())
 		return
 	}
+	refreshToken := strings.TrimSpace(req.RefreshToken)
+	if refreshToken == "" {
+		if cookie, err := c.Cookie(refreshTokenCookieName); err == nil {
+			refreshToken = strings.TrimSpace(cookie)
+		}
+	}
+	if refreshToken == "" {
+		response.ErrorFrom(c, service.ErrRefreshTokenInvalid)
+		return
+	}
 
-	result, err := h.authService.RefreshTokenPair(c.Request.Context(), req.RefreshToken)
+	result, err := h.authService.RefreshTokenPair(c.Request.Context(), refreshToken)
 	if err != nil {
+		clearRefreshTokenCookie(c)
 		response.ErrorFrom(c, err)
 		return
 	}
@@ -674,11 +720,11 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
+	h.setRefreshTokenCookie(c, result.RefreshToken)
 	response.Success(c, RefreshTokenResponse{
-		AccessToken:  result.AccessToken,
-		RefreshToken: result.RefreshToken,
-		ExpiresIn:    result.ExpiresIn,
-		TokenType:    "Bearer",
+		AccessToken: result.AccessToken,
+		ExpiresIn:   result.ExpiresIn,
+		TokenType:   "Bearer",
 	})
 }
 
@@ -699,15 +745,22 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// 允许空请求体（向后兼容）
 	_ = c.ShouldBindJSON(&req)
 
-	// 如果提供了Refresh Token，撤销它
-	if req.RefreshToken != "" {
-		if err := h.authService.RevokeRefreshToken(c.Request.Context(), req.RefreshToken); err != nil {
+	// 如果提供了Refresh Token，撤销它；新版本优先从 HttpOnly Cookie 读取。
+	refreshToken := strings.TrimSpace(req.RefreshToken)
+	if refreshToken == "" {
+		if cookie, err := c.Cookie(refreshTokenCookieName); err == nil {
+			refreshToken = strings.TrimSpace(cookie)
+		}
+	}
+	if refreshToken != "" {
+		if err := h.authService.RevokeRefreshToken(c.Request.Context(), refreshToken); err != nil {
 			slog.Debug("failed to revoke refresh token", "error", err)
 			// 不影响登出流程
 		}
 	}
 	h.consumePendingOAuthSessionOnLogout(c)
 	clearOAuthLogoutCookies(c)
+	clearRefreshTokenCookie(c)
 
 	response.Success(c, LogoutResponse{
 		Message: "Logged out successfully",

@@ -148,15 +148,13 @@ apiClient.interceptors.response.use(
         })
       }
 
-      // 401: Try to refresh the token if we have a refresh token
+      // 401: Try to refresh the token using the HttpOnly refresh-token cookie
       // This handles TOKEN_EXPIRED, INVALID_TOKEN, TOKEN_REVOKED, etc.
       if (status === 401 && !originalRequest._retry) {
-        const refreshToken = localStorage.getItem('refresh_token')
         const isAuthEndpoint =
           url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/refresh')
 
-        // If we have a refresh token and this is not an auth endpoint, try to refresh
-        if (refreshToken && !isAuthEndpoint) {
+        if (!isAuthEndpoint) {
           if (isRefreshing) {
             // Wait for the ongoing refresh to complete
             return new Promise((resolve, reject) => {
@@ -187,22 +185,21 @@ apiClient.interceptors.response.use(
             // Call refresh endpoint directly to avoid circular dependency
             const refreshResponse = await axios.post(
               `${API_BASE_URL}/auth/refresh`,
-              { refresh_token: refreshToken },
-              { headers: { 'Content-Type': 'application/json' } }
+              {},
+              { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
             )
 
             const refreshData = refreshResponse.data as ApiResponse<{
               access_token: string
-              refresh_token: string
+              refresh_token?: string
               expires_in: number
             }>
 
             if (refreshData.code === 0 && refreshData.data) {
-              const { access_token, refresh_token: newRefreshToken, expires_in } = refreshData.data
+              const { access_token, expires_in } = refreshData.data
 
               // Update tokens in localStorage (convert expires_in to timestamp)
               localStorage.setItem('auth_token', access_token)
-              localStorage.setItem('refresh_token', newRefreshToken)
               localStorage.setItem('token_expires_at', String(Date.now() + expires_in * 1000))
 
               // Notify subscribers with new token
@@ -243,7 +240,7 @@ apiClient.interceptors.response.use(
           }
         }
 
-        // No refresh token or is auth endpoint - clear auth and redirect
+        // Auth endpoint or refresh failed - clear auth and redirect
         const hasToken = !!localStorage.getItem('auth_token')
         const headers = error.config?.headers as Record<string, unknown> | undefined
         const authHeader = headers?.Authorization ?? headers?.authorization

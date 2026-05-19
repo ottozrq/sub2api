@@ -1524,12 +1524,12 @@ func (h *AuthHandler) transitionPendingOAuthAccountToChoiceState(
 	return session, nil
 }
 
-func writeOAuthTokenPairResponse(c *gin.Context, tokenPair *service.TokenPair) {
+func (h *AuthHandler) writeOAuthTokenPairResponse(c *gin.Context, tokenPair *service.TokenPair) {
+	h.setRefreshTokenCookie(c, tokenPair.RefreshToken)
 	c.JSON(http.StatusOK, gin.H{
-		"access_token":  tokenPair.AccessToken,
-		"refresh_token": tokenPair.RefreshToken,
-		"expires_in":    tokenPair.ExpiresIn,
-		"token_type":    "Bearer",
+		"access_token": tokenPair.AccessToken,
+		"expires_in":   tokenPair.ExpiresIn,
+		"token_type":   "Bearer",
 	})
 }
 
@@ -1606,7 +1606,7 @@ func (h *AuthHandler) bindPendingOAuthLogin(c *gin.Context, provider string) {
 	}
 
 	clearCookies()
-	writeOAuthTokenPairResponse(c, tokenPair)
+	h.writeOAuthTokenPairResponse(c, tokenPair)
 }
 
 func respondPendingOAuthBindingApplyError(c *gin.Context, err error) {
@@ -1793,7 +1793,7 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
 	clearCookies()
-	writeOAuthTokenPairResponse(c, tokenPair)
+	h.writeOAuthTokenPairResponse(c, tokenPair)
 }
 
 // ExchangePendingOAuthCompletion redeems a pending OAuth browser session into a frontend-safe payload.
@@ -1935,8 +1935,8 @@ func (h *AuthHandler) ExchangePendingOAuthCompletion(c *gin.Context) {
 			return
 		}
 		h.authService.RecordSuccessfulLogin(c.Request.Context(), loginUser.ID)
+		h.setRefreshTokenCookie(c, tokenPair.RefreshToken)
 		payload["access_token"] = tokenPair.AccessToken
-		payload["refresh_token"] = tokenPair.RefreshToken
 		payload["expires_in"] = tokenPair.ExpiresIn
 		payload["token_type"] = "Bearer"
 	}

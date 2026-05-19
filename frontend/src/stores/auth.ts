@@ -10,7 +10,6 @@ import type { User, LoginRequest, RegisterRequest, AuthResponse } from '@/types'
 
 const AUTH_TOKEN_KEY = 'auth_token'
 const AUTH_USER_KEY = 'auth_user'
-const REFRESH_TOKEN_KEY = 'refresh_token'
 const TOKEN_EXPIRES_AT_KEY = 'token_expires_at' // 存储过期时间戳而非有效期
 const PENDING_AUTH_SESSION_KEY = 'pending_auth_session'
 const AUTO_REFRESH_INTERVAL = 60 * 1000 // 60 seconds for user data refresh
@@ -73,7 +72,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const user = ref<User | null>(null)
   const token = ref<string | null>(null)
-  const refreshTokenValue = ref<string | null>(null)
   const tokenExpiresAt = ref<number | null>(null) // 过期时间戳（毫秒）
   const runMode = ref<'standard' | 'simple'>('standard')
   const pendingAuthSession = ref<PendingAuthSessionSummary | null>(null)
@@ -103,7 +101,6 @@ export const useAuthStore = defineStore('auth', () => {
   function checkAuth(): void {
     const savedToken = localStorage.getItem(AUTH_TOKEN_KEY)
     const savedUser = localStorage.getItem(AUTH_USER_KEY)
-    const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
     const savedExpiresAt = localStorage.getItem(TOKEN_EXPIRES_AT_KEY)
     pendingAuthSession.value = getPersistedPendingAuthSession()
 
@@ -111,7 +108,6 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         token.value = savedToken
         user.value = JSON.parse(savedUser)
-        refreshTokenValue.value = savedRefreshToken
         tokenExpiresAt.value = savedExpiresAt ? parseInt(savedExpiresAt, 10) : null
 
         // Immediately refresh user data from backend (async, don't block)
@@ -122,9 +118,9 @@ export const useAuthStore = defineStore('auth', () => {
         // Start auto-refresh interval for user data
         startAutoRefresh()
 
-        // Start proactive token refresh if we have refresh token and expiry info
+        // Start proactive token refresh if expiry info is available; refresh token is in HttpOnly cookie.
         // Note: use !== null to handle case when tokenExpiresAt.value is 0 (expired)
-        if (savedRefreshToken && tokenExpiresAt.value !== null) {
+        if (tokenExpiresAt.value !== null) {
           scheduleTokenRefreshAt(tokenExpiresAt.value)
         }
       } catch (error) {
@@ -202,16 +198,11 @@ export const useAuthStore = defineStore('auth', () => {
    * Perform the actual token refresh
    */
   async function performTokenRefresh(): Promise<void> {
-    if (!refreshTokenValue.value) {
-      return
-    }
-
     try {
       const response = await authAPI.refreshToken()
 
       // Update state
       token.value = response.access_token
-      refreshTokenValue.value = response.refresh_token
 
       // Schedule next refresh (this also updates tokenExpiresAt and localStorage)
       scheduleTokenRefresh(response.expires_in)
@@ -283,12 +274,6 @@ export const useAuthStore = defineStore('auth', () => {
     // Store token and user
     token.value = response.access_token
 
-    // Store refresh token if present
-    if (response.refresh_token) {
-      refreshTokenValue.value = response.refresh_token
-      localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token)
-    }
-
     // Extract run_mode if present
     if (response.user.run_mode) {
       runMode.value = response.user.run_mode
@@ -304,9 +289,9 @@ export const useAuthStore = defineStore('auth', () => {
     // Start auto-refresh interval for user data
     startAutoRefresh()
 
-    // Start proactive token refresh if we have refresh token and expiry info
+    // Start proactive token refresh if expiry info is available; refresh token is in HttpOnly cookie.
     // scheduleTokenRefresh will also store the expiry timestamp
-    if (response.refresh_token && response.expires_in) {
+    if (response.expires_in) {
       scheduleTokenRefresh(response.expires_in)
     }
   }
@@ -334,12 +319,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * 直接设置 token（用于 OAuth/SSO 回调），并加载当前用户信息。
-   * 会自动读取 localStorage 中已设置的 refresh_token 和 token_expires_in
+   * 会自动读取 localStorage 中已设置的 token_expires_in
    * @param newToken - 后端签发的 JWT access token
    */
   async function setToken(newToken: string): Promise<User> {
     // Clear any previous state first (avoid mixing sessions)
-    // Note: Don't clear localStorage here as OAuth callback may have set refresh_token
+    // Note: Don't clear localStorage here as OAuth callback may have set token expiry metadata.
     stopAutoRefresh()
     stopTokenRefresh()
     token.value = null
@@ -348,13 +333,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = newToken
     localStorage.setItem(AUTH_TOKEN_KEY, newToken)
 
-    // Read refresh token and expires_at from localStorage if set by OAuth callback
-    const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
+    // Read expires_at from localStorage if set by OAuth callback
     const savedExpiresAt = localStorage.getItem(TOKEN_EXPIRES_AT_KEY)
 
-    if (savedRefreshToken) {
-      refreshTokenValue.value = savedRefreshToken
-    }
     if (savedExpiresAt) {
       tokenExpiresAt.value = parseInt(savedExpiresAt, 10)
     }
@@ -363,9 +344,9 @@ export const useAuthStore = defineStore('auth', () => {
       const userData = await refreshUser()
       startAutoRefresh()
 
-      // Start proactive token refresh if we have refresh token and expiry info
+      // Start proactive token refresh if expiry info is available; refresh token is in HttpOnly cookie.
       // Note: use !== null to handle case when tokenExpiresAt.value is 0 (expired)
-      if (savedRefreshToken && tokenExpiresAt.value !== null) {
+      if (tokenExpiresAt.value !== null) {
         scheduleTokenRefreshAt(tokenExpiresAt.value)
       }
 
@@ -447,12 +428,10 @@ export const useAuthStore = defineStore('auth', () => {
     stopTokenRefresh()
 
     token.value = null
-    refreshTokenValue.value = null
     tokenExpiresAt.value = null
     user.value = null
     localStorage.removeItem(AUTH_TOKEN_KEY)
     localStorage.removeItem(AUTH_USER_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
 
     if (options?.preservePendingAuthSession) {

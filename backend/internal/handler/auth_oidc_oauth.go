@@ -679,11 +679,11 @@ func (h *AuthHandler) CompleteOIDCOAuthRegistration(c *gin.Context) {
 	clearOAuthPendingSessionCookie(c, secureCookie)
 	clearOAuthPendingBrowserCookie(c, secureCookie)
 
+	h.setRefreshTokenCookie(c, tokenPair.RefreshToken)
 	c.JSON(http.StatusOK, gin.H{
-		"access_token":  tokenPair.AccessToken,
-		"refresh_token": tokenPair.RefreshToken,
-		"expires_in":    tokenPair.ExpiresIn,
-		"token_type":    "Bearer",
+		"access_token": tokenPair.AccessToken,
+		"expires_in":   tokenPair.ExpiresIn,
+		"token_type":   "Bearer",
 	})
 }
 

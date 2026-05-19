@@ -1,0 +1,18 @@
+packages:
+  - .
+
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+
+overrides:
+  dompurify: ^3.4.0
+  mermaid: ^11.14.1
+  postcss: ^8.5.10
+  uuid@11: ^11.1.1
+  uuid@13: ^13.0.1
+  yaml@1: ^1.10.3
+
+onlyBuiltDependencies:
+  - esbuild
+  - vue-demi

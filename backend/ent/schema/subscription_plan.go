@@ -43,6 +43,9 @@ func (SubscriptionPlan) Fields() []ent.Field {
 			SchemaType(map[string]string{dialect.Postgres: "decimal(20,2)"}).
 			Optional().
 			Nillable(),
+		field.String("plan_type").
+			MaxLen(20).
+			Default("subscription"),
 		field.Int("validity_days").
 			Default(30),
 		field.String("validity_unit").
@@ -54,6 +57,12 @@ func (SubscriptionPlan) Fields() []ent.Field {
 		field.String("product_name").
 			MaxLen(100).
 			Default(""),
+		field.Int("window_quota_count").
+			Default(0),
+		field.Int("window_quota_minutes").
+			Default(0),
+		field.Int("quota_count").
+			Default(0),
 		field.Bool("for_sale").
 			Default(true),
 		field.Int("sort_order").

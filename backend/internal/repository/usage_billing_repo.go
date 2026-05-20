@@ -106,8 +106,8 @@ func (r *usageBillingRepository) claimUsageBillingKey(ctx context.Context, tx *s
 }
 
 func (r *usageBillingRepository) applyUsageBillingEffects(ctx context.Context, tx *sql.Tx, cmd *service.UsageBillingCommand, result *service.UsageBillingApplyResult) error {
-	if cmd.SubscriptionCost > 0 && cmd.SubscriptionID != nil {
-		if err := incrementUsageBillingSubscription(ctx, tx, *cmd.SubscriptionID, cmd.SubscriptionCost); err != nil {
+	if (cmd.SubscriptionCost > 0 || cmd.SubscriptionWindowCount > 0) && cmd.SubscriptionID != nil {
+		if err := incrementUsageBillingSubscription(ctx, tx, *cmd.SubscriptionID, cmd.SubscriptionCost, cmd.SubscriptionWindowCount); err != nil {
 			return err
 		}
 	}
@@ -145,13 +145,34 @@ func (r *usageBillingRepository) applyUsageBillingEffects(ctx context.Context, t
 	return nil
 }
 
-func incrementUsageBillingSubscription(ctx context.Context, tx *sql.Tx, subscriptionID int64, costUSD float64) error {
+func incrementUsageBillingSubscription(ctx context.Context, tx *sql.Tx, subscriptionID int64, costUSD float64, windowCount int) error {
 	const updateSQL = `
 		UPDATE user_subscriptions us
 		SET
 			daily_usage_usd = us.daily_usage_usd + $1,
 			weekly_usage_usd = us.weekly_usage_usd + $1,
 			monthly_usage_usd = us.monthly_usage_usd + $1,
+			window_start = CASE
+				WHEN us.window_quota_count > 0
+					AND us.window_quota_minutes > 0
+					AND $3 > 0
+					AND (us.window_start IS NULL OR us.window_start + (us.window_quota_minutes * INTERVAL '1 minute') <= NOW())
+				THEN NOW()
+				ELSE us.window_start
+			END,
+			window_usage_count = CASE
+				WHEN us.window_quota_count > 0 AND us.window_quota_minutes > 0 AND $3 > 0 THEN
+					CASE
+						WHEN us.window_start IS NULL OR us.window_start + (us.window_quota_minutes * INTERVAL '1 minute') <= NOW()
+						THEN $3
+						ELSE us.window_usage_count + $3
+					END
+				ELSE us.window_usage_count
+			END,
+			quota_used_count = CASE
+				WHEN us.quota_total_count > 0 AND $3 > 0 THEN us.quota_used_count + $3
+				ELSE us.quota_used_count
+			END,
 			updated_at = NOW()
 		FROM groups g
 		WHERE us.id = $2
@@ -159,7 +180,7 @@ func incrementUsageBillingSubscription(ctx context.Context, tx *sql.Tx, subscrip
 			AND us.group_id = g.id
 			AND g.deleted_at IS NULL
 	`
-	res, err := tx.ExecContext(ctx, updateSQL, costUSD, subscriptionID)
+	res, err := tx.ExecContext(ctx, updateSQL, costUSD, subscriptionID, windowCount)
 	if err != nil {
 		return err
 	}

@@ -27,6 +27,8 @@ type SubscriptionPlan struct {
 	Price float64 `json:"price,omitempty"`
 	// OriginalPrice holds the value of the "original_price" field.
 	OriginalPrice *float64 `json:"original_price,omitempty"`
+	// PlanType holds the value of the "plan_type" field.
+	PlanType string `json:"plan_type,omitempty"`
 	// ValidityDays holds the value of the "validity_days" field.
 	ValidityDays int `json:"validity_days,omitempty"`
 	// ValidityUnit holds the value of the "validity_unit" field.
@@ -35,6 +37,12 @@ type SubscriptionPlan struct {
 	Features string `json:"features,omitempty"`
 	// ProductName holds the value of the "product_name" field.
 	ProductName string `json:"product_name,omitempty"`
+	// WindowQuotaCount holds the value of the "window_quota_count" field.
+	WindowQuotaCount int `json:"window_quota_count,omitempty"`
+	// WindowQuotaMinutes holds the value of the "window_quota_minutes" field.
+	WindowQuotaMinutes int `json:"window_quota_minutes,omitempty"`
+	// QuotaCount holds the value of the "quota_count" field.
+	QuotaCount int `json:"quota_count,omitempty"`
 	// ForSale holds the value of the "for_sale" field.
 	ForSale bool `json:"for_sale,omitempty"`
 	// SortOrder holds the value of the "sort_order" field.
@@ -55,9 +63,9 @@ func (*SubscriptionPlan) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case subscriptionplan.FieldPrice, subscriptionplan.FieldOriginalPrice:
 			values[i] = new(sql.NullFloat64)
-		case subscriptionplan.FieldID, subscriptionplan.FieldGroupID, subscriptionplan.FieldValidityDays, subscriptionplan.FieldSortOrder:
+		case subscriptionplan.FieldID, subscriptionplan.FieldGroupID, subscriptionplan.FieldValidityDays, subscriptionplan.FieldWindowQuotaCount, subscriptionplan.FieldWindowQuotaMinutes, subscriptionplan.FieldQuotaCount, subscriptionplan.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case subscriptionplan.FieldName, subscriptionplan.FieldDescription, subscriptionplan.FieldValidityUnit, subscriptionplan.FieldFeatures, subscriptionplan.FieldProductName:
+		case subscriptionplan.FieldName, subscriptionplan.FieldDescription, subscriptionplan.FieldPlanType, subscriptionplan.FieldValidityUnit, subscriptionplan.FieldFeatures, subscriptionplan.FieldProductName:
 			values[i] = new(sql.NullString)
 		case subscriptionplan.FieldCreatedAt, subscriptionplan.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -113,6 +121,12 @@ func (_m *SubscriptionPlan) assignValues(columns []string, values []any) error {
 				_m.OriginalPrice = new(float64)
 				*_m.OriginalPrice = value.Float64
 			}
+		case subscriptionplan.FieldPlanType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field plan_type", values[i])
+			} else if value.Valid {
+				_m.PlanType = value.String
+			}
 		case subscriptionplan.FieldValidityDays:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field validity_days", values[i])
@@ -136,6 +150,24 @@ func (_m *SubscriptionPlan) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field product_name", values[i])
 			} else if value.Valid {
 				_m.ProductName = value.String
+			}
+		case subscriptionplan.FieldWindowQuotaCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field window_quota_count", values[i])
+			} else if value.Valid {
+				_m.WindowQuotaCount = int(value.Int64)
+			}
+		case subscriptionplan.FieldWindowQuotaMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field window_quota_minutes", values[i])
+			} else if value.Valid {
+				_m.WindowQuotaMinutes = int(value.Int64)
+			}
+		case subscriptionplan.FieldQuotaCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field quota_count", values[i])
+			} else if value.Valid {
+				_m.QuotaCount = int(value.Int64)
 			}
 		case subscriptionplan.FieldForSale:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -214,6 +246,9 @@ func (_m *SubscriptionPlan) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
+	builder.WriteString("plan_type=")
+	builder.WriteString(_m.PlanType)
+	builder.WriteString(", ")
 	builder.WriteString("validity_days=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ValidityDays))
 	builder.WriteString(", ")
@@ -225,6 +260,15 @@ func (_m *SubscriptionPlan) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("product_name=")
 	builder.WriteString(_m.ProductName)
+	builder.WriteString(", ")
+	builder.WriteString("window_quota_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WindowQuotaCount))
+	builder.WriteString(", ")
+	builder.WriteString("window_quota_minutes=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WindowQuotaMinutes))
+	builder.WriteString(", ")
+	builder.WriteString("quota_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.QuotaCount))
 	builder.WriteString(", ")
 	builder.WriteString("for_sale=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ForSale))

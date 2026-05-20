@@ -156,6 +156,9 @@ func (f fakeGoogleSubscriptionRepo) UpdateStatus(ctx context.Context, subscripti
 func (f fakeGoogleSubscriptionRepo) UpdateNotes(ctx context.Context, subscriptionID int64, notes string) error {
 	return errors.New("not implemented")
 }
+func (f fakeGoogleSubscriptionRepo) UpdateWindowQuotaPolicy(ctx context.Context, subscriptionID int64, count, minutes int) error {
+	return errors.New("not implemented")
+}
 func (f fakeGoogleSubscriptionRepo) ActivateWindows(ctx context.Context, id int64, start time.Time) error {
 	if f.activateWindow != nil {
 		return f.activateWindow(ctx, id, start)
@@ -178,6 +181,9 @@ func (f fakeGoogleSubscriptionRepo) ResetMonthlyUsage(ctx context.Context, id in
 	if f.resetMonthly != nil {
 		return f.resetMonthly(ctx, id, start)
 	}
+	return errors.New("not implemented")
+}
+func (f fakeGoogleSubscriptionRepo) AddQuotaTotal(ctx context.Context, subscriptionID int64, count int) error {
 	return errors.New("not implemented")
 }
 func (f fakeGoogleSubscriptionRepo) IncrementUsage(ctx context.Context, id int64, costUSD float64) error {

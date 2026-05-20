@@ -43,6 +43,18 @@ const (
 	FieldWeeklyUsageUsd = "weekly_usage_usd"
 	// FieldMonthlyUsageUsd holds the string denoting the monthly_usage_usd field in the database.
 	FieldMonthlyUsageUsd = "monthly_usage_usd"
+	// FieldWindowQuotaCount holds the string denoting the window_quota_count field in the database.
+	FieldWindowQuotaCount = "window_quota_count"
+	// FieldWindowQuotaMinutes holds the string denoting the window_quota_minutes field in the database.
+	FieldWindowQuotaMinutes = "window_quota_minutes"
+	// FieldWindowUsageCount holds the string denoting the window_usage_count field in the database.
+	FieldWindowUsageCount = "window_usage_count"
+	// FieldWindowStart holds the string denoting the window_start field in the database.
+	FieldWindowStart = "window_start"
+	// FieldQuotaTotalCount holds the string denoting the quota_total_count field in the database.
+	FieldQuotaTotalCount = "quota_total_count"
+	// FieldQuotaUsedCount holds the string denoting the quota_used_count field in the database.
+	FieldQuotaUsedCount = "quota_used_count"
 	// FieldAssignedBy holds the string denoting the assigned_by field in the database.
 	FieldAssignedBy = "assigned_by"
 	// FieldAssignedAt holds the string denoting the assigned_at field in the database.
@@ -106,6 +118,12 @@ var Columns = []string{
 	FieldDailyUsageUsd,
 	FieldWeeklyUsageUsd,
 	FieldMonthlyUsageUsd,
+	FieldWindowQuotaCount,
+	FieldWindowQuotaMinutes,
+	FieldWindowUsageCount,
+	FieldWindowStart,
+	FieldQuotaTotalCount,
+	FieldQuotaUsedCount,
 	FieldAssignedBy,
 	FieldAssignedAt,
 	FieldNotes,
@@ -145,6 +163,16 @@ var (
 	DefaultWeeklyUsageUsd float64
 	// DefaultMonthlyUsageUsd holds the default value on creation for the "monthly_usage_usd" field.
 	DefaultMonthlyUsageUsd float64
+	// DefaultWindowQuotaCount holds the default value on creation for the "window_quota_count" field.
+	DefaultWindowQuotaCount int
+	// DefaultWindowQuotaMinutes holds the default value on creation for the "window_quota_minutes" field.
+	DefaultWindowQuotaMinutes int
+	// DefaultWindowUsageCount holds the default value on creation for the "window_usage_count" field.
+	DefaultWindowUsageCount int
+	// DefaultQuotaTotalCount holds the default value on creation for the "quota_total_count" field.
+	DefaultQuotaTotalCount int
+	// DefaultQuotaUsedCount holds the default value on creation for the "quota_used_count" field.
+	DefaultQuotaUsedCount int
 	// DefaultAssignedAt holds the default value on creation for the "assigned_at" field.
 	DefaultAssignedAt func() time.Time
 )
@@ -225,6 +253,36 @@ func ByWeeklyUsageUsd(opts ...sql.OrderTermOption) OrderOption {
 // ByMonthlyUsageUsd orders the results by the monthly_usage_usd field.
 func ByMonthlyUsageUsd(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMonthlyUsageUsd, opts...).ToFunc()
+}
+
+// ByWindowQuotaCount orders the results by the window_quota_count field.
+func ByWindowQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaCount, opts...).ToFunc()
+}
+
+// ByWindowQuotaMinutes orders the results by the window_quota_minutes field.
+func ByWindowQuotaMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaMinutes, opts...).ToFunc()
+}
+
+// ByWindowUsageCount orders the results by the window_usage_count field.
+func ByWindowUsageCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowUsageCount, opts...).ToFunc()
+}
+
+// ByWindowStart orders the results by the window_start field.
+func ByWindowStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowStart, opts...).ToFunc()
+}
+
+// ByQuotaTotalCount orders the results by the quota_total_count field.
+func ByQuotaTotalCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldQuotaTotalCount, opts...).ToFunc()
+}
+
+// ByQuotaUsedCount orders the results by the quota_used_count field.
+func ByQuotaUsedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldQuotaUsedCount, opts...).ToFunc()
 }
 
 // ByAssignedBy orders the results by the assigned_by field.

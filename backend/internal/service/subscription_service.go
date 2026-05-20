@@ -144,11 +144,14 @@ func (s *SubscriptionService) InvalidateSubCache(userID, groupID int64) {
 
 // AssignSubscriptionInput 分配订阅输入
 type AssignSubscriptionInput struct {
-	UserID       int64
-	GroupID      int64
-	ValidityDays int
-	AssignedBy   int64
-	Notes        string
+	UserID             int64
+	GroupID            int64
+	ValidityDays       int
+	WindowQuotaCount   int
+	WindowQuotaMinutes int
+	QuotaTotalCount    int
+	AssignedBy         int64
+	Notes              string
 }
 
 // AssignSubscription 分配订阅给用户（不允许重复分配）
@@ -243,6 +246,17 @@ func (s *SubscriptionService) AssignOrExtendSubscription(ctx context.Context, in
 			}
 		}
 
+		if err := s.userSubRepo.UpdateWindowQuotaPolicy(txCtx, existingSub.ID, input.WindowQuotaCount, input.WindowQuotaMinutes); err != nil {
+			_ = tx.Rollback()
+			return nil, false, fmt.Errorf("update subscription window quota: %w", err)
+		}
+		if input.QuotaTotalCount > 0 {
+			if err := s.userSubRepo.AddQuotaTotal(txCtx, existingSub.ID, input.QuotaTotalCount); err != nil {
+				_ = tx.Rollback()
+				return nil, false, fmt.Errorf("add subscription quota: %w", err)
+			}
+		}
+
 		// 提交事务
 		if err := tx.Commit(); err != nil {
 			return nil, false, fmt.Errorf("commit transaction: %w", err)
@@ -301,15 +315,18 @@ func (s *SubscriptionService) createSubscription(ctx context.Context, input *Ass
 	}
 
 	sub := &UserSubscription{
-		UserID:     input.UserID,
-		GroupID:    input.GroupID,
-		StartsAt:   now,
-		ExpiresAt:  expiresAt,
-		Status:     SubscriptionStatusActive,
-		AssignedAt: now,
-		Notes:      input.Notes,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		UserID:             input.UserID,
+		GroupID:            input.GroupID,
+		StartsAt:           now,
+		ExpiresAt:          expiresAt,
+		Status:             SubscriptionStatusActive,
+		AssignedAt:         now,
+		Notes:              input.Notes,
+		CreatedAt:          now,
+		UpdatedAt:          now,
+		WindowQuotaCount:   input.WindowQuotaCount,
+		WindowQuotaMinutes: input.WindowQuotaMinutes,
+		QuotaTotalCount:    input.QuotaTotalCount,
 	}
 	// 只有当 AssignedBy > 0 时才设置（0 表示系统分配，如兑换码）
 	if input.AssignedBy > 0 {

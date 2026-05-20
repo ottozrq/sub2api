@@ -45,6 +45,10 @@ type Group struct {
 	WeeklyLimitUsd *float64 `json:"weekly_limit_usd,omitempty"`
 	// MonthlyLimitUsd holds the value of the "monthly_limit_usd" field.
 	MonthlyLimitUsd *float64 `json:"monthly_limit_usd,omitempty"`
+	// 订阅分组滚动窗口请求次数上限，0 表示不限制
+	WindowQuotaCount int `json:"window_quota_count,omitempty"`
+	// 订阅分组滚动窗口分钟数，0 表示不限制
+	WindowQuotaMinutes int `json:"window_quota_minutes,omitempty"`
 	// DefaultValidityDays holds the value of the "default_validity_days" field.
 	DefaultValidityDays int `json:"default_validity_days,omitempty"`
 	// 是否允许该分组使用图片生成能力
@@ -199,7 +203,7 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case group.FieldRateMultiplier, group.FieldDailyLimitUsd, group.FieldWeeklyLimitUsd, group.FieldMonthlyLimitUsd, group.FieldImageRateMultiplier, group.FieldImagePrice1k, group.FieldImagePrice2k, group.FieldImagePrice4k:
 			values[i] = new(sql.NullFloat64)
-		case group.FieldID, group.FieldDefaultValidityDays, group.FieldFallbackGroupID, group.FieldFallbackGroupIDOnInvalidRequest, group.FieldSortOrder, group.FieldRpmLimit:
+		case group.FieldID, group.FieldWindowQuotaCount, group.FieldWindowQuotaMinutes, group.FieldDefaultValidityDays, group.FieldFallbackGroupID, group.FieldFallbackGroupIDOnInvalidRequest, group.FieldSortOrder, group.FieldRpmLimit:
 			values[i] = new(sql.NullInt64)
 		case group.FieldName, group.FieldDescription, group.FieldStatus, group.FieldPlatform, group.FieldSubscriptionType, group.FieldDefaultMappedModel:
 			values[i] = new(sql.NullString)
@@ -308,6 +312,18 @@ func (_m *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.MonthlyLimitUsd = new(float64)
 				*_m.MonthlyLimitUsd = value.Float64
+			}
+		case group.FieldWindowQuotaCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field window_quota_count", values[i])
+			} else if value.Valid {
+				_m.WindowQuotaCount = int(value.Int64)
+			}
+		case group.FieldWindowQuotaMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field window_quota_minutes", values[i])
+			} else if value.Valid {
+				_m.WindowQuotaMinutes = int(value.Int64)
 			}
 		case group.FieldDefaultValidityDays:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -570,6 +586,12 @@ func (_m *Group) String() string {
 		builder.WriteString("monthly_limit_usd=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("window_quota_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WindowQuotaCount))
+	builder.WriteString(", ")
+	builder.WriteString("window_quota_minutes=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WindowQuotaMinutes))
 	builder.WriteString(", ")
 	builder.WriteString("default_validity_days=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DefaultValidityDays))

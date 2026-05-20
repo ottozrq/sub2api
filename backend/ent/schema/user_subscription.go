@@ -68,6 +68,20 @@ func (UserSubscription) Fields() []ent.Field {
 		field.Float("monthly_usage_usd").
 			SchemaType(map[string]string{dialect.Postgres: "decimal(20,10)"}).
 			Default(0),
+		field.Int("window_quota_count").
+			Default(0),
+		field.Int("window_quota_minutes").
+			Default(0),
+		field.Int("window_usage_count").
+			Default(0),
+		field.Time("window_start").
+			Optional().
+			Nillable().
+			SchemaType(map[string]string{dialect.Postgres: "timestamptz"}),
+		field.Int("quota_total_count").
+			Default(0),
+		field.Int("quota_used_count").
+			Default(0),
 
 		field.Int64("assigned_by").
 			Optional().

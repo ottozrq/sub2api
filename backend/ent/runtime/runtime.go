@@ -799,66 +799,74 @@ func init() {
 	group.DefaultSubscriptionType = groupDescSubscriptionType.Default.(string)
 	// group.SubscriptionTypeValidator is a validator for the "subscription_type" field. It is called by the builders before save.
 	group.SubscriptionTypeValidator = groupDescSubscriptionType.Validators[0].(func(string) error)
+	// groupDescWindowQuotaCount is the schema descriptor for window_quota_count field.
+	groupDescWindowQuotaCount := groupFields[10].Descriptor()
+	// group.DefaultWindowQuotaCount holds the default value on creation for the window_quota_count field.
+	group.DefaultWindowQuotaCount = groupDescWindowQuotaCount.Default.(int)
+	// groupDescWindowQuotaMinutes is the schema descriptor for window_quota_minutes field.
+	groupDescWindowQuotaMinutes := groupFields[11].Descriptor()
+	// group.DefaultWindowQuotaMinutes holds the default value on creation for the window_quota_minutes field.
+	group.DefaultWindowQuotaMinutes = groupDescWindowQuotaMinutes.Default.(int)
 	// groupDescDefaultValidityDays is the schema descriptor for default_validity_days field.
-	groupDescDefaultValidityDays := groupFields[10].Descriptor()
+	groupDescDefaultValidityDays := groupFields[12].Descriptor()
 	// group.DefaultDefaultValidityDays holds the default value on creation for the default_validity_days field.
 	group.DefaultDefaultValidityDays = groupDescDefaultValidityDays.Default.(int)
 	// groupDescAllowImageGeneration is the schema descriptor for allow_image_generation field.
-	groupDescAllowImageGeneration := groupFields[11].Descriptor()
+	groupDescAllowImageGeneration := groupFields[13].Descriptor()
 	// group.DefaultAllowImageGeneration holds the default value on creation for the allow_image_generation field.
 	group.DefaultAllowImageGeneration = groupDescAllowImageGeneration.Default.(bool)
 	// groupDescImageRateIndependent is the schema descriptor for image_rate_independent field.
-	groupDescImageRateIndependent := groupFields[12].Descriptor()
+	groupDescImageRateIndependent := groupFields[14].Descriptor()
 	// group.DefaultImageRateIndependent holds the default value on creation for the image_rate_independent field.
 	group.DefaultImageRateIndependent = groupDescImageRateIndependent.Default.(bool)
 	// groupDescImageRateMultiplier is the schema descriptor for image_rate_multiplier field.
-	groupDescImageRateMultiplier := groupFields[13].Descriptor()
+	groupDescImageRateMultiplier := groupFields[15].Descriptor()
 	// group.DefaultImageRateMultiplier holds the default value on creation for the image_rate_multiplier field.
 	group.DefaultImageRateMultiplier = groupDescImageRateMultiplier.Default.(float64)
 	// groupDescClaudeCodeOnly is the schema descriptor for claude_code_only field.
-	groupDescClaudeCodeOnly := groupFields[17].Descriptor()
+	groupDescClaudeCodeOnly := groupFields[19].Descriptor()
 	// group.DefaultClaudeCodeOnly holds the default value on creation for the claude_code_only field.
 	group.DefaultClaudeCodeOnly = groupDescClaudeCodeOnly.Default.(bool)
 	// groupDescModelRoutingEnabled is the schema descriptor for model_routing_enabled field.
-	groupDescModelRoutingEnabled := groupFields[21].Descriptor()
+	groupDescModelRoutingEnabled := groupFields[23].Descriptor()
 	// group.DefaultModelRoutingEnabled holds the default value on creation for the model_routing_enabled field.
 	group.DefaultModelRoutingEnabled = groupDescModelRoutingEnabled.Default.(bool)
 	// groupDescMcpXMLInject is the schema descriptor for mcp_xml_inject field.
-	groupDescMcpXMLInject := groupFields[22].Descriptor()
+	groupDescMcpXMLInject := groupFields[24].Descriptor()
 	// group.DefaultMcpXMLInject holds the default value on creation for the mcp_xml_inject field.
 	group.DefaultMcpXMLInject = groupDescMcpXMLInject.Default.(bool)
 	// groupDescSupportedModelScopes is the schema descriptor for supported_model_scopes field.
-	groupDescSupportedModelScopes := groupFields[23].Descriptor()
+	groupDescSupportedModelScopes := groupFields[25].Descriptor()
 	// group.DefaultSupportedModelScopes holds the default value on creation for the supported_model_scopes field.
 	group.DefaultSupportedModelScopes = groupDescSupportedModelScopes.Default.([]string)
 	// groupDescSortOrder is the schema descriptor for sort_order field.
-	groupDescSortOrder := groupFields[24].Descriptor()
+	groupDescSortOrder := groupFields[26].Descriptor()
 	// group.DefaultSortOrder holds the default value on creation for the sort_order field.
 	group.DefaultSortOrder = groupDescSortOrder.Default.(int)
 	// groupDescAllowMessagesDispatch is the schema descriptor for allow_messages_dispatch field.
-	groupDescAllowMessagesDispatch := groupFields[25].Descriptor()
+	groupDescAllowMessagesDispatch := groupFields[27].Descriptor()
 	// group.DefaultAllowMessagesDispatch holds the default value on creation for the allow_messages_dispatch field.
 	group.DefaultAllowMessagesDispatch = groupDescAllowMessagesDispatch.Default.(bool)
 	// groupDescRequireOauthOnly is the schema descriptor for require_oauth_only field.
-	groupDescRequireOauthOnly := groupFields[26].Descriptor()
+	groupDescRequireOauthOnly := groupFields[28].Descriptor()
 	// group.DefaultRequireOauthOnly holds the default value on creation for the require_oauth_only field.
 	group.DefaultRequireOauthOnly = groupDescRequireOauthOnly.Default.(bool)
 	// groupDescRequirePrivacySet is the schema descriptor for require_privacy_set field.
-	groupDescRequirePrivacySet := groupFields[27].Descriptor()
+	groupDescRequirePrivacySet := groupFields[29].Descriptor()
 	// group.DefaultRequirePrivacySet holds the default value on creation for the require_privacy_set field.
 	group.DefaultRequirePrivacySet = groupDescRequirePrivacySet.Default.(bool)
 	// groupDescDefaultMappedModel is the schema descriptor for default_mapped_model field.
-	groupDescDefaultMappedModel := groupFields[28].Descriptor()
+	groupDescDefaultMappedModel := groupFields[30].Descriptor()
 	// group.DefaultDefaultMappedModel holds the default value on creation for the default_mapped_model field.
 	group.DefaultDefaultMappedModel = groupDescDefaultMappedModel.Default.(string)
 	// group.DefaultMappedModelValidator is a validator for the "default_mapped_model" field. It is called by the builders before save.
 	group.DefaultMappedModelValidator = groupDescDefaultMappedModel.Validators[0].(func(string) error)
 	// groupDescMessagesDispatchModelConfig is the schema descriptor for messages_dispatch_model_config field.
-	groupDescMessagesDispatchModelConfig := groupFields[29].Descriptor()
+	groupDescMessagesDispatchModelConfig := groupFields[31].Descriptor()
 	// group.DefaultMessagesDispatchModelConfig holds the default value on creation for the messages_dispatch_model_config field.
 	group.DefaultMessagesDispatchModelConfig = groupDescMessagesDispatchModelConfig.Default.(domain.OpenAIMessagesDispatchModelConfig)
 	// groupDescRpmLimit is the schema descriptor for rpm_limit field.
-	groupDescRpmLimit := groupFields[30].Descriptor()
+	groupDescRpmLimit := groupFields[32].Descriptor()
 	// group.DefaultRpmLimit holds the default value on creation for the rpm_limit field.
 	group.DefaultRpmLimit = groupDescRpmLimit.Default.(int)
 	idempotencyrecordMixin := schema.IdempotencyRecord{}.Mixin()
@@ -985,46 +993,64 @@ func init() {
 	paymentorder.DefaultOrderType = paymentorderDescOrderType.Default.(string)
 	// paymentorder.OrderTypeValidator is a validator for the "order_type" field. It is called by the builders before save.
 	paymentorder.OrderTypeValidator = paymentorderDescOrderType.Validators[0].(func(string) error)
+	// paymentorderDescSubscriptionWindowQuotaCount is the schema descriptor for subscription_window_quota_count field.
+	paymentorderDescSubscriptionWindowQuotaCount := paymentorderFields[18].Descriptor()
+	// paymentorder.DefaultSubscriptionWindowQuotaCount holds the default value on creation for the subscription_window_quota_count field.
+	paymentorder.DefaultSubscriptionWindowQuotaCount = paymentorderDescSubscriptionWindowQuotaCount.Default.(int)
+	// paymentorderDescSubscriptionWindowQuotaMinutes is the schema descriptor for subscription_window_quota_minutes field.
+	paymentorderDescSubscriptionWindowQuotaMinutes := paymentorderFields[19].Descriptor()
+	// paymentorder.DefaultSubscriptionWindowQuotaMinutes holds the default value on creation for the subscription_window_quota_minutes field.
+	paymentorder.DefaultSubscriptionWindowQuotaMinutes = paymentorderDescSubscriptionWindowQuotaMinutes.Default.(int)
+	// paymentorderDescSubscriptionPlanType is the schema descriptor for subscription_plan_type field.
+	paymentorderDescSubscriptionPlanType := paymentorderFields[20].Descriptor()
+	// paymentorder.DefaultSubscriptionPlanType holds the default value on creation for the subscription_plan_type field.
+	paymentorder.DefaultSubscriptionPlanType = paymentorderDescSubscriptionPlanType.Default.(string)
+	// paymentorder.SubscriptionPlanTypeValidator is a validator for the "subscription_plan_type" field. It is called by the builders before save.
+	paymentorder.SubscriptionPlanTypeValidator = paymentorderDescSubscriptionPlanType.Validators[0].(func(string) error)
+	// paymentorderDescSubscriptionQuotaCount is the schema descriptor for subscription_quota_count field.
+	paymentorderDescSubscriptionQuotaCount := paymentorderFields[21].Descriptor()
+	// paymentorder.DefaultSubscriptionQuotaCount holds the default value on creation for the subscription_quota_count field.
+	paymentorder.DefaultSubscriptionQuotaCount = paymentorderDescSubscriptionQuotaCount.Default.(int)
 	// paymentorderDescProviderInstanceID is the schema descriptor for provider_instance_id field.
-	paymentorderDescProviderInstanceID := paymentorderFields[18].Descriptor()
+	paymentorderDescProviderInstanceID := paymentorderFields[22].Descriptor()
 	// paymentorder.ProviderInstanceIDValidator is a validator for the "provider_instance_id" field. It is called by the builders before save.
 	paymentorder.ProviderInstanceIDValidator = paymentorderDescProviderInstanceID.Validators[0].(func(string) error)
 	// paymentorderDescProviderKey is the schema descriptor for provider_key field.
-	paymentorderDescProviderKey := paymentorderFields[19].Descriptor()
+	paymentorderDescProviderKey := paymentorderFields[23].Descriptor()
 	// paymentorder.ProviderKeyValidator is a validator for the "provider_key" field. It is called by the builders before save.
 	paymentorder.ProviderKeyValidator = paymentorderDescProviderKey.Validators[0].(func(string) error)
 	// paymentorderDescStatus is the schema descriptor for status field.
-	paymentorderDescStatus := paymentorderFields[21].Descriptor()
+	paymentorderDescStatus := paymentorderFields[25].Descriptor()
 	// paymentorder.DefaultStatus holds the default value on creation for the status field.
 	paymentorder.DefaultStatus = paymentorderDescStatus.Default.(string)
 	// paymentorder.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	paymentorder.StatusValidator = paymentorderDescStatus.Validators[0].(func(string) error)
 	// paymentorderDescRefundAmount is the schema descriptor for refund_amount field.
-	paymentorderDescRefundAmount := paymentorderFields[22].Descriptor()
+	paymentorderDescRefundAmount := paymentorderFields[26].Descriptor()
 	// paymentorder.DefaultRefundAmount holds the default value on creation for the refund_amount field.
 	paymentorder.DefaultRefundAmount = paymentorderDescRefundAmount.Default.(float64)
 	// paymentorderDescForceRefund is the schema descriptor for force_refund field.
-	paymentorderDescForceRefund := paymentorderFields[25].Descriptor()
+	paymentorderDescForceRefund := paymentorderFields[29].Descriptor()
 	// paymentorder.DefaultForceRefund holds the default value on creation for the force_refund field.
 	paymentorder.DefaultForceRefund = paymentorderDescForceRefund.Default.(bool)
 	// paymentorderDescRefundRequestedBy is the schema descriptor for refund_requested_by field.
-	paymentorderDescRefundRequestedBy := paymentorderFields[28].Descriptor()
+	paymentorderDescRefundRequestedBy := paymentorderFields[32].Descriptor()
 	// paymentorder.RefundRequestedByValidator is a validator for the "refund_requested_by" field. It is called by the builders before save.
 	paymentorder.RefundRequestedByValidator = paymentorderDescRefundRequestedBy.Validators[0].(func(string) error)
 	// paymentorderDescClientIP is the schema descriptor for client_ip field.
-	paymentorderDescClientIP := paymentorderFields[34].Descriptor()
+	paymentorderDescClientIP := paymentorderFields[38].Descriptor()
 	// paymentorder.ClientIPValidator is a validator for the "client_ip" field. It is called by the builders before save.
 	paymentorder.ClientIPValidator = paymentorderDescClientIP.Validators[0].(func(string) error)
 	// paymentorderDescSrcHost is the schema descriptor for src_host field.
-	paymentorderDescSrcHost := paymentorderFields[35].Descriptor()
+	paymentorderDescSrcHost := paymentorderFields[39].Descriptor()
 	// paymentorder.SrcHostValidator is a validator for the "src_host" field. It is called by the builders before save.
 	paymentorder.SrcHostValidator = paymentorderDescSrcHost.Validators[0].(func(string) error)
 	// paymentorderDescCreatedAt is the schema descriptor for created_at field.
-	paymentorderDescCreatedAt := paymentorderFields[37].Descriptor()
+	paymentorderDescCreatedAt := paymentorderFields[41].Descriptor()
 	// paymentorder.DefaultCreatedAt holds the default value on creation for the created_at field.
 	paymentorder.DefaultCreatedAt = paymentorderDescCreatedAt.Default.(func() time.Time)
 	// paymentorderDescUpdatedAt is the schema descriptor for updated_at field.
-	paymentorderDescUpdatedAt := paymentorderFields[38].Descriptor()
+	paymentorderDescUpdatedAt := paymentorderFields[42].Descriptor()
 	// paymentorder.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	paymentorder.DefaultUpdatedAt = paymentorderDescUpdatedAt.Default.(func() time.Time)
 	// paymentorder.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -1476,40 +1502,58 @@ func init() {
 	subscriptionplanDescDescription := subscriptionplanFields[2].Descriptor()
 	// subscriptionplan.DefaultDescription holds the default value on creation for the description field.
 	subscriptionplan.DefaultDescription = subscriptionplanDescDescription.Default.(string)
+	// subscriptionplanDescPlanType is the schema descriptor for plan_type field.
+	subscriptionplanDescPlanType := subscriptionplanFields[5].Descriptor()
+	// subscriptionplan.DefaultPlanType holds the default value on creation for the plan_type field.
+	subscriptionplan.DefaultPlanType = subscriptionplanDescPlanType.Default.(string)
+	// subscriptionplan.PlanTypeValidator is a validator for the "plan_type" field. It is called by the builders before save.
+	subscriptionplan.PlanTypeValidator = subscriptionplanDescPlanType.Validators[0].(func(string) error)
 	// subscriptionplanDescValidityDays is the schema descriptor for validity_days field.
-	subscriptionplanDescValidityDays := subscriptionplanFields[5].Descriptor()
+	subscriptionplanDescValidityDays := subscriptionplanFields[6].Descriptor()
 	// subscriptionplan.DefaultValidityDays holds the default value on creation for the validity_days field.
 	subscriptionplan.DefaultValidityDays = subscriptionplanDescValidityDays.Default.(int)
 	// subscriptionplanDescValidityUnit is the schema descriptor for validity_unit field.
-	subscriptionplanDescValidityUnit := subscriptionplanFields[6].Descriptor()
+	subscriptionplanDescValidityUnit := subscriptionplanFields[7].Descriptor()
 	// subscriptionplan.DefaultValidityUnit holds the default value on creation for the validity_unit field.
 	subscriptionplan.DefaultValidityUnit = subscriptionplanDescValidityUnit.Default.(string)
 	// subscriptionplan.ValidityUnitValidator is a validator for the "validity_unit" field. It is called by the builders before save.
 	subscriptionplan.ValidityUnitValidator = subscriptionplanDescValidityUnit.Validators[0].(func(string) error)
 	// subscriptionplanDescFeatures is the schema descriptor for features field.
-	subscriptionplanDescFeatures := subscriptionplanFields[7].Descriptor()
+	subscriptionplanDescFeatures := subscriptionplanFields[8].Descriptor()
 	// subscriptionplan.DefaultFeatures holds the default value on creation for the features field.
 	subscriptionplan.DefaultFeatures = subscriptionplanDescFeatures.Default.(string)
 	// subscriptionplanDescProductName is the schema descriptor for product_name field.
-	subscriptionplanDescProductName := subscriptionplanFields[8].Descriptor()
+	subscriptionplanDescProductName := subscriptionplanFields[9].Descriptor()
 	// subscriptionplan.DefaultProductName holds the default value on creation for the product_name field.
 	subscriptionplan.DefaultProductName = subscriptionplanDescProductName.Default.(string)
 	// subscriptionplan.ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
 	subscriptionplan.ProductNameValidator = subscriptionplanDescProductName.Validators[0].(func(string) error)
+	// subscriptionplanDescWindowQuotaCount is the schema descriptor for window_quota_count field.
+	subscriptionplanDescWindowQuotaCount := subscriptionplanFields[10].Descriptor()
+	// subscriptionplan.DefaultWindowQuotaCount holds the default value on creation for the window_quota_count field.
+	subscriptionplan.DefaultWindowQuotaCount = subscriptionplanDescWindowQuotaCount.Default.(int)
+	// subscriptionplanDescWindowQuotaMinutes is the schema descriptor for window_quota_minutes field.
+	subscriptionplanDescWindowQuotaMinutes := subscriptionplanFields[11].Descriptor()
+	// subscriptionplan.DefaultWindowQuotaMinutes holds the default value on creation for the window_quota_minutes field.
+	subscriptionplan.DefaultWindowQuotaMinutes = subscriptionplanDescWindowQuotaMinutes.Default.(int)
+	// subscriptionplanDescQuotaCount is the schema descriptor for quota_count field.
+	subscriptionplanDescQuotaCount := subscriptionplanFields[12].Descriptor()
+	// subscriptionplan.DefaultQuotaCount holds the default value on creation for the quota_count field.
+	subscriptionplan.DefaultQuotaCount = subscriptionplanDescQuotaCount.Default.(int)
 	// subscriptionplanDescForSale is the schema descriptor for for_sale field.
-	subscriptionplanDescForSale := subscriptionplanFields[9].Descriptor()
+	subscriptionplanDescForSale := subscriptionplanFields[13].Descriptor()
 	// subscriptionplan.DefaultForSale holds the default value on creation for the for_sale field.
 	subscriptionplan.DefaultForSale = subscriptionplanDescForSale.Default.(bool)
 	// subscriptionplanDescSortOrder is the schema descriptor for sort_order field.
-	subscriptionplanDescSortOrder := subscriptionplanFields[10].Descriptor()
+	subscriptionplanDescSortOrder := subscriptionplanFields[14].Descriptor()
 	// subscriptionplan.DefaultSortOrder holds the default value on creation for the sort_order field.
 	subscriptionplan.DefaultSortOrder = subscriptionplanDescSortOrder.Default.(int)
 	// subscriptionplanDescCreatedAt is the schema descriptor for created_at field.
-	subscriptionplanDescCreatedAt := subscriptionplanFields[11].Descriptor()
+	subscriptionplanDescCreatedAt := subscriptionplanFields[15].Descriptor()
 	// subscriptionplan.DefaultCreatedAt holds the default value on creation for the created_at field.
 	subscriptionplan.DefaultCreatedAt = subscriptionplanDescCreatedAt.Default.(func() time.Time)
 	// subscriptionplanDescUpdatedAt is the schema descriptor for updated_at field.
-	subscriptionplanDescUpdatedAt := subscriptionplanFields[12].Descriptor()
+	subscriptionplanDescUpdatedAt := subscriptionplanFields[16].Descriptor()
 	// subscriptionplan.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	subscriptionplan.DefaultUpdatedAt = subscriptionplanDescUpdatedAt.Default.(func() time.Time)
 	// subscriptionplan.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -2010,8 +2054,28 @@ func init() {
 	usersubscriptionDescMonthlyUsageUsd := usersubscriptionFields[10].Descriptor()
 	// usersubscription.DefaultMonthlyUsageUsd holds the default value on creation for the monthly_usage_usd field.
 	usersubscription.DefaultMonthlyUsageUsd = usersubscriptionDescMonthlyUsageUsd.Default.(float64)
+	// usersubscriptionDescWindowQuotaCount is the schema descriptor for window_quota_count field.
+	usersubscriptionDescWindowQuotaCount := usersubscriptionFields[11].Descriptor()
+	// usersubscription.DefaultWindowQuotaCount holds the default value on creation for the window_quota_count field.
+	usersubscription.DefaultWindowQuotaCount = usersubscriptionDescWindowQuotaCount.Default.(int)
+	// usersubscriptionDescWindowQuotaMinutes is the schema descriptor for window_quota_minutes field.
+	usersubscriptionDescWindowQuotaMinutes := usersubscriptionFields[12].Descriptor()
+	// usersubscription.DefaultWindowQuotaMinutes holds the default value on creation for the window_quota_minutes field.
+	usersubscription.DefaultWindowQuotaMinutes = usersubscriptionDescWindowQuotaMinutes.Default.(int)
+	// usersubscriptionDescWindowUsageCount is the schema descriptor for window_usage_count field.
+	usersubscriptionDescWindowUsageCount := usersubscriptionFields[13].Descriptor()
+	// usersubscription.DefaultWindowUsageCount holds the default value on creation for the window_usage_count field.
+	usersubscription.DefaultWindowUsageCount = usersubscriptionDescWindowUsageCount.Default.(int)
+	// usersubscriptionDescQuotaTotalCount is the schema descriptor for quota_total_count field.
+	usersubscriptionDescQuotaTotalCount := usersubscriptionFields[15].Descriptor()
+	// usersubscription.DefaultQuotaTotalCount holds the default value on creation for the quota_total_count field.
+	usersubscription.DefaultQuotaTotalCount = usersubscriptionDescQuotaTotalCount.Default.(int)
+	// usersubscriptionDescQuotaUsedCount is the schema descriptor for quota_used_count field.
+	usersubscriptionDescQuotaUsedCount := usersubscriptionFields[16].Descriptor()
+	// usersubscription.DefaultQuotaUsedCount holds the default value on creation for the quota_used_count field.
+	usersubscription.DefaultQuotaUsedCount = usersubscriptionDescQuotaUsedCount.Default.(int)
 	// usersubscriptionDescAssignedAt is the schema descriptor for assigned_at field.
-	usersubscriptionDescAssignedAt := usersubscriptionFields[12].Descriptor()
+	usersubscriptionDescAssignedAt := usersubscriptionFields[18].Descriptor()
 	// usersubscription.DefaultAssignedAt holds the default value on creation for the assigned_at field.
 	usersubscription.DefaultAssignedAt = usersubscriptionDescAssignedAt.Default.(func() time.Time)
 }

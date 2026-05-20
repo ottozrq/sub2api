@@ -14762,6 +14762,10 @@ type GroupMutation struct {
 	addweekly_limit_usd                     *float64
 	monthly_limit_usd                       *float64
 	addmonthly_limit_usd                    *float64
+	window_quota_count                      *int
+	addwindow_quota_count                   *int
+	window_quota_minutes                    *int
+	addwindow_quota_minutes                 *int
 	default_validity_days                   *int
 	adddefault_validity_days                *int
 	allow_image_generation                  *bool
@@ -15529,6 +15533,118 @@ func (m *GroupMutation) ResetMonthlyLimitUsd() {
 	m.monthly_limit_usd = nil
 	m.addmonthly_limit_usd = nil
 	delete(m.clearedFields, group.FieldMonthlyLimitUsd)
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (m *GroupMutation) SetWindowQuotaCount(i int) {
+	m.window_quota_count = &i
+	m.addwindow_quota_count = nil
+}
+
+// WindowQuotaCount returns the value of the "window_quota_count" field in the mutation.
+func (m *GroupMutation) WindowQuotaCount() (r int, exists bool) {
+	v := m.window_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaCount returns the old "window_quota_count" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldWindowQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaCount: %w", err)
+	}
+	return oldValue.WindowQuotaCount, nil
+}
+
+// AddWindowQuotaCount adds i to the "window_quota_count" field.
+func (m *GroupMutation) AddWindowQuotaCount(i int) {
+	if m.addwindow_quota_count != nil {
+		*m.addwindow_quota_count += i
+	} else {
+		m.addwindow_quota_count = &i
+	}
+}
+
+// AddedWindowQuotaCount returns the value that was added to the "window_quota_count" field in this mutation.
+func (m *GroupMutation) AddedWindowQuotaCount() (r int, exists bool) {
+	v := m.addwindow_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaCount resets all changes to the "window_quota_count" field.
+func (m *GroupMutation) ResetWindowQuotaCount() {
+	m.window_quota_count = nil
+	m.addwindow_quota_count = nil
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (m *GroupMutation) SetWindowQuotaMinutes(i int) {
+	m.window_quota_minutes = &i
+	m.addwindow_quota_minutes = nil
+}
+
+// WindowQuotaMinutes returns the value of the "window_quota_minutes" field in the mutation.
+func (m *GroupMutation) WindowQuotaMinutes() (r int, exists bool) {
+	v := m.window_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaMinutes returns the old "window_quota_minutes" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldWindowQuotaMinutes(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaMinutes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaMinutes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaMinutes: %w", err)
+	}
+	return oldValue.WindowQuotaMinutes, nil
+}
+
+// AddWindowQuotaMinutes adds i to the "window_quota_minutes" field.
+func (m *GroupMutation) AddWindowQuotaMinutes(i int) {
+	if m.addwindow_quota_minutes != nil {
+		*m.addwindow_quota_minutes += i
+	} else {
+		m.addwindow_quota_minutes = &i
+	}
+}
+
+// AddedWindowQuotaMinutes returns the value that was added to the "window_quota_minutes" field in this mutation.
+func (m *GroupMutation) AddedWindowQuotaMinutes() (r int, exists bool) {
+	v := m.addwindow_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaMinutes resets all changes to the "window_quota_minutes" field.
+func (m *GroupMutation) ResetWindowQuotaMinutes() {
+	m.window_quota_minutes = nil
+	m.addwindow_quota_minutes = nil
 }
 
 // SetDefaultValidityDays sets the "default_validity_days" field.
@@ -16923,7 +17039,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 34)
+	fields := make([]string, 0, 36)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -16962,6 +17078,12 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.monthly_limit_usd != nil {
 		fields = append(fields, group.FieldMonthlyLimitUsd)
+	}
+	if m.window_quota_count != nil {
+		fields = append(fields, group.FieldWindowQuotaCount)
+	}
+	if m.window_quota_minutes != nil {
+		fields = append(fields, group.FieldWindowQuotaMinutes)
 	}
 	if m.default_validity_days != nil {
 		fields = append(fields, group.FieldDefaultValidityDays)
@@ -17060,6 +17182,10 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.WeeklyLimitUsd()
 	case group.FieldMonthlyLimitUsd:
 		return m.MonthlyLimitUsd()
+	case group.FieldWindowQuotaCount:
+		return m.WindowQuotaCount()
+	case group.FieldWindowQuotaMinutes:
+		return m.WindowQuotaMinutes()
 	case group.FieldDefaultValidityDays:
 		return m.DefaultValidityDays()
 	case group.FieldAllowImageGeneration:
@@ -17137,6 +17263,10 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldWeeklyLimitUsd(ctx)
 	case group.FieldMonthlyLimitUsd:
 		return m.OldMonthlyLimitUsd(ctx)
+	case group.FieldWindowQuotaCount:
+		return m.OldWindowQuotaCount(ctx)
+	case group.FieldWindowQuotaMinutes:
+		return m.OldWindowQuotaMinutes(ctx)
 	case group.FieldDefaultValidityDays:
 		return m.OldDefaultValidityDays(ctx)
 	case group.FieldAllowImageGeneration:
@@ -17278,6 +17408,20 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMonthlyLimitUsd(v)
+		return nil
+	case group.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaCount(v)
+		return nil
+	case group.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaMinutes(v)
 		return nil
 	case group.FieldDefaultValidityDays:
 		v, ok := value.(int)
@@ -17446,6 +17590,12 @@ func (m *GroupMutation) AddedFields() []string {
 	if m.addmonthly_limit_usd != nil {
 		fields = append(fields, group.FieldMonthlyLimitUsd)
 	}
+	if m.addwindow_quota_count != nil {
+		fields = append(fields, group.FieldWindowQuotaCount)
+	}
+	if m.addwindow_quota_minutes != nil {
+		fields = append(fields, group.FieldWindowQuotaMinutes)
+	}
 	if m.adddefault_validity_days != nil {
 		fields = append(fields, group.FieldDefaultValidityDays)
 	}
@@ -17489,6 +17639,10 @@ func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedWeeklyLimitUsd()
 	case group.FieldMonthlyLimitUsd:
 		return m.AddedMonthlyLimitUsd()
+	case group.FieldWindowQuotaCount:
+		return m.AddedWindowQuotaCount()
+	case group.FieldWindowQuotaMinutes:
+		return m.AddedWindowQuotaMinutes()
 	case group.FieldDefaultValidityDays:
 		return m.AddedDefaultValidityDays()
 	case group.FieldImageRateMultiplier:
@@ -17543,6 +17697,20 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddMonthlyLimitUsd(v)
+		return nil
+	case group.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaCount(v)
+		return nil
+	case group.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaMinutes(v)
 		return nil
 	case group.FieldDefaultValidityDays:
 		v, ok := value.(int)
@@ -17741,6 +17909,12 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldMonthlyLimitUsd:
 		m.ResetMonthlyLimitUsd()
+		return nil
+	case group.FieldWindowQuotaCount:
+		m.ResetWindowQuotaCount()
+		return nil
+	case group.FieldWindowQuotaMinutes:
+		m.ResetWindowQuotaMinutes()
 		return nil
 	case group.FieldDefaultValidityDays:
 		m.ResetDefaultValidityDays()
@@ -20325,60 +20499,67 @@ func (m *PaymentAuditLogMutation) ResetEdge(name string) error {
 // PaymentOrderMutation represents an operation that mutates the PaymentOrder nodes in the graph.
 type PaymentOrderMutation struct {
 	config
-	op                       Op
-	typ                      string
-	id                       *int64
-	user_email               *string
-	user_name                *string
-	user_notes               *string
-	amount                   *float64
-	addamount                *float64
-	pay_amount               *float64
-	addpay_amount            *float64
-	fee_rate                 *float64
-	addfee_rate              *float64
-	recharge_code            *string
-	out_trade_no             *string
-	payment_type             *string
-	payment_trade_no         *string
-	pay_url                  *string
-	qr_code                  *string
-	qr_code_img              *string
-	order_type               *string
-	plan_id                  *int64
-	addplan_id               *int64
-	subscription_group_id    *int64
-	addsubscription_group_id *int64
-	subscription_days        *int
-	addsubscription_days     *int
-	provider_instance_id     *string
-	provider_key             *string
-	provider_snapshot        *map[string]interface{}
-	status                   *string
-	refund_amount            *float64
-	addrefund_amount         *float64
-	refund_reason            *string
-	refund_at                *time.Time
-	force_refund             *bool
-	refund_requested_at      *time.Time
-	refund_request_reason    *string
-	refund_requested_by      *string
-	expires_at               *time.Time
-	paid_at                  *time.Time
-	completed_at             *time.Time
-	failed_at                *time.Time
-	failed_reason            *string
-	client_ip                *string
-	src_host                 *string
-	src_url                  *string
-	created_at               *time.Time
-	updated_at               *time.Time
-	clearedFields            map[string]struct{}
-	user                     *int64
-	cleareduser              bool
-	done                     bool
-	oldValue                 func(context.Context) (*PaymentOrder, error)
-	predicates               []predicate.PaymentOrder
+	op                                   Op
+	typ                                  string
+	id                                   *int64
+	user_email                           *string
+	user_name                            *string
+	user_notes                           *string
+	amount                               *float64
+	addamount                            *float64
+	pay_amount                           *float64
+	addpay_amount                        *float64
+	fee_rate                             *float64
+	addfee_rate                          *float64
+	recharge_code                        *string
+	out_trade_no                         *string
+	payment_type                         *string
+	payment_trade_no                     *string
+	pay_url                              *string
+	qr_code                              *string
+	qr_code_img                          *string
+	order_type                           *string
+	plan_id                              *int64
+	addplan_id                           *int64
+	subscription_group_id                *int64
+	addsubscription_group_id             *int64
+	subscription_days                    *int
+	addsubscription_days                 *int
+	subscription_window_quota_count      *int
+	addsubscription_window_quota_count   *int
+	subscription_window_quota_minutes    *int
+	addsubscription_window_quota_minutes *int
+	subscription_plan_type               *string
+	subscription_quota_count             *int
+	addsubscription_quota_count          *int
+	provider_instance_id                 *string
+	provider_key                         *string
+	provider_snapshot                    *map[string]interface{}
+	status                               *string
+	refund_amount                        *float64
+	addrefund_amount                     *float64
+	refund_reason                        *string
+	refund_at                            *time.Time
+	force_refund                         *bool
+	refund_requested_at                  *time.Time
+	refund_request_reason                *string
+	refund_requested_by                  *string
+	expires_at                           *time.Time
+	paid_at                              *time.Time
+	completed_at                         *time.Time
+	failed_at                            *time.Time
+	failed_reason                        *string
+	client_ip                            *string
+	src_host                             *string
+	src_url                              *string
+	created_at                           *time.Time
+	updated_at                           *time.Time
+	clearedFields                        map[string]struct{}
+	user                                 *int64
+	cleareduser                          bool
+	done                                 bool
+	oldValue                             func(context.Context) (*PaymentOrder, error)
+	predicates                           []predicate.PaymentOrder
 }
 
 var _ ent.Mutation = (*PaymentOrderMutation)(nil)
@@ -21339,6 +21520,210 @@ func (m *PaymentOrderMutation) ResetSubscriptionDays() {
 	m.subscription_days = nil
 	m.addsubscription_days = nil
 	delete(m.clearedFields, paymentorder.FieldSubscriptionDays)
+}
+
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (m *PaymentOrderMutation) SetSubscriptionWindowQuotaCount(i int) {
+	m.subscription_window_quota_count = &i
+	m.addsubscription_window_quota_count = nil
+}
+
+// SubscriptionWindowQuotaCount returns the value of the "subscription_window_quota_count" field in the mutation.
+func (m *PaymentOrderMutation) SubscriptionWindowQuotaCount() (r int, exists bool) {
+	v := m.subscription_window_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubscriptionWindowQuotaCount returns the old "subscription_window_quota_count" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldSubscriptionWindowQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubscriptionWindowQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubscriptionWindowQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubscriptionWindowQuotaCount: %w", err)
+	}
+	return oldValue.SubscriptionWindowQuotaCount, nil
+}
+
+// AddSubscriptionWindowQuotaCount adds i to the "subscription_window_quota_count" field.
+func (m *PaymentOrderMutation) AddSubscriptionWindowQuotaCount(i int) {
+	if m.addsubscription_window_quota_count != nil {
+		*m.addsubscription_window_quota_count += i
+	} else {
+		m.addsubscription_window_quota_count = &i
+	}
+}
+
+// AddedSubscriptionWindowQuotaCount returns the value that was added to the "subscription_window_quota_count" field in this mutation.
+func (m *PaymentOrderMutation) AddedSubscriptionWindowQuotaCount() (r int, exists bool) {
+	v := m.addsubscription_window_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSubscriptionWindowQuotaCount resets all changes to the "subscription_window_quota_count" field.
+func (m *PaymentOrderMutation) ResetSubscriptionWindowQuotaCount() {
+	m.subscription_window_quota_count = nil
+	m.addsubscription_window_quota_count = nil
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (m *PaymentOrderMutation) SetSubscriptionWindowQuotaMinutes(i int) {
+	m.subscription_window_quota_minutes = &i
+	m.addsubscription_window_quota_minutes = nil
+}
+
+// SubscriptionWindowQuotaMinutes returns the value of the "subscription_window_quota_minutes" field in the mutation.
+func (m *PaymentOrderMutation) SubscriptionWindowQuotaMinutes() (r int, exists bool) {
+	v := m.subscription_window_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubscriptionWindowQuotaMinutes returns the old "subscription_window_quota_minutes" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldSubscriptionWindowQuotaMinutes(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubscriptionWindowQuotaMinutes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubscriptionWindowQuotaMinutes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubscriptionWindowQuotaMinutes: %w", err)
+	}
+	return oldValue.SubscriptionWindowQuotaMinutes, nil
+}
+
+// AddSubscriptionWindowQuotaMinutes adds i to the "subscription_window_quota_minutes" field.
+func (m *PaymentOrderMutation) AddSubscriptionWindowQuotaMinutes(i int) {
+	if m.addsubscription_window_quota_minutes != nil {
+		*m.addsubscription_window_quota_minutes += i
+	} else {
+		m.addsubscription_window_quota_minutes = &i
+	}
+}
+
+// AddedSubscriptionWindowQuotaMinutes returns the value that was added to the "subscription_window_quota_minutes" field in this mutation.
+func (m *PaymentOrderMutation) AddedSubscriptionWindowQuotaMinutes() (r int, exists bool) {
+	v := m.addsubscription_window_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSubscriptionWindowQuotaMinutes resets all changes to the "subscription_window_quota_minutes" field.
+func (m *PaymentOrderMutation) ResetSubscriptionWindowQuotaMinutes() {
+	m.subscription_window_quota_minutes = nil
+	m.addsubscription_window_quota_minutes = nil
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (m *PaymentOrderMutation) SetSubscriptionPlanType(s string) {
+	m.subscription_plan_type = &s
+}
+
+// SubscriptionPlanType returns the value of the "subscription_plan_type" field in the mutation.
+func (m *PaymentOrderMutation) SubscriptionPlanType() (r string, exists bool) {
+	v := m.subscription_plan_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubscriptionPlanType returns the old "subscription_plan_type" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldSubscriptionPlanType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubscriptionPlanType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubscriptionPlanType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubscriptionPlanType: %w", err)
+	}
+	return oldValue.SubscriptionPlanType, nil
+}
+
+// ResetSubscriptionPlanType resets all changes to the "subscription_plan_type" field.
+func (m *PaymentOrderMutation) ResetSubscriptionPlanType() {
+	m.subscription_plan_type = nil
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (m *PaymentOrderMutation) SetSubscriptionQuotaCount(i int) {
+	m.subscription_quota_count = &i
+	m.addsubscription_quota_count = nil
+}
+
+// SubscriptionQuotaCount returns the value of the "subscription_quota_count" field in the mutation.
+func (m *PaymentOrderMutation) SubscriptionQuotaCount() (r int, exists bool) {
+	v := m.subscription_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubscriptionQuotaCount returns the old "subscription_quota_count" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldSubscriptionQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubscriptionQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubscriptionQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubscriptionQuotaCount: %w", err)
+	}
+	return oldValue.SubscriptionQuotaCount, nil
+}
+
+// AddSubscriptionQuotaCount adds i to the "subscription_quota_count" field.
+func (m *PaymentOrderMutation) AddSubscriptionQuotaCount(i int) {
+	if m.addsubscription_quota_count != nil {
+		*m.addsubscription_quota_count += i
+	} else {
+		m.addsubscription_quota_count = &i
+	}
+}
+
+// AddedSubscriptionQuotaCount returns the value that was added to the "subscription_quota_count" field in this mutation.
+func (m *PaymentOrderMutation) AddedSubscriptionQuotaCount() (r int, exists bool) {
+	v := m.addsubscription_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSubscriptionQuotaCount resets all changes to the "subscription_quota_count" field.
+func (m *PaymentOrderMutation) ResetSubscriptionQuotaCount() {
+	m.subscription_quota_count = nil
+	m.addsubscription_quota_count = nil
 }
 
 // SetProviderInstanceID sets the "provider_instance_id" field.
@@ -22347,7 +22732,7 @@ func (m *PaymentOrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentOrderMutation) Fields() []string {
-	fields := make([]string, 0, 39)
+	fields := make([]string, 0, 43)
 	if m.user != nil {
 		fields = append(fields, paymentorder.FieldUserID)
 	}
@@ -22401,6 +22786,18 @@ func (m *PaymentOrderMutation) Fields() []string {
 	}
 	if m.subscription_days != nil {
 		fields = append(fields, paymentorder.FieldSubscriptionDays)
+	}
+	if m.subscription_window_quota_count != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionWindowQuotaCount)
+	}
+	if m.subscription_window_quota_minutes != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionWindowQuotaMinutes)
+	}
+	if m.subscription_plan_type != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionPlanType)
+	}
+	if m.subscription_quota_count != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionQuotaCount)
 	}
 	if m.provider_instance_id != nil {
 		fields = append(fields, paymentorder.FieldProviderInstanceID)
@@ -22509,6 +22906,14 @@ func (m *PaymentOrderMutation) Field(name string) (ent.Value, bool) {
 		return m.SubscriptionGroupID()
 	case paymentorder.FieldSubscriptionDays:
 		return m.SubscriptionDays()
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		return m.SubscriptionWindowQuotaCount()
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		return m.SubscriptionWindowQuotaMinutes()
+	case paymentorder.FieldSubscriptionPlanType:
+		return m.SubscriptionPlanType()
+	case paymentorder.FieldSubscriptionQuotaCount:
+		return m.SubscriptionQuotaCount()
 	case paymentorder.FieldProviderInstanceID:
 		return m.ProviderInstanceID()
 	case paymentorder.FieldProviderKey:
@@ -22596,6 +23001,14 @@ func (m *PaymentOrderMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldSubscriptionGroupID(ctx)
 	case paymentorder.FieldSubscriptionDays:
 		return m.OldSubscriptionDays(ctx)
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		return m.OldSubscriptionWindowQuotaCount(ctx)
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		return m.OldSubscriptionWindowQuotaMinutes(ctx)
+	case paymentorder.FieldSubscriptionPlanType:
+		return m.OldSubscriptionPlanType(ctx)
+	case paymentorder.FieldSubscriptionQuotaCount:
+		return m.OldSubscriptionQuotaCount(ctx)
 	case paymentorder.FieldProviderInstanceID:
 		return m.OldProviderInstanceID(ctx)
 	case paymentorder.FieldProviderKey:
@@ -22773,6 +23186,34 @@ func (m *PaymentOrderMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSubscriptionDays(v)
 		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubscriptionWindowQuotaCount(v)
+		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubscriptionWindowQuotaMinutes(v)
+		return nil
+	case paymentorder.FieldSubscriptionPlanType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubscriptionPlanType(v)
+		return nil
+	case paymentorder.FieldSubscriptionQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubscriptionQuotaCount(v)
+		return nil
 	case paymentorder.FieldProviderInstanceID:
 		v, ok := value.(string)
 		if !ok {
@@ -22946,6 +23387,15 @@ func (m *PaymentOrderMutation) AddedFields() []string {
 	if m.addsubscription_days != nil {
 		fields = append(fields, paymentorder.FieldSubscriptionDays)
 	}
+	if m.addsubscription_window_quota_count != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionWindowQuotaCount)
+	}
+	if m.addsubscription_window_quota_minutes != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionWindowQuotaMinutes)
+	}
+	if m.addsubscription_quota_count != nil {
+		fields = append(fields, paymentorder.FieldSubscriptionQuotaCount)
+	}
 	if m.addrefund_amount != nil {
 		fields = append(fields, paymentorder.FieldRefundAmount)
 	}
@@ -22969,6 +23419,12 @@ func (m *PaymentOrderMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedSubscriptionGroupID()
 	case paymentorder.FieldSubscriptionDays:
 		return m.AddedSubscriptionDays()
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		return m.AddedSubscriptionWindowQuotaCount()
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		return m.AddedSubscriptionWindowQuotaMinutes()
+	case paymentorder.FieldSubscriptionQuotaCount:
+		return m.AddedSubscriptionQuotaCount()
 	case paymentorder.FieldRefundAmount:
 		return m.AddedRefundAmount()
 	}
@@ -23021,6 +23477,27 @@ func (m *PaymentOrderMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddSubscriptionDays(v)
+		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSubscriptionWindowQuotaCount(v)
+		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSubscriptionWindowQuotaMinutes(v)
+		return nil
+	case paymentorder.FieldSubscriptionQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSubscriptionQuotaCount(v)
 		return nil
 	case paymentorder.FieldRefundAmount:
 		v, ok := value.(float64)
@@ -23232,6 +23709,18 @@ func (m *PaymentOrderMutation) ResetField(name string) error {
 		return nil
 	case paymentorder.FieldSubscriptionDays:
 		m.ResetSubscriptionDays()
+		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaCount:
+		m.ResetSubscriptionWindowQuotaCount()
+		return nil
+	case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+		m.ResetSubscriptionWindowQuotaMinutes()
+		return nil
+	case paymentorder.FieldSubscriptionPlanType:
+		m.ResetSubscriptionPlanType()
+		return nil
+	case paymentorder.FieldSubscriptionQuotaCount:
+		m.ResetSubscriptionQuotaCount()
 		return nil
 	case paymentorder.FieldProviderInstanceID:
 		m.ResetProviderInstanceID()
@@ -30586,31 +31075,38 @@ func (m *SettingMutation) ResetEdge(name string) error {
 // SubscriptionPlanMutation represents an operation that mutates the SubscriptionPlan nodes in the graph.
 type SubscriptionPlanMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int64
-	group_id          *int64
-	addgroup_id       *int64
-	name              *string
-	description       *string
-	price             *float64
-	addprice          *float64
-	original_price    *float64
-	addoriginal_price *float64
-	validity_days     *int
-	addvalidity_days  *int
-	validity_unit     *string
-	features          *string
-	product_name      *string
-	for_sale          *bool
-	sort_order        *int
-	addsort_order     *int
-	created_at        *time.Time
-	updated_at        *time.Time
-	clearedFields     map[string]struct{}
-	done              bool
-	oldValue          func(context.Context) (*SubscriptionPlan, error)
-	predicates        []predicate.SubscriptionPlan
+	op                      Op
+	typ                     string
+	id                      *int64
+	group_id                *int64
+	addgroup_id             *int64
+	name                    *string
+	description             *string
+	price                   *float64
+	addprice                *float64
+	original_price          *float64
+	addoriginal_price       *float64
+	plan_type               *string
+	validity_days           *int
+	addvalidity_days        *int
+	validity_unit           *string
+	features                *string
+	product_name            *string
+	window_quota_count      *int
+	addwindow_quota_count   *int
+	window_quota_minutes    *int
+	addwindow_quota_minutes *int
+	quota_count             *int
+	addquota_count          *int
+	for_sale                *bool
+	sort_order              *int
+	addsort_order           *int
+	created_at              *time.Time
+	updated_at              *time.Time
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*SubscriptionPlan, error)
+	predicates              []predicate.SubscriptionPlan
 }
 
 var _ ent.Mutation = (*SubscriptionPlanMutation)(nil)
@@ -30965,6 +31461,42 @@ func (m *SubscriptionPlanMutation) ResetOriginalPrice() {
 	delete(m.clearedFields, subscriptionplan.FieldOriginalPrice)
 }
 
+// SetPlanType sets the "plan_type" field.
+func (m *SubscriptionPlanMutation) SetPlanType(s string) {
+	m.plan_type = &s
+}
+
+// PlanType returns the value of the "plan_type" field in the mutation.
+func (m *SubscriptionPlanMutation) PlanType() (r string, exists bool) {
+	v := m.plan_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlanType returns the old "plan_type" field's value of the SubscriptionPlan entity.
+// If the SubscriptionPlan object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionPlanMutation) OldPlanType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlanType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlanType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlanType: %w", err)
+	}
+	return oldValue.PlanType, nil
+}
+
+// ResetPlanType resets all changes to the "plan_type" field.
+func (m *SubscriptionPlanMutation) ResetPlanType() {
+	m.plan_type = nil
+}
+
 // SetValidityDays sets the "validity_days" field.
 func (m *SubscriptionPlanMutation) SetValidityDays(i int) {
 	m.validity_days = &i
@@ -31127,6 +31659,174 @@ func (m *SubscriptionPlanMutation) OldProductName(ctx context.Context) (v string
 // ResetProductName resets all changes to the "product_name" field.
 func (m *SubscriptionPlanMutation) ResetProductName() {
 	m.product_name = nil
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (m *SubscriptionPlanMutation) SetWindowQuotaCount(i int) {
+	m.window_quota_count = &i
+	m.addwindow_quota_count = nil
+}
+
+// WindowQuotaCount returns the value of the "window_quota_count" field in the mutation.
+func (m *SubscriptionPlanMutation) WindowQuotaCount() (r int, exists bool) {
+	v := m.window_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaCount returns the old "window_quota_count" field's value of the SubscriptionPlan entity.
+// If the SubscriptionPlan object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionPlanMutation) OldWindowQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaCount: %w", err)
+	}
+	return oldValue.WindowQuotaCount, nil
+}
+
+// AddWindowQuotaCount adds i to the "window_quota_count" field.
+func (m *SubscriptionPlanMutation) AddWindowQuotaCount(i int) {
+	if m.addwindow_quota_count != nil {
+		*m.addwindow_quota_count += i
+	} else {
+		m.addwindow_quota_count = &i
+	}
+}
+
+// AddedWindowQuotaCount returns the value that was added to the "window_quota_count" field in this mutation.
+func (m *SubscriptionPlanMutation) AddedWindowQuotaCount() (r int, exists bool) {
+	v := m.addwindow_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaCount resets all changes to the "window_quota_count" field.
+func (m *SubscriptionPlanMutation) ResetWindowQuotaCount() {
+	m.window_quota_count = nil
+	m.addwindow_quota_count = nil
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (m *SubscriptionPlanMutation) SetWindowQuotaMinutes(i int) {
+	m.window_quota_minutes = &i
+	m.addwindow_quota_minutes = nil
+}
+
+// WindowQuotaMinutes returns the value of the "window_quota_minutes" field in the mutation.
+func (m *SubscriptionPlanMutation) WindowQuotaMinutes() (r int, exists bool) {
+	v := m.window_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaMinutes returns the old "window_quota_minutes" field's value of the SubscriptionPlan entity.
+// If the SubscriptionPlan object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionPlanMutation) OldWindowQuotaMinutes(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaMinutes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaMinutes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaMinutes: %w", err)
+	}
+	return oldValue.WindowQuotaMinutes, nil
+}
+
+// AddWindowQuotaMinutes adds i to the "window_quota_minutes" field.
+func (m *SubscriptionPlanMutation) AddWindowQuotaMinutes(i int) {
+	if m.addwindow_quota_minutes != nil {
+		*m.addwindow_quota_minutes += i
+	} else {
+		m.addwindow_quota_minutes = &i
+	}
+}
+
+// AddedWindowQuotaMinutes returns the value that was added to the "window_quota_minutes" field in this mutation.
+func (m *SubscriptionPlanMutation) AddedWindowQuotaMinutes() (r int, exists bool) {
+	v := m.addwindow_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaMinutes resets all changes to the "window_quota_minutes" field.
+func (m *SubscriptionPlanMutation) ResetWindowQuotaMinutes() {
+	m.window_quota_minutes = nil
+	m.addwindow_quota_minutes = nil
+}
+
+// SetQuotaCount sets the "quota_count" field.
+func (m *SubscriptionPlanMutation) SetQuotaCount(i int) {
+	m.quota_count = &i
+	m.addquota_count = nil
+}
+
+// QuotaCount returns the value of the "quota_count" field in the mutation.
+func (m *SubscriptionPlanMutation) QuotaCount() (r int, exists bool) {
+	v := m.quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldQuotaCount returns the old "quota_count" field's value of the SubscriptionPlan entity.
+// If the SubscriptionPlan object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionPlanMutation) OldQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldQuotaCount: %w", err)
+	}
+	return oldValue.QuotaCount, nil
+}
+
+// AddQuotaCount adds i to the "quota_count" field.
+func (m *SubscriptionPlanMutation) AddQuotaCount(i int) {
+	if m.addquota_count != nil {
+		*m.addquota_count += i
+	} else {
+		m.addquota_count = &i
+	}
+}
+
+// AddedQuotaCount returns the value that was added to the "quota_count" field in this mutation.
+func (m *SubscriptionPlanMutation) AddedQuotaCount() (r int, exists bool) {
+	v := m.addquota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetQuotaCount resets all changes to the "quota_count" field.
+func (m *SubscriptionPlanMutation) ResetQuotaCount() {
+	m.quota_count = nil
+	m.addquota_count = nil
 }
 
 // SetForSale sets the "for_sale" field.
@@ -31327,7 +32027,7 @@ func (m *SubscriptionPlanMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubscriptionPlanMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 17)
 	if m.group_id != nil {
 		fields = append(fields, subscriptionplan.FieldGroupID)
 	}
@@ -31343,6 +32043,9 @@ func (m *SubscriptionPlanMutation) Fields() []string {
 	if m.original_price != nil {
 		fields = append(fields, subscriptionplan.FieldOriginalPrice)
 	}
+	if m.plan_type != nil {
+		fields = append(fields, subscriptionplan.FieldPlanType)
+	}
 	if m.validity_days != nil {
 		fields = append(fields, subscriptionplan.FieldValidityDays)
 	}
@@ -31354,6 +32057,15 @@ func (m *SubscriptionPlanMutation) Fields() []string {
 	}
 	if m.product_name != nil {
 		fields = append(fields, subscriptionplan.FieldProductName)
+	}
+	if m.window_quota_count != nil {
+		fields = append(fields, subscriptionplan.FieldWindowQuotaCount)
+	}
+	if m.window_quota_minutes != nil {
+		fields = append(fields, subscriptionplan.FieldWindowQuotaMinutes)
+	}
+	if m.quota_count != nil {
+		fields = append(fields, subscriptionplan.FieldQuotaCount)
 	}
 	if m.for_sale != nil {
 		fields = append(fields, subscriptionplan.FieldForSale)
@@ -31385,6 +32097,8 @@ func (m *SubscriptionPlanMutation) Field(name string) (ent.Value, bool) {
 		return m.Price()
 	case subscriptionplan.FieldOriginalPrice:
 		return m.OriginalPrice()
+	case subscriptionplan.FieldPlanType:
+		return m.PlanType()
 	case subscriptionplan.FieldValidityDays:
 		return m.ValidityDays()
 	case subscriptionplan.FieldValidityUnit:
@@ -31393,6 +32107,12 @@ func (m *SubscriptionPlanMutation) Field(name string) (ent.Value, bool) {
 		return m.Features()
 	case subscriptionplan.FieldProductName:
 		return m.ProductName()
+	case subscriptionplan.FieldWindowQuotaCount:
+		return m.WindowQuotaCount()
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		return m.WindowQuotaMinutes()
+	case subscriptionplan.FieldQuotaCount:
+		return m.QuotaCount()
 	case subscriptionplan.FieldForSale:
 		return m.ForSale()
 	case subscriptionplan.FieldSortOrder:
@@ -31420,6 +32140,8 @@ func (m *SubscriptionPlanMutation) OldField(ctx context.Context, name string) (e
 		return m.OldPrice(ctx)
 	case subscriptionplan.FieldOriginalPrice:
 		return m.OldOriginalPrice(ctx)
+	case subscriptionplan.FieldPlanType:
+		return m.OldPlanType(ctx)
 	case subscriptionplan.FieldValidityDays:
 		return m.OldValidityDays(ctx)
 	case subscriptionplan.FieldValidityUnit:
@@ -31428,6 +32150,12 @@ func (m *SubscriptionPlanMutation) OldField(ctx context.Context, name string) (e
 		return m.OldFeatures(ctx)
 	case subscriptionplan.FieldProductName:
 		return m.OldProductName(ctx)
+	case subscriptionplan.FieldWindowQuotaCount:
+		return m.OldWindowQuotaCount(ctx)
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		return m.OldWindowQuotaMinutes(ctx)
+	case subscriptionplan.FieldQuotaCount:
+		return m.OldQuotaCount(ctx)
 	case subscriptionplan.FieldForSale:
 		return m.OldForSale(ctx)
 	case subscriptionplan.FieldSortOrder:
@@ -31480,6 +32208,13 @@ func (m *SubscriptionPlanMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetOriginalPrice(v)
 		return nil
+	case subscriptionplan.FieldPlanType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlanType(v)
+		return nil
 	case subscriptionplan.FieldValidityDays:
 		v, ok := value.(int)
 		if !ok {
@@ -31507,6 +32242,27 @@ func (m *SubscriptionPlanMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProductName(v)
+		return nil
+	case subscriptionplan.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaCount(v)
+		return nil
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaMinutes(v)
+		return nil
+	case subscriptionplan.FieldQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetQuotaCount(v)
 		return nil
 	case subscriptionplan.FieldForSale:
 		v, ok := value.(bool)
@@ -31556,6 +32312,15 @@ func (m *SubscriptionPlanMutation) AddedFields() []string {
 	if m.addvalidity_days != nil {
 		fields = append(fields, subscriptionplan.FieldValidityDays)
 	}
+	if m.addwindow_quota_count != nil {
+		fields = append(fields, subscriptionplan.FieldWindowQuotaCount)
+	}
+	if m.addwindow_quota_minutes != nil {
+		fields = append(fields, subscriptionplan.FieldWindowQuotaMinutes)
+	}
+	if m.addquota_count != nil {
+		fields = append(fields, subscriptionplan.FieldQuotaCount)
+	}
 	if m.addsort_order != nil {
 		fields = append(fields, subscriptionplan.FieldSortOrder)
 	}
@@ -31575,6 +32340,12 @@ func (m *SubscriptionPlanMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedOriginalPrice()
 	case subscriptionplan.FieldValidityDays:
 		return m.AddedValidityDays()
+	case subscriptionplan.FieldWindowQuotaCount:
+		return m.AddedWindowQuotaCount()
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		return m.AddedWindowQuotaMinutes()
+	case subscriptionplan.FieldQuotaCount:
+		return m.AddedQuotaCount()
 	case subscriptionplan.FieldSortOrder:
 		return m.AddedSortOrder()
 	}
@@ -31613,6 +32384,27 @@ func (m *SubscriptionPlanMutation) AddField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddValidityDays(v)
+		return nil
+	case subscriptionplan.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaCount(v)
+		return nil
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaMinutes(v)
+		return nil
+	case subscriptionplan.FieldQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddQuotaCount(v)
 		return nil
 	case subscriptionplan.FieldSortOrder:
 		v, ok := value.(int)
@@ -31672,6 +32464,9 @@ func (m *SubscriptionPlanMutation) ResetField(name string) error {
 	case subscriptionplan.FieldOriginalPrice:
 		m.ResetOriginalPrice()
 		return nil
+	case subscriptionplan.FieldPlanType:
+		m.ResetPlanType()
+		return nil
 	case subscriptionplan.FieldValidityDays:
 		m.ResetValidityDays()
 		return nil
@@ -31683,6 +32478,15 @@ func (m *SubscriptionPlanMutation) ResetField(name string) error {
 		return nil
 	case subscriptionplan.FieldProductName:
 		m.ResetProductName()
+		return nil
+	case subscriptionplan.FieldWindowQuotaCount:
+		m.ResetWindowQuotaCount()
+		return nil
+	case subscriptionplan.FieldWindowQuotaMinutes:
+		m.ResetWindowQuotaMinutes()
+		return nil
+	case subscriptionplan.FieldQuotaCount:
+		m.ResetQuotaCount()
 		return nil
 	case subscriptionplan.FieldForSale:
 		m.ResetForSale()
@@ -42659,6 +43463,17 @@ type UserSubscriptionMutation struct {
 	addweekly_usage_usd     *float64
 	monthly_usage_usd       *float64
 	addmonthly_usage_usd    *float64
+	window_quota_count      *int
+	addwindow_quota_count   *int
+	window_quota_minutes    *int
+	addwindow_quota_minutes *int
+	window_usage_count      *int
+	addwindow_usage_count   *int
+	window_start            *time.Time
+	quota_total_count       *int
+	addquota_total_count    *int
+	quota_used_count        *int
+	addquota_used_count     *int
 	assigned_at             *time.Time
 	notes                   *string
 	clearedFields           map[string]struct{}
@@ -43390,6 +44205,335 @@ func (m *UserSubscriptionMutation) ResetMonthlyUsageUsd() {
 	m.addmonthly_usage_usd = nil
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (m *UserSubscriptionMutation) SetWindowQuotaCount(i int) {
+	m.window_quota_count = &i
+	m.addwindow_quota_count = nil
+}
+
+// WindowQuotaCount returns the value of the "window_quota_count" field in the mutation.
+func (m *UserSubscriptionMutation) WindowQuotaCount() (r int, exists bool) {
+	v := m.window_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaCount returns the old "window_quota_count" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldWindowQuotaCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaCount: %w", err)
+	}
+	return oldValue.WindowQuotaCount, nil
+}
+
+// AddWindowQuotaCount adds i to the "window_quota_count" field.
+func (m *UserSubscriptionMutation) AddWindowQuotaCount(i int) {
+	if m.addwindow_quota_count != nil {
+		*m.addwindow_quota_count += i
+	} else {
+		m.addwindow_quota_count = &i
+	}
+}
+
+// AddedWindowQuotaCount returns the value that was added to the "window_quota_count" field in this mutation.
+func (m *UserSubscriptionMutation) AddedWindowQuotaCount() (r int, exists bool) {
+	v := m.addwindow_quota_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaCount resets all changes to the "window_quota_count" field.
+func (m *UserSubscriptionMutation) ResetWindowQuotaCount() {
+	m.window_quota_count = nil
+	m.addwindow_quota_count = nil
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (m *UserSubscriptionMutation) SetWindowQuotaMinutes(i int) {
+	m.window_quota_minutes = &i
+	m.addwindow_quota_minutes = nil
+}
+
+// WindowQuotaMinutes returns the value of the "window_quota_minutes" field in the mutation.
+func (m *UserSubscriptionMutation) WindowQuotaMinutes() (r int, exists bool) {
+	v := m.window_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowQuotaMinutes returns the old "window_quota_minutes" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldWindowQuotaMinutes(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowQuotaMinutes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowQuotaMinutes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowQuotaMinutes: %w", err)
+	}
+	return oldValue.WindowQuotaMinutes, nil
+}
+
+// AddWindowQuotaMinutes adds i to the "window_quota_minutes" field.
+func (m *UserSubscriptionMutation) AddWindowQuotaMinutes(i int) {
+	if m.addwindow_quota_minutes != nil {
+		*m.addwindow_quota_minutes += i
+	} else {
+		m.addwindow_quota_minutes = &i
+	}
+}
+
+// AddedWindowQuotaMinutes returns the value that was added to the "window_quota_minutes" field in this mutation.
+func (m *UserSubscriptionMutation) AddedWindowQuotaMinutes() (r int, exists bool) {
+	v := m.addwindow_quota_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowQuotaMinutes resets all changes to the "window_quota_minutes" field.
+func (m *UserSubscriptionMutation) ResetWindowQuotaMinutes() {
+	m.window_quota_minutes = nil
+	m.addwindow_quota_minutes = nil
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (m *UserSubscriptionMutation) SetWindowUsageCount(i int) {
+	m.window_usage_count = &i
+	m.addwindow_usage_count = nil
+}
+
+// WindowUsageCount returns the value of the "window_usage_count" field in the mutation.
+func (m *UserSubscriptionMutation) WindowUsageCount() (r int, exists bool) {
+	v := m.window_usage_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowUsageCount returns the old "window_usage_count" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldWindowUsageCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowUsageCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowUsageCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowUsageCount: %w", err)
+	}
+	return oldValue.WindowUsageCount, nil
+}
+
+// AddWindowUsageCount adds i to the "window_usage_count" field.
+func (m *UserSubscriptionMutation) AddWindowUsageCount(i int) {
+	if m.addwindow_usage_count != nil {
+		*m.addwindow_usage_count += i
+	} else {
+		m.addwindow_usage_count = &i
+	}
+}
+
+// AddedWindowUsageCount returns the value that was added to the "window_usage_count" field in this mutation.
+func (m *UserSubscriptionMutation) AddedWindowUsageCount() (r int, exists bool) {
+	v := m.addwindow_usage_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWindowUsageCount resets all changes to the "window_usage_count" field.
+func (m *UserSubscriptionMutation) ResetWindowUsageCount() {
+	m.window_usage_count = nil
+	m.addwindow_usage_count = nil
+}
+
+// SetWindowStart sets the "window_start" field.
+func (m *UserSubscriptionMutation) SetWindowStart(t time.Time) {
+	m.window_start = &t
+}
+
+// WindowStart returns the value of the "window_start" field in the mutation.
+func (m *UserSubscriptionMutation) WindowStart() (r time.Time, exists bool) {
+	v := m.window_start
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWindowStart returns the old "window_start" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldWindowStart(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWindowStart is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWindowStart requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWindowStart: %w", err)
+	}
+	return oldValue.WindowStart, nil
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (m *UserSubscriptionMutation) ClearWindowStart() {
+	m.window_start = nil
+	m.clearedFields[usersubscription.FieldWindowStart] = struct{}{}
+}
+
+// WindowStartCleared returns if the "window_start" field was cleared in this mutation.
+func (m *UserSubscriptionMutation) WindowStartCleared() bool {
+	_, ok := m.clearedFields[usersubscription.FieldWindowStart]
+	return ok
+}
+
+// ResetWindowStart resets all changes to the "window_start" field.
+func (m *UserSubscriptionMutation) ResetWindowStart() {
+	m.window_start = nil
+	delete(m.clearedFields, usersubscription.FieldWindowStart)
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (m *UserSubscriptionMutation) SetQuotaTotalCount(i int) {
+	m.quota_total_count = &i
+	m.addquota_total_count = nil
+}
+
+// QuotaTotalCount returns the value of the "quota_total_count" field in the mutation.
+func (m *UserSubscriptionMutation) QuotaTotalCount() (r int, exists bool) {
+	v := m.quota_total_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldQuotaTotalCount returns the old "quota_total_count" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldQuotaTotalCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldQuotaTotalCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldQuotaTotalCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldQuotaTotalCount: %w", err)
+	}
+	return oldValue.QuotaTotalCount, nil
+}
+
+// AddQuotaTotalCount adds i to the "quota_total_count" field.
+func (m *UserSubscriptionMutation) AddQuotaTotalCount(i int) {
+	if m.addquota_total_count != nil {
+		*m.addquota_total_count += i
+	} else {
+		m.addquota_total_count = &i
+	}
+}
+
+// AddedQuotaTotalCount returns the value that was added to the "quota_total_count" field in this mutation.
+func (m *UserSubscriptionMutation) AddedQuotaTotalCount() (r int, exists bool) {
+	v := m.addquota_total_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetQuotaTotalCount resets all changes to the "quota_total_count" field.
+func (m *UserSubscriptionMutation) ResetQuotaTotalCount() {
+	m.quota_total_count = nil
+	m.addquota_total_count = nil
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (m *UserSubscriptionMutation) SetQuotaUsedCount(i int) {
+	m.quota_used_count = &i
+	m.addquota_used_count = nil
+}
+
+// QuotaUsedCount returns the value of the "quota_used_count" field in the mutation.
+func (m *UserSubscriptionMutation) QuotaUsedCount() (r int, exists bool) {
+	v := m.quota_used_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldQuotaUsedCount returns the old "quota_used_count" field's value of the UserSubscription entity.
+// If the UserSubscription object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSubscriptionMutation) OldQuotaUsedCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldQuotaUsedCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldQuotaUsedCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldQuotaUsedCount: %w", err)
+	}
+	return oldValue.QuotaUsedCount, nil
+}
+
+// AddQuotaUsedCount adds i to the "quota_used_count" field.
+func (m *UserSubscriptionMutation) AddQuotaUsedCount(i int) {
+	if m.addquota_used_count != nil {
+		*m.addquota_used_count += i
+	} else {
+		m.addquota_used_count = &i
+	}
+}
+
+// AddedQuotaUsedCount returns the value that was added to the "quota_used_count" field in this mutation.
+func (m *UserSubscriptionMutation) AddedQuotaUsedCount() (r int, exists bool) {
+	v := m.addquota_used_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetQuotaUsedCount resets all changes to the "quota_used_count" field.
+func (m *UserSubscriptionMutation) ResetQuotaUsedCount() {
+	m.quota_used_count = nil
+	m.addquota_used_count = nil
+}
+
 // SetAssignedBy sets the "assigned_by" field.
 func (m *UserSubscriptionMutation) SetAssignedBy(i int64) {
 	m.assigned_by_user = &i
@@ -43706,7 +44850,7 @@ func (m *UserSubscriptionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserSubscriptionMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 23)
 	if m.created_at != nil {
 		fields = append(fields, usersubscription.FieldCreatedAt)
 	}
@@ -43748,6 +44892,24 @@ func (m *UserSubscriptionMutation) Fields() []string {
 	}
 	if m.monthly_usage_usd != nil {
 		fields = append(fields, usersubscription.FieldMonthlyUsageUsd)
+	}
+	if m.window_quota_count != nil {
+		fields = append(fields, usersubscription.FieldWindowQuotaCount)
+	}
+	if m.window_quota_minutes != nil {
+		fields = append(fields, usersubscription.FieldWindowQuotaMinutes)
+	}
+	if m.window_usage_count != nil {
+		fields = append(fields, usersubscription.FieldWindowUsageCount)
+	}
+	if m.window_start != nil {
+		fields = append(fields, usersubscription.FieldWindowStart)
+	}
+	if m.quota_total_count != nil {
+		fields = append(fields, usersubscription.FieldQuotaTotalCount)
+	}
+	if m.quota_used_count != nil {
+		fields = append(fields, usersubscription.FieldQuotaUsedCount)
 	}
 	if m.assigned_by_user != nil {
 		fields = append(fields, usersubscription.FieldAssignedBy)
@@ -43794,6 +44956,18 @@ func (m *UserSubscriptionMutation) Field(name string) (ent.Value, bool) {
 		return m.WeeklyUsageUsd()
 	case usersubscription.FieldMonthlyUsageUsd:
 		return m.MonthlyUsageUsd()
+	case usersubscription.FieldWindowQuotaCount:
+		return m.WindowQuotaCount()
+	case usersubscription.FieldWindowQuotaMinutes:
+		return m.WindowQuotaMinutes()
+	case usersubscription.FieldWindowUsageCount:
+		return m.WindowUsageCount()
+	case usersubscription.FieldWindowStart:
+		return m.WindowStart()
+	case usersubscription.FieldQuotaTotalCount:
+		return m.QuotaTotalCount()
+	case usersubscription.FieldQuotaUsedCount:
+		return m.QuotaUsedCount()
 	case usersubscription.FieldAssignedBy:
 		return m.AssignedBy()
 	case usersubscription.FieldAssignedAt:
@@ -43837,6 +45011,18 @@ func (m *UserSubscriptionMutation) OldField(ctx context.Context, name string) (e
 		return m.OldWeeklyUsageUsd(ctx)
 	case usersubscription.FieldMonthlyUsageUsd:
 		return m.OldMonthlyUsageUsd(ctx)
+	case usersubscription.FieldWindowQuotaCount:
+		return m.OldWindowQuotaCount(ctx)
+	case usersubscription.FieldWindowQuotaMinutes:
+		return m.OldWindowQuotaMinutes(ctx)
+	case usersubscription.FieldWindowUsageCount:
+		return m.OldWindowUsageCount(ctx)
+	case usersubscription.FieldWindowStart:
+		return m.OldWindowStart(ctx)
+	case usersubscription.FieldQuotaTotalCount:
+		return m.OldQuotaTotalCount(ctx)
+	case usersubscription.FieldQuotaUsedCount:
+		return m.OldQuotaUsedCount(ctx)
 	case usersubscription.FieldAssignedBy:
 		return m.OldAssignedBy(ctx)
 	case usersubscription.FieldAssignedAt:
@@ -43950,6 +45136,48 @@ func (m *UserSubscriptionMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetMonthlyUsageUsd(v)
 		return nil
+	case usersubscription.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaCount(v)
+		return nil
+	case usersubscription.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowQuotaMinutes(v)
+		return nil
+	case usersubscription.FieldWindowUsageCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowUsageCount(v)
+		return nil
+	case usersubscription.FieldWindowStart:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWindowStart(v)
+		return nil
+	case usersubscription.FieldQuotaTotalCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetQuotaTotalCount(v)
+		return nil
+	case usersubscription.FieldQuotaUsedCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetQuotaUsedCount(v)
+		return nil
 	case usersubscription.FieldAssignedBy:
 		v, ok := value.(int64)
 		if !ok {
@@ -43988,6 +45216,21 @@ func (m *UserSubscriptionMutation) AddedFields() []string {
 	if m.addmonthly_usage_usd != nil {
 		fields = append(fields, usersubscription.FieldMonthlyUsageUsd)
 	}
+	if m.addwindow_quota_count != nil {
+		fields = append(fields, usersubscription.FieldWindowQuotaCount)
+	}
+	if m.addwindow_quota_minutes != nil {
+		fields = append(fields, usersubscription.FieldWindowQuotaMinutes)
+	}
+	if m.addwindow_usage_count != nil {
+		fields = append(fields, usersubscription.FieldWindowUsageCount)
+	}
+	if m.addquota_total_count != nil {
+		fields = append(fields, usersubscription.FieldQuotaTotalCount)
+	}
+	if m.addquota_used_count != nil {
+		fields = append(fields, usersubscription.FieldQuotaUsedCount)
+	}
 	return fields
 }
 
@@ -44002,6 +45245,16 @@ func (m *UserSubscriptionMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedWeeklyUsageUsd()
 	case usersubscription.FieldMonthlyUsageUsd:
 		return m.AddedMonthlyUsageUsd()
+	case usersubscription.FieldWindowQuotaCount:
+		return m.AddedWindowQuotaCount()
+	case usersubscription.FieldWindowQuotaMinutes:
+		return m.AddedWindowQuotaMinutes()
+	case usersubscription.FieldWindowUsageCount:
+		return m.AddedWindowUsageCount()
+	case usersubscription.FieldQuotaTotalCount:
+		return m.AddedQuotaTotalCount()
+	case usersubscription.FieldQuotaUsedCount:
+		return m.AddedQuotaUsedCount()
 	}
 	return nil, false
 }
@@ -44032,6 +45285,41 @@ func (m *UserSubscriptionMutation) AddField(name string, value ent.Value) error 
 		}
 		m.AddMonthlyUsageUsd(v)
 		return nil
+	case usersubscription.FieldWindowQuotaCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaCount(v)
+		return nil
+	case usersubscription.FieldWindowQuotaMinutes:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowQuotaMinutes(v)
+		return nil
+	case usersubscription.FieldWindowUsageCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWindowUsageCount(v)
+		return nil
+	case usersubscription.FieldQuotaTotalCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddQuotaTotalCount(v)
+		return nil
+	case usersubscription.FieldQuotaUsedCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddQuotaUsedCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown UserSubscription numeric field %s", name)
 }
@@ -44051,6 +45339,9 @@ func (m *UserSubscriptionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(usersubscription.FieldMonthlyWindowStart) {
 		fields = append(fields, usersubscription.FieldMonthlyWindowStart)
+	}
+	if m.FieldCleared(usersubscription.FieldWindowStart) {
+		fields = append(fields, usersubscription.FieldWindowStart)
 	}
 	if m.FieldCleared(usersubscription.FieldAssignedBy) {
 		fields = append(fields, usersubscription.FieldAssignedBy)
@@ -44083,6 +45374,9 @@ func (m *UserSubscriptionMutation) ClearField(name string) error {
 		return nil
 	case usersubscription.FieldMonthlyWindowStart:
 		m.ClearMonthlyWindowStart()
+		return nil
+	case usersubscription.FieldWindowStart:
+		m.ClearWindowStart()
 		return nil
 	case usersubscription.FieldAssignedBy:
 		m.ClearAssignedBy()
@@ -44139,6 +45433,24 @@ func (m *UserSubscriptionMutation) ResetField(name string) error {
 		return nil
 	case usersubscription.FieldMonthlyUsageUsd:
 		m.ResetMonthlyUsageUsd()
+		return nil
+	case usersubscription.FieldWindowQuotaCount:
+		m.ResetWindowQuotaCount()
+		return nil
+	case usersubscription.FieldWindowQuotaMinutes:
+		m.ResetWindowQuotaMinutes()
+		return nil
+	case usersubscription.FieldWindowUsageCount:
+		m.ResetWindowUsageCount()
+		return nil
+	case usersubscription.FieldWindowStart:
+		m.ResetWindowStart()
+		return nil
+	case usersubscription.FieldQuotaTotalCount:
+		m.ResetQuotaTotalCount()
+		return nil
+	case usersubscription.FieldQuotaUsedCount:
+		m.ResetQuotaUsedCount()
 		return nil
 	case usersubscription.FieldAssignedBy:
 		m.ResetAssignedBy()

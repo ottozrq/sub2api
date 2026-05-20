@@ -701,6 +701,10 @@ func (r *stubUserSubscriptionRepo) ResetMonthlyUsage(ctx context.Context, id int
 	return errors.New("not implemented")
 }
 
+func (r *stubUserSubscriptionRepo) AddQuotaTotal(ctx context.Context, subscriptionID int64, count int) error {
+	return errors.New("not implemented")
+}
+
 func (r *stubUserSubscriptionRepo) IncrementUsage(ctx context.Context, id int64, costUSD float64) error {
 	return errors.New("not implemented")
 }

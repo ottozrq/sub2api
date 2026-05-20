@@ -1,51 +1,32 @@
 <template>
-  <div class="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
-    <!-- Background -->
-    <div
-      class="absolute inset-0 bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
-    ></div>
+  <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-dark-50 p-4 dark:bg-dark-950">
+    <!-- Brand Background -->
+    <div class="absolute inset-0 bg-mesh-gradient bg-[size:auto,auto,56px_56px,56px_56px]"></div>
 
-    <!-- Decorative Elements -->
     <div class="pointer-events-none absolute inset-0 overflow-hidden">
-      <!-- Gradient Orbs -->
-      <div
-        class="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-400/20 blur-3xl"
-      ></div>
-      <div
-        class="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary-500/15 blur-3xl"
-      ></div>
-      <div
-        class="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-300/10 blur-3xl"
-      ></div>
-
-      <!-- Grid Pattern -->
-      <div
-        class="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(20,184,166,0.03)_1px,transparent_1px)] bg-[size:64px_64px]"
-      ></div>
+      <div class="brand-stripe brand-stripe-top"></div>
+      <div class="brand-stripe brand-stripe-bottom"></div>
     </div>
 
     <!-- Content Container -->
     <div class="relative z-10 w-full max-w-md">
       <!-- Logo/Brand -->
       <div class="mb-8 text-center">
-        <!-- Custom Logo or Default Logo -->
-        <template v-if="settingsLoaded">
-          <div
-            class="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-primary-500/30"
-          >
-            <img :src="siteLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
-          </div>
-          <h1 class="text-gradient mb-2 text-3xl font-bold">
-            {{ siteName }}
-          </h1>
-          <p class="text-sm text-gray-500 dark:text-dark-400">
-            {{ siteSubtitle }}
-          </p>
-        </template>
+        <div
+          class="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border border-dark-100 bg-white shadow-lg shadow-dark-900/10 dark:border-dark-700 dark:bg-dark-900"
+        >
+          <img :src="siteLogo || '/brand-mark.svg'" alt="Logo" class="h-full w-full object-contain" />
+        </div>
+        <h1 class="text-gradient mb-2 text-3xl font-bold">
+          {{ siteName }}
+        </h1>
+        <p class="text-sm text-gray-500 dark:text-dark-400">
+          {{ siteSubtitle }}
+        </p>
       </div>
 
       <!-- Card Container -->
-      <div class="card-glass rounded-2xl p-8 shadow-glass">
+      <div class="card-glass rounded-lg p-8 shadow-glass">
         <slot />
       </div>
 
@@ -69,11 +50,9 @@ import { sanitizeUrl } from '@/utils/url'
 
 const appStore = useAppStore()
 
-const siteName = computed(() => appStore.siteName || 'Sub2API')
+const siteName = computed(() => appStore.siteName || '熔鉴AI')
 const siteLogo = computed(() => sanitizeUrl(appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'Subscription to API Conversion Platform')
-const settingsLoaded = computed(() => appStore.publicSettingsLoaded)
-
 const currentYear = computed(() => new Date().getFullYear())
 
 onMounted(() => {
@@ -83,6 +62,25 @@ onMounted(() => {
 
 <style scoped>
 .text-gradient {
-  @apply bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-dark-900 via-primary-600 to-accent-500 bg-clip-text text-transparent dark:from-white dark:via-primary-300 dark:to-accent-300;
+}
+
+.brand-stripe {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(7, 159, 211, 0.24), rgba(244, 124, 32, 0.22), transparent);
+  transform: rotate(-18deg);
+}
+
+.brand-stripe-top {
+  left: -8rem;
+  top: 9rem;
+  width: 36rem;
+}
+
+.brand-stripe-bottom {
+  right: -6rem;
+  bottom: 8rem;
+  width: 32rem;
 }
 </style>

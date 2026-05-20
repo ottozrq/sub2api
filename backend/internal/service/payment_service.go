@@ -333,9 +333,9 @@ const (
 
 func psComputeValidityDays(days int, unit string) int {
 	switch unit {
-	case validityUnitWeek:
+	case validityUnitWeek, "weeks":
 		return days * 7
-	case validityUnitMonth:
+	case validityUnitMonth, "months":
 		return days * 30
 	default:
 		return days

@@ -42,6 +42,10 @@ const (
 	FieldWeeklyLimitUsd = "weekly_limit_usd"
 	// FieldMonthlyLimitUsd holds the string denoting the monthly_limit_usd field in the database.
 	FieldMonthlyLimitUsd = "monthly_limit_usd"
+	// FieldWindowQuotaCount holds the string denoting the window_quota_count field in the database.
+	FieldWindowQuotaCount = "window_quota_count"
+	// FieldWindowQuotaMinutes holds the string denoting the window_quota_minutes field in the database.
+	FieldWindowQuotaMinutes = "window_quota_minutes"
 	// FieldDefaultValidityDays holds the string denoting the default_validity_days field in the database.
 	FieldDefaultValidityDays = "default_validity_days"
 	// FieldAllowImageGeneration holds the string denoting the allow_image_generation field in the database.
@@ -172,6 +176,8 @@ var Columns = []string{
 	FieldDailyLimitUsd,
 	FieldWeeklyLimitUsd,
 	FieldMonthlyLimitUsd,
+	FieldWindowQuotaCount,
+	FieldWindowQuotaMinutes,
 	FieldDefaultValidityDays,
 	FieldAllowImageGeneration,
 	FieldImageRateIndependent,
@@ -246,6 +252,10 @@ var (
 	DefaultSubscriptionType string
 	// SubscriptionTypeValidator is a validator for the "subscription_type" field. It is called by the builders before save.
 	SubscriptionTypeValidator func(string) error
+	// DefaultWindowQuotaCount holds the default value on creation for the "window_quota_count" field.
+	DefaultWindowQuotaCount int
+	// DefaultWindowQuotaMinutes holds the default value on creation for the "window_quota_minutes" field.
+	DefaultWindowQuotaMinutes int
 	// DefaultDefaultValidityDays holds the default value on creation for the "default_validity_days" field.
 	DefaultDefaultValidityDays int
 	// DefaultAllowImageGeneration holds the default value on creation for the "allow_image_generation" field.
@@ -351,6 +361,16 @@ func ByWeeklyLimitUsd(opts ...sql.OrderTermOption) OrderOption {
 // ByMonthlyLimitUsd orders the results by the monthly_limit_usd field.
 func ByMonthlyLimitUsd(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMonthlyLimitUsd, opts...).ToFunc()
+}
+
+// ByWindowQuotaCount orders the results by the window_quota_count field.
+func ByWindowQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaCount, opts...).ToFunc()
+}
+
+// ByWindowQuotaMinutes orders the results by the window_quota_minutes field.
+func ByWindowQuotaMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaMinutes, opts...).ToFunc()
 }
 
 // ByDefaultValidityDays orders the results by the default_validity_days field.

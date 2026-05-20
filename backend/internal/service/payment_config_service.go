@@ -142,31 +142,39 @@ type UpdateProviderInstanceRequest struct {
 	AllowUserRefund *bool             `json:"allow_user_refund"`
 }
 type CreatePlanRequest struct {
-	GroupID       int64    `json:"group_id"`
-	Name          string   `json:"name"`
-	Description   string   `json:"description"`
-	Price         float64  `json:"price"`
-	OriginalPrice *float64 `json:"original_price"`
-	ValidityDays  int      `json:"validity_days"`
-	ValidityUnit  string   `json:"validity_unit"`
-	Features      string   `json:"features"`
-	ProductName   string   `json:"product_name"`
-	ForSale       bool     `json:"for_sale"`
-	SortOrder     int      `json:"sort_order"`
+	GroupID            int64    `json:"group_id"`
+	Name               string   `json:"name"`
+	Description        string   `json:"description"`
+	Price              float64  `json:"price"`
+	OriginalPrice      *float64 `json:"original_price"`
+	PlanType           string   `json:"plan_type"`
+	ValidityDays       int      `json:"validity_days"`
+	ValidityUnit       string   `json:"validity_unit"`
+	Features           string   `json:"features"`
+	ProductName        string   `json:"product_name"`
+	WindowQuotaCount   int      `json:"window_quota_count"`
+	WindowQuotaMinutes int      `json:"window_quota_minutes"`
+	QuotaCount         int      `json:"quota_count"`
+	ForSale            bool     `json:"for_sale"`
+	SortOrder          int      `json:"sort_order"`
 }
 
 type UpdatePlanRequest struct {
-	GroupID       *int64   `json:"group_id"`
-	Name          *string  `json:"name"`
-	Description   *string  `json:"description"`
-	Price         *float64 `json:"price"`
-	OriginalPrice *float64 `json:"original_price"`
-	ValidityDays  *int     `json:"validity_days"`
-	ValidityUnit  *string  `json:"validity_unit"`
-	Features      *string  `json:"features"`
-	ProductName   *string  `json:"product_name"`
-	ForSale       *bool    `json:"for_sale"`
-	SortOrder     *int     `json:"sort_order"`
+	GroupID            *int64   `json:"group_id"`
+	Name               *string  `json:"name"`
+	Description        *string  `json:"description"`
+	Price              *float64 `json:"price"`
+	OriginalPrice      *float64 `json:"original_price"`
+	PlanType           *string  `json:"plan_type"`
+	ValidityDays       *int     `json:"validity_days"`
+	ValidityUnit       *string  `json:"validity_unit"`
+	Features           *string  `json:"features"`
+	ProductName        *string  `json:"product_name"`
+	WindowQuotaCount   *int     `json:"window_quota_count"`
+	WindowQuotaMinutes *int     `json:"window_quota_minutes"`
+	QuotaCount         *int     `json:"quota_count"`
+	ForSale            *bool    `json:"for_sale"`
+	SortOrder          *int     `json:"sort_order"`
 }
 
 // PaymentConfigService manages payment configuration and CRUD for

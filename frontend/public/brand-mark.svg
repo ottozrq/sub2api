@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="熔鉴AI API transfer hub logo">
+  <defs>
+    <linearGradient id="blue" x1="220" y1="218" x2="822" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#29B8EA"/>
+      <stop offset="1" stop-color="#036A91"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="240" y1="776" x2="792" y2="264" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F47C20"/>
+      <stop offset="1" stop-color="#DF6511"/>
+    </linearGradient>
+    <linearGradient id="graphite" x1="230" y1="184" x2="810" y2="846" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#243541"/>
+      <stop offset="1" stop-color="#0C151C"/>
+    </linearGradient>
+    <filter id="softShadow" x="-12%" y="-12%" width="124%" height="128%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#0C151C" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="96" fill="#FFFFFF"/>
+
+  <g filter="url(#softShadow)">
+    <path
+      d="M266 695c0 73 59 132 132 132h43l25 48h92l25-48h43c73 0 132-59 132-132v-71h-72v71c0 33-27 60-60 60H398c-33 0-60-27-60-60v-71h-72v71Z"
+      fill="url(#graphite)"
+    />
+    <path
+      d="M326 620c18 71 82 124 158 124h56c76 0 140-53 158-124h-76c-15 32-47 54-84 54h-52c-37 0-69-22-84-54h-76Z"
+      fill="url(#orange)"
+    />
+
+    <path
+      d="M512 162c190 0 344 154 344 344 0 54-13 105-35 150l-63-36c16-35 25-74 25-114 0-150-121-271-271-271s-271 121-271 271c0 40 9 79 25 114l-63 36c-22-45-35-96-35-150 0-190 154-344 344-344Z"
+      fill="url(#graphite)"
+    />
+    <path
+      d="M512 250c141 0 256 115 256 256 0 25-4 49-10 72h-76c9-22 14-47 14-72 0-102-82-184-184-184s-184 82-184 184c0 25 5 50 14 72h-76c-6-23-10-47-10-72 0-141 115-256 256-256Z"
+      fill="#FFFFFF"
+    />
+
+    <path
+      d="M512 340 638 413v146L512 632 386 559V413l126-73Z"
+      fill="url(#graphite)"
+    />
+    <path
+      d="M512 404 582 445v82l-70 41-70-41v-82l70-41Z"
+      fill="#FFFFFF"
+    />
+    <rect x="474" y="459" width="76" height="16" rx="8" fill="url(#blue)"/>
+    <rect x="474" y="494" width="76" height="16" rx="8" fill="url(#orange)"/>
+    <circle cx="458" cy="467" r="8" fill="url(#blue)"/>
+    <circle cx="566" cy="502" r="8" fill="url(#orange)"/>
+
+    <path d="M212 506h174" stroke="url(#blue)" stroke-width="38" stroke-linecap="square"/>
+    <path d="M638 506h174" stroke="url(#blue)" stroke-width="38" stroke-linecap="square"/>
+    <path d="M512 246v110" stroke="url(#orange)" stroke-width="38" stroke-linecap="square"/>
+    <path d="M512 632v92" stroke="url(#orange)" stroke-width="38" stroke-linecap="square"/>
+
+    <rect x="150" y="452" width="92" height="108" rx="18" fill="url(#graphite)"/>
+    <rect x="782" y="452" width="92" height="108" rx="18" fill="url(#graphite)"/>
+    <rect x="458" y="132" width="108" height="92" rx="18" fill="url(#graphite)"/>
+    <rect x="458" y="724" width="108" height="92" rx="18" fill="url(#graphite)"/>
+
+    <circle cx="196" cy="506" r="18" fill="#FFFFFF"/>
+    <circle cx="828" cy="506" r="18" fill="#FFFFFF"/>
+    <circle cx="512" cy="178" r="18" fill="#FFFFFF"/>
+    <circle cx="512" cy="770" r="18" fill="#FFFFFF"/>
+
+    <path
+      d="M302 368c48-70 126-112 210-112 46 0 91 12 130 35"
+      stroke="url(#blue)"
+      stroke-width="34"
+      stroke-linecap="square"
+      fill="none"
+    />
+    <path
+      d="M722 644c-49 67-126 106-210 106-45 0-88-11-126-33"
+      stroke="url(#orange)"
+      stroke-width="34"
+      stroke-linecap="square"
+      fill="none"
+    />
+  </g>
+</svg>

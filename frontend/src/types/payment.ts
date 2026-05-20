@@ -22,6 +22,8 @@ export type PaymentType = 'alipay' | 'wxpay' | 'alipay_direct' | 'wxpay_direct' 
 
 export type OrderType = 'balance' | 'subscription'
 
+export type SubscriptionPlanType = 'subscription' | 'quota_pack'
+
 // ==================== Configuration ====================
 
 export interface PaymentConfig {
@@ -113,6 +115,10 @@ export interface SubscriptionPlan {
   original_price?: number
   validity_days: number
   validity_unit: string
+  plan_type?: SubscriptionPlanType
+  quota_count: number
+  window_quota_count: number
+  window_quota_minutes: number
   /** Stored as JSON string in backend; API layer should parse before use */
   features: string[]
   for_sale: boolean

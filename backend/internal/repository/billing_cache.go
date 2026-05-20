@@ -48,12 +48,18 @@ func billingSubKey(userID, groupID int64) string {
 }
 
 const (
-	subFieldStatus       = "status"
-	subFieldExpiresAt    = "expires_at"
-	subFieldDailyUsage   = "daily_usage"
-	subFieldWeeklyUsage  = "weekly_usage"
-	subFieldMonthlyUsage = "monthly_usage"
-	subFieldVersion      = "version"
+	subFieldStatus             = "status"
+	subFieldExpiresAt          = "expires_at"
+	subFieldDailyUsage         = "daily_usage"
+	subFieldWeeklyUsage        = "weekly_usage"
+	subFieldMonthlyUsage       = "monthly_usage"
+	subFieldWindowQuotaCount   = "window_quota_count"
+	subFieldWindowQuotaMinutes = "window_quota_minutes"
+	subFieldWindowUsageCount   = "window_usage_count"
+	subFieldWindowStart        = "window_start"
+	subFieldQuotaTotalCount    = "quota_total_count"
+	subFieldQuotaUsedCount     = "quota_used_count"
+	subFieldVersion            = "version"
 )
 
 // billingRateLimitKey generates the Redis key for API key rate limit cache.
@@ -88,9 +94,25 @@ var (
 			return 0
 		end
 		local cost = tonumber(ARGV[1])
+		local now = tonumber(ARGV[3])
 		redis.call('HINCRBYFLOAT', KEYS[1], 'daily_usage', cost)
 		redis.call('HINCRBYFLOAT', KEYS[1], 'weekly_usage', cost)
 		redis.call('HINCRBYFLOAT', KEYS[1], 'monthly_usage', cost)
+		local quota_count = tonumber(redis.call('HGET', KEYS[1], 'window_quota_count') or 0)
+		local quota_minutes = tonumber(redis.call('HGET', KEYS[1], 'window_quota_minutes') or 0)
+		if quota_count > 0 and quota_minutes > 0 then
+			local window_start = tonumber(redis.call('HGET', KEYS[1], 'window_start') or 0)
+			if window_start == 0 or (now - window_start) >= (quota_minutes * 60) then
+				redis.call('HSET', KEYS[1], 'window_usage_count', '1')
+				redis.call('HSET', KEYS[1], 'window_start', tostring(now))
+			else
+				redis.call('HINCRBY', KEYS[1], 'window_usage_count', 1)
+			end
+		end
+		local total_quota = tonumber(redis.call('HGET', KEYS[1], 'quota_total_count') or 0)
+		if total_quota > 0 then
+			redis.call('HINCRBY', KEYS[1], 'quota_used_count', 1)
+		end
 		redis.call('EXPIRE', KEYS[1], ARGV[2])
 		return 1
 	`)
@@ -209,6 +231,27 @@ func (c *billingCache) parseSubscriptionCache(data map[string]string) (*service.
 	if monthlyStr, ok := data[subFieldMonthlyUsage]; ok {
 		result.MonthlyUsage, _ = strconv.ParseFloat(monthlyStr, 64)
 	}
+	if v, ok := data[subFieldWindowQuotaCount]; ok {
+		result.WindowQuotaCount, _ = strconv.Atoi(v)
+	}
+	if v, ok := data[subFieldWindowQuotaMinutes]; ok {
+		result.WindowQuotaMinutes, _ = strconv.Atoi(v)
+	}
+	if v, ok := data[subFieldWindowUsageCount]; ok {
+		result.WindowUsageCount, _ = strconv.Atoi(v)
+	}
+	if v, ok := data[subFieldWindowStart]; ok {
+		if unix, err := strconv.ParseInt(v, 10, 64); err == nil && unix > 0 {
+			t := time.Unix(unix, 0)
+			result.WindowStart = &t
+		}
+	}
+	if v, ok := data[subFieldQuotaTotalCount]; ok {
+		result.QuotaTotalCount, _ = strconv.Atoi(v)
+	}
+	if v, ok := data[subFieldQuotaUsedCount]; ok {
+		result.QuotaUsedCount, _ = strconv.Atoi(v)
+	}
 
 	if versionStr, ok := data[subFieldVersion]; ok {
 		result.Version, _ = strconv.ParseInt(versionStr, 10, 64)
@@ -225,12 +268,20 @@ func (c *billingCache) SetSubscriptionCache(ctx context.Context, userID, groupID
 	key := billingSubKey(userID, groupID)
 
 	fields := map[string]any{
-		subFieldStatus:       data.Status,
-		subFieldExpiresAt:    data.ExpiresAt.Unix(),
-		subFieldDailyUsage:   data.DailyUsage,
-		subFieldWeeklyUsage:  data.WeeklyUsage,
-		subFieldMonthlyUsage: data.MonthlyUsage,
-		subFieldVersion:      data.Version,
+		subFieldStatus:             data.Status,
+		subFieldExpiresAt:          data.ExpiresAt.Unix(),
+		subFieldDailyUsage:         data.DailyUsage,
+		subFieldWeeklyUsage:        data.WeeklyUsage,
+		subFieldMonthlyUsage:       data.MonthlyUsage,
+		subFieldWindowQuotaCount:   data.WindowQuotaCount,
+		subFieldWindowQuotaMinutes: data.WindowQuotaMinutes,
+		subFieldWindowUsageCount:   data.WindowUsageCount,
+		subFieldQuotaTotalCount:    data.QuotaTotalCount,
+		subFieldQuotaUsedCount:     data.QuotaUsedCount,
+		subFieldVersion:            data.Version,
+	}
+	if data.WindowStart != nil {
+		fields[subFieldWindowStart] = data.WindowStart.Unix()
 	}
 
 	pipe := c.rdb.Pipeline()
@@ -242,7 +293,7 @@ func (c *billingCache) SetSubscriptionCache(ctx context.Context, userID, groupID
 
 func (c *billingCache) UpdateSubscriptionUsage(ctx context.Context, userID, groupID int64, cost float64) error {
 	key := billingSubKey(userID, groupID)
-	_, err := updateSubUsageScript.Run(ctx, c.rdb, []string{key}, cost, int(jitteredTTL().Seconds())).Result()
+	_, err := updateSubUsageScript.Run(ctx, c.rdb, []string{key}, cost, int(jitteredTTL().Seconds()), time.Now().Unix()).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		log.Printf("Warning: update subscription usage cache failed for user %d group %d: %v", userID, groupID, err)
 		return err

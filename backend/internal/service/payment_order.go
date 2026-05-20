@@ -181,6 +181,14 @@ func (s *PaymentService) createOrderInTx(ctx context.Context, req CreateOrderReq
 	}
 	if plan != nil {
 		b.SetPlanID(plan.ID).SetSubscriptionGroupID(plan.GroupID).SetSubscriptionDays(psComputeValidityDays(plan.ValidityDays, plan.ValidityUnit))
+		group, err := s.groupRepo.GetByIDLite(ctx, plan.GroupID)
+		if err != nil {
+			return nil, fmt.Errorf("get subscription group window quota: %w", err)
+		}
+		b.SetSubscriptionWindowQuotaCount(group.WindowQuotaCount).
+			SetSubscriptionWindowQuotaMinutes(group.WindowQuotaMinutes).
+			SetSubscriptionPlanType(normalizePlanType(plan.PlanType)).
+			SetSubscriptionQuotaCount(plan.QuotaCount)
 	}
 	order, err := b.Save(ctx)
 	if err != nil {

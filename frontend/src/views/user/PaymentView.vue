@@ -132,7 +132,15 @@
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.monthlyLimit') }}</span>
                     <div class="text-lg font-semibold text-gray-800 dark:text-gray-200">${{ selectedPlan.monthly_limit_usd }}</div>
                   </div>
-                  <div v-if="selectedPlan.daily_limit_usd == null && selectedPlan.weekly_limit_usd == null && selectedPlan.monthly_limit_usd == null">
+                  <div v-if="selectedPlanHasWindowQuota">
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.windowQuota') }}</span>
+                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ selectedPlanWindowQuotaText }}</div>
+                  </div>
+                  <div v-if="selectedPlan.plan_type === 'quota_pack'">
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.totalQuota') }}</span>
+                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ t('payment.planCard.requests', { count: selectedPlan.quota_count || 0 }) }}</div>
+                  </div>
+                  <div v-if="selectedPlan.daily_limit_usd == null && selectedPlan.weekly_limit_usd == null && selectedPlan.monthly_limit_usd == null && !selectedPlanHasWindowQuota && selectedPlan.plan_type !== 'quota_pack'">
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.quota') }}</span>
                     <div class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ t('payment.planCard.unlimited') }}</div>
                   </div>
@@ -634,6 +642,21 @@ const planValiditySuffix = computed(() => {
   if (u === 'month') return t('payment.perMonth')
   if (u === 'year') return t('payment.perYear')
   return `${selectedPlan.value.validity_days}${t('payment.days')}`
+})
+
+const selectedPlanHasWindowQuota = computed(() =>
+  (selectedPlan.value?.window_quota_count || 0) > 0 &&
+  (selectedPlan.value?.window_quota_minutes || 0) > 0,
+)
+
+const selectedPlanWindowQuotaText = computed(() => {
+  const plan = selectedPlan.value
+  if (!plan) return ''
+  const minutes = plan.window_quota_minutes || 0
+  const windowText = minutes % 60 === 0
+    ? t('payment.planCard.hours', { count: minutes / 60 })
+    : t('payment.planCard.minutes', { count: minutes })
+  return t('payment.planCard.windowQuotaValue', { count: plan.window_quota_count, window: windowText })
 })
 
 function selectPlan(plan: SubscriptionPlan) {

@@ -125,6 +125,36 @@ func MonthlyUsageUsd(v float64) predicate.UserSubscription {
 	return predicate.UserSubscription(sql.FieldEQ(FieldMonthlyUsageUsd, v))
 }
 
+// WindowQuotaCount applies equality check predicate on the "window_quota_count" field. It's identical to WindowQuotaCountEQ.
+func WindowQuotaCount(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaMinutes applies equality check predicate on the "window_quota_minutes" field. It's identical to WindowQuotaMinutesEQ.
+func WindowQuotaMinutes(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowQuotaMinutes, v))
+}
+
+// WindowUsageCount applies equality check predicate on the "window_usage_count" field. It's identical to WindowUsageCountEQ.
+func WindowUsageCount(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowUsageCount, v))
+}
+
+// WindowStart applies equality check predicate on the "window_start" field. It's identical to WindowStartEQ.
+func WindowStart(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowStart, v))
+}
+
+// QuotaTotalCount applies equality check predicate on the "quota_total_count" field. It's identical to QuotaTotalCountEQ.
+func QuotaTotalCount(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldQuotaTotalCount, v))
+}
+
+// QuotaUsedCount applies equality check predicate on the "quota_used_count" field. It's identical to QuotaUsedCountEQ.
+func QuotaUsedCount(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldQuotaUsedCount, v))
+}
+
 // AssignedBy applies equality check predicate on the "assigned_by" field. It's identical to AssignedByEQ.
 func AssignedBy(v int64) predicate.UserSubscription {
 	return predicate.UserSubscription(sql.FieldEQ(FieldAssignedBy, v))
@@ -723,6 +753,256 @@ func MonthlyUsageUsdLT(v float64) predicate.UserSubscription {
 // MonthlyUsageUsdLTE applies the LTE predicate on the "monthly_usage_usd" field.
 func MonthlyUsageUsdLTE(v float64) predicate.UserSubscription {
 	return predicate.UserSubscription(sql.FieldLTE(FieldMonthlyUsageUsd, v))
+}
+
+// WindowQuotaCountEQ applies the EQ predicate on the "window_quota_count" field.
+func WindowQuotaCountEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountNEQ applies the NEQ predicate on the "window_quota_count" field.
+func WindowQuotaCountNEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountIn applies the In predicate on the "window_quota_count" field.
+func WindowQuotaCountIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldWindowQuotaCount, vs...))
+}
+
+// WindowQuotaCountNotIn applies the NotIn predicate on the "window_quota_count" field.
+func WindowQuotaCountNotIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldWindowQuotaCount, vs...))
+}
+
+// WindowQuotaCountGT applies the GT predicate on the "window_quota_count" field.
+func WindowQuotaCountGT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountGTE applies the GTE predicate on the "window_quota_count" field.
+func WindowQuotaCountGTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountLT applies the LT predicate on the "window_quota_count" field.
+func WindowQuotaCountLT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountLTE applies the LTE predicate on the "window_quota_count" field.
+func WindowQuotaCountLTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaMinutesEQ applies the EQ predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesNEQ applies the NEQ predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesNEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesIn applies the In predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldWindowQuotaMinutes, vs...))
+}
+
+// WindowQuotaMinutesNotIn applies the NotIn predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesNotIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldWindowQuotaMinutes, vs...))
+}
+
+// WindowQuotaMinutesGT applies the GT predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesGT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesGTE applies the GTE predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesGTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesLT applies the LT predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesLT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesLTE applies the LTE predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesLTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldWindowQuotaMinutes, v))
+}
+
+// WindowUsageCountEQ applies the EQ predicate on the "window_usage_count" field.
+func WindowUsageCountEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowUsageCount, v))
+}
+
+// WindowUsageCountNEQ applies the NEQ predicate on the "window_usage_count" field.
+func WindowUsageCountNEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldWindowUsageCount, v))
+}
+
+// WindowUsageCountIn applies the In predicate on the "window_usage_count" field.
+func WindowUsageCountIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldWindowUsageCount, vs...))
+}
+
+// WindowUsageCountNotIn applies the NotIn predicate on the "window_usage_count" field.
+func WindowUsageCountNotIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldWindowUsageCount, vs...))
+}
+
+// WindowUsageCountGT applies the GT predicate on the "window_usage_count" field.
+func WindowUsageCountGT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldWindowUsageCount, v))
+}
+
+// WindowUsageCountGTE applies the GTE predicate on the "window_usage_count" field.
+func WindowUsageCountGTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldWindowUsageCount, v))
+}
+
+// WindowUsageCountLT applies the LT predicate on the "window_usage_count" field.
+func WindowUsageCountLT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldWindowUsageCount, v))
+}
+
+// WindowUsageCountLTE applies the LTE predicate on the "window_usage_count" field.
+func WindowUsageCountLTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldWindowUsageCount, v))
+}
+
+// WindowStartEQ applies the EQ predicate on the "window_start" field.
+func WindowStartEQ(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldWindowStart, v))
+}
+
+// WindowStartNEQ applies the NEQ predicate on the "window_start" field.
+func WindowStartNEQ(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldWindowStart, v))
+}
+
+// WindowStartIn applies the In predicate on the "window_start" field.
+func WindowStartIn(vs ...time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldWindowStart, vs...))
+}
+
+// WindowStartNotIn applies the NotIn predicate on the "window_start" field.
+func WindowStartNotIn(vs ...time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldWindowStart, vs...))
+}
+
+// WindowStartGT applies the GT predicate on the "window_start" field.
+func WindowStartGT(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldWindowStart, v))
+}
+
+// WindowStartGTE applies the GTE predicate on the "window_start" field.
+func WindowStartGTE(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldWindowStart, v))
+}
+
+// WindowStartLT applies the LT predicate on the "window_start" field.
+func WindowStartLT(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldWindowStart, v))
+}
+
+// WindowStartLTE applies the LTE predicate on the "window_start" field.
+func WindowStartLTE(v time.Time) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldWindowStart, v))
+}
+
+// WindowStartIsNil applies the IsNil predicate on the "window_start" field.
+func WindowStartIsNil() predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIsNull(FieldWindowStart))
+}
+
+// WindowStartNotNil applies the NotNil predicate on the "window_start" field.
+func WindowStartNotNil() predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotNull(FieldWindowStart))
+}
+
+// QuotaTotalCountEQ applies the EQ predicate on the "quota_total_count" field.
+func QuotaTotalCountEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldQuotaTotalCount, v))
+}
+
+// QuotaTotalCountNEQ applies the NEQ predicate on the "quota_total_count" field.
+func QuotaTotalCountNEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldQuotaTotalCount, v))
+}
+
+// QuotaTotalCountIn applies the In predicate on the "quota_total_count" field.
+func QuotaTotalCountIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldQuotaTotalCount, vs...))
+}
+
+// QuotaTotalCountNotIn applies the NotIn predicate on the "quota_total_count" field.
+func QuotaTotalCountNotIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldQuotaTotalCount, vs...))
+}
+
+// QuotaTotalCountGT applies the GT predicate on the "quota_total_count" field.
+func QuotaTotalCountGT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldQuotaTotalCount, v))
+}
+
+// QuotaTotalCountGTE applies the GTE predicate on the "quota_total_count" field.
+func QuotaTotalCountGTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldQuotaTotalCount, v))
+}
+
+// QuotaTotalCountLT applies the LT predicate on the "quota_total_count" field.
+func QuotaTotalCountLT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldQuotaTotalCount, v))
+}
+
+// QuotaTotalCountLTE applies the LTE predicate on the "quota_total_count" field.
+func QuotaTotalCountLTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldQuotaTotalCount, v))
+}
+
+// QuotaUsedCountEQ applies the EQ predicate on the "quota_used_count" field.
+func QuotaUsedCountEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldEQ(FieldQuotaUsedCount, v))
+}
+
+// QuotaUsedCountNEQ applies the NEQ predicate on the "quota_used_count" field.
+func QuotaUsedCountNEQ(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNEQ(FieldQuotaUsedCount, v))
+}
+
+// QuotaUsedCountIn applies the In predicate on the "quota_used_count" field.
+func QuotaUsedCountIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldIn(FieldQuotaUsedCount, vs...))
+}
+
+// QuotaUsedCountNotIn applies the NotIn predicate on the "quota_used_count" field.
+func QuotaUsedCountNotIn(vs ...int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldNotIn(FieldQuotaUsedCount, vs...))
+}
+
+// QuotaUsedCountGT applies the GT predicate on the "quota_used_count" field.
+func QuotaUsedCountGT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGT(FieldQuotaUsedCount, v))
+}
+
+// QuotaUsedCountGTE applies the GTE predicate on the "quota_used_count" field.
+func QuotaUsedCountGTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldGTE(FieldQuotaUsedCount, v))
+}
+
+// QuotaUsedCountLT applies the LT predicate on the "quota_used_count" field.
+func QuotaUsedCountLT(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLT(FieldQuotaUsedCount, v))
+}
+
+// QuotaUsedCountLTE applies the LTE predicate on the "quota_used_count" field.
+func QuotaUsedCountLTE(v int) predicate.UserSubscription {
+	return predicate.UserSubscription(sql.FieldLTE(FieldQuotaUsedCount, v))
 }
 
 // AssignedByEQ applies the EQ predicate on the "assigned_by" field.

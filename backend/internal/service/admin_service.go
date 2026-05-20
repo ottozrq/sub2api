@@ -180,15 +180,17 @@ type AdminBoundAuthIdentityChannel struct {
 }
 
 type CreateGroupInput struct {
-	Name             string
-	Description      string
-	Platform         string
-	RateMultiplier   float64
-	IsExclusive      bool
-	SubscriptionType string   // standard/subscription
-	DailyLimitUSD    *float64 // 日限额 (USD)
-	WeeklyLimitUSD   *float64 // 周限额 (USD)
-	MonthlyLimitUSD  *float64 // 月限额 (USD)
+	Name               string
+	Description        string
+	Platform           string
+	RateMultiplier     float64
+	IsExclusive        bool
+	SubscriptionType   string   // standard/subscription
+	DailyLimitUSD      *float64 // 日限额 (USD)
+	WeeklyLimitUSD     *float64 // 周限额 (USD)
+	MonthlyLimitUSD    *float64 // 月限额 (USD)
+	WindowQuotaCount   int      // 滚动窗口请求次数上限，0 表示不限制
+	WindowQuotaMinutes int      // 滚动窗口分钟数，0 表示不限制
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration bool
 	ImageRateIndependent bool
@@ -219,16 +221,18 @@ type CreateGroupInput struct {
 }
 
 type UpdateGroupInput struct {
-	Name             string
-	Description      string
-	Platform         string
-	RateMultiplier   *float64 // 使用指针以支持设置为0
-	IsExclusive      *bool
-	Status           string
-	SubscriptionType string   // standard/subscription
-	DailyLimitUSD    *float64 // 日限额 (USD)
-	WeeklyLimitUSD   *float64 // 周限额 (USD)
-	MonthlyLimitUSD  *float64 // 月限额 (USD)
+	Name               string
+	Description        string
+	Platform           string
+	RateMultiplier     *float64 // 使用指针以支持设置为0
+	IsExclusive        *bool
+	Status             string
+	SubscriptionType   string   // standard/subscription
+	DailyLimitUSD      *float64 // 日限额 (USD)
+	WeeklyLimitUSD     *float64 // 周限额 (USD)
+	MonthlyLimitUSD    *float64 // 月限额 (USD)
+	WindowQuotaCount   *int     // 滚动窗口请求次数上限，nil 表示未提供不改动
+	WindowQuotaMinutes *int     // 滚动窗口分钟数，nil 表示未提供不改动
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration *bool
 	ImageRateIndependent *bool
@@ -1592,6 +1596,11 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 	dailyLimit := normalizeLimit(input.DailyLimitUSD)
 	weeklyLimit := normalizeLimit(input.WeeklyLimitUSD)
 	monthlyLimit := normalizeLimit(input.MonthlyLimitUSD)
+	windowQuotaCount := input.WindowQuotaCount
+	windowQuotaMinutes := input.WindowQuotaMinutes
+	if windowQuotaCount < 0 || windowQuotaMinutes < 0 {
+		return nil, errors.New("window quota values must be >= 0")
+	}
 
 	// 图片价格：负数表示清除（使用默认价格），0 保留（表示免费）
 	imagePrice1K := normalizePrice(input.ImagePrice1K)
@@ -1671,6 +1680,8 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 		DailyLimitUSD:                   dailyLimit,
 		WeeklyLimitUSD:                  weeklyLimit,
 		MonthlyLimitUSD:                 monthlyLimit,
+		WindowQuotaCount:                windowQuotaCount,
+		WindowQuotaMinutes:              windowQuotaMinutes,
 		AllowImageGeneration:            input.AllowImageGeneration,
 		ImageRateIndependent:            input.ImageRateIndependent,
 		ImageRateMultiplier:             imageRateMultiplier,
@@ -1849,6 +1860,18 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 	group.DailyLimitUSD = normalizeLimit(input.DailyLimitUSD)
 	group.WeeklyLimitUSD = normalizeLimit(input.WeeklyLimitUSD)
 	group.MonthlyLimitUSD = normalizeLimit(input.MonthlyLimitUSD)
+	if input.WindowQuotaCount != nil {
+		if *input.WindowQuotaCount < 0 {
+			return nil, errors.New("window_quota_count must be >= 0")
+		}
+		group.WindowQuotaCount = *input.WindowQuotaCount
+	}
+	if input.WindowQuotaMinutes != nil {
+		if *input.WindowQuotaMinutes < 0 {
+			return nil, errors.New("window_quota_minutes must be >= 0")
+		}
+		group.WindowQuotaMinutes = *input.WindowQuotaMinutes
+	}
 	// 图片生成计费配置：负数表示清除（使用默认价格）
 	if input.AllowImageGeneration != nil {
 		group.AllowImageGeneration = *input.AllowImageGeneration

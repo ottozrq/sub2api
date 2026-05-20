@@ -254,6 +254,48 @@ func (_u *GroupUpdate) ClearMonthlyLimitUsd() *GroupUpdate {
 	return _u
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *GroupUpdate) SetWindowQuotaCount(v int) *GroupUpdate {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableWindowQuotaCount(v *int) *GroupUpdate {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *GroupUpdate) AddWindowQuotaCount(v int) *GroupUpdate {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *GroupUpdate) SetWindowQuotaMinutes(v int) *GroupUpdate {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableWindowQuotaMinutes(v *int) *GroupUpdate {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *GroupUpdate) AddWindowQuotaMinutes(v int) *GroupUpdate {
+	_u.mutation.AddWindowQuotaMinutes(v)
+	return _u
+}
+
 // SetDefaultValidityDays sets the "default_validity_days" field.
 func (_u *GroupUpdate) SetDefaultValidityDays(v int) *GroupUpdate {
 	_u.mutation.ResetDefaultValidityDays()
@@ -1005,6 +1047,18 @@ func (_u *GroupUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.MonthlyLimitUsdCleared() {
 		_spec.ClearField(group.FieldMonthlyLimitUsd, field.TypeFloat64)
 	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(group.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(group.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(group.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(group.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
 	if value, ok := _u.mutation.DefaultValidityDays(); ok {
 		_spec.SetField(group.FieldDefaultValidityDays, field.TypeInt, value)
 	}
@@ -1647,6 +1701,48 @@ func (_u *GroupUpdateOne) AddMonthlyLimitUsd(v float64) *GroupUpdateOne {
 // ClearMonthlyLimitUsd clears the value of the "monthly_limit_usd" field.
 func (_u *GroupUpdateOne) ClearMonthlyLimitUsd() *GroupUpdateOne {
 	_u.mutation.ClearMonthlyLimitUsd()
+	return _u
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *GroupUpdateOne) SetWindowQuotaCount(v int) *GroupUpdateOne {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableWindowQuotaCount(v *int) *GroupUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *GroupUpdateOne) AddWindowQuotaCount(v int) *GroupUpdateOne {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *GroupUpdateOne) SetWindowQuotaMinutes(v int) *GroupUpdateOne {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableWindowQuotaMinutes(v *int) *GroupUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *GroupUpdateOne) AddWindowQuotaMinutes(v int) *GroupUpdateOne {
+	_u.mutation.AddWindowQuotaMinutes(v)
 	return _u
 }
 
@@ -2430,6 +2526,18 @@ func (_u *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error)
 	}
 	if _u.mutation.MonthlyLimitUsdCleared() {
 		_spec.ClearField(group.FieldMonthlyLimitUsd, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(group.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(group.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(group.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(group.FieldWindowQuotaMinutes, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.DefaultValidityDays(); ok {
 		_spec.SetField(group.FieldDefaultValidityDays, field.TypeInt, value)

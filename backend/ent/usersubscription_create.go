@@ -189,6 +189,90 @@ func (_c *UserSubscriptionCreate) SetNillableMonthlyUsageUsd(v *float64) *UserSu
 	return _c
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_c *UserSubscriptionCreate) SetWindowQuotaCount(v int) *UserSubscriptionCreate {
+	_c.mutation.SetWindowQuotaCount(v)
+	return _c
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableWindowQuotaCount(v *int) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetWindowQuotaCount(*v)
+	}
+	return _c
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_c *UserSubscriptionCreate) SetWindowQuotaMinutes(v int) *UserSubscriptionCreate {
+	_c.mutation.SetWindowQuotaMinutes(v)
+	return _c
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableWindowQuotaMinutes(v *int) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetWindowQuotaMinutes(*v)
+	}
+	return _c
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (_c *UserSubscriptionCreate) SetWindowUsageCount(v int) *UserSubscriptionCreate {
+	_c.mutation.SetWindowUsageCount(v)
+	return _c
+}
+
+// SetNillableWindowUsageCount sets the "window_usage_count" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableWindowUsageCount(v *int) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetWindowUsageCount(*v)
+	}
+	return _c
+}
+
+// SetWindowStart sets the "window_start" field.
+func (_c *UserSubscriptionCreate) SetWindowStart(v time.Time) *UserSubscriptionCreate {
+	_c.mutation.SetWindowStart(v)
+	return _c
+}
+
+// SetNillableWindowStart sets the "window_start" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableWindowStart(v *time.Time) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetWindowStart(*v)
+	}
+	return _c
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (_c *UserSubscriptionCreate) SetQuotaTotalCount(v int) *UserSubscriptionCreate {
+	_c.mutation.SetQuotaTotalCount(v)
+	return _c
+}
+
+// SetNillableQuotaTotalCount sets the "quota_total_count" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableQuotaTotalCount(v *int) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetQuotaTotalCount(*v)
+	}
+	return _c
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (_c *UserSubscriptionCreate) SetQuotaUsedCount(v int) *UserSubscriptionCreate {
+	_c.mutation.SetQuotaUsedCount(v)
+	return _c
+}
+
+// SetNillableQuotaUsedCount sets the "quota_used_count" field if the given value is not nil.
+func (_c *UserSubscriptionCreate) SetNillableQuotaUsedCount(v *int) *UserSubscriptionCreate {
+	if v != nil {
+		_c.SetQuotaUsedCount(*v)
+	}
+	return _c
+}
+
 // SetAssignedBy sets the "assigned_by" field.
 func (_c *UserSubscriptionCreate) SetAssignedBy(v int64) *UserSubscriptionCreate {
 	_c.mutation.SetAssignedBy(v)
@@ -342,6 +426,26 @@ func (_c *UserSubscriptionCreate) defaults() error {
 		v := usersubscription.DefaultMonthlyUsageUsd
 		_c.mutation.SetMonthlyUsageUsd(v)
 	}
+	if _, ok := _c.mutation.WindowQuotaCount(); !ok {
+		v := usersubscription.DefaultWindowQuotaCount
+		_c.mutation.SetWindowQuotaCount(v)
+	}
+	if _, ok := _c.mutation.WindowQuotaMinutes(); !ok {
+		v := usersubscription.DefaultWindowQuotaMinutes
+		_c.mutation.SetWindowQuotaMinutes(v)
+	}
+	if _, ok := _c.mutation.WindowUsageCount(); !ok {
+		v := usersubscription.DefaultWindowUsageCount
+		_c.mutation.SetWindowUsageCount(v)
+	}
+	if _, ok := _c.mutation.QuotaTotalCount(); !ok {
+		v := usersubscription.DefaultQuotaTotalCount
+		_c.mutation.SetQuotaTotalCount(v)
+	}
+	if _, ok := _c.mutation.QuotaUsedCount(); !ok {
+		v := usersubscription.DefaultQuotaUsedCount
+		_c.mutation.SetQuotaUsedCount(v)
+	}
 	if _, ok := _c.mutation.AssignedAt(); !ok {
 		if usersubscription.DefaultAssignedAt == nil {
 			return fmt.Errorf("ent: uninitialized usersubscription.DefaultAssignedAt (forgotten import ent/runtime?)")
@@ -388,6 +492,21 @@ func (_c *UserSubscriptionCreate) check() error {
 	}
 	if _, ok := _c.mutation.MonthlyUsageUsd(); !ok {
 		return &ValidationError{Name: "monthly_usage_usd", err: errors.New(`ent: missing required field "UserSubscription.monthly_usage_usd"`)}
+	}
+	if _, ok := _c.mutation.WindowQuotaCount(); !ok {
+		return &ValidationError{Name: "window_quota_count", err: errors.New(`ent: missing required field "UserSubscription.window_quota_count"`)}
+	}
+	if _, ok := _c.mutation.WindowQuotaMinutes(); !ok {
+		return &ValidationError{Name: "window_quota_minutes", err: errors.New(`ent: missing required field "UserSubscription.window_quota_minutes"`)}
+	}
+	if _, ok := _c.mutation.WindowUsageCount(); !ok {
+		return &ValidationError{Name: "window_usage_count", err: errors.New(`ent: missing required field "UserSubscription.window_usage_count"`)}
+	}
+	if _, ok := _c.mutation.QuotaTotalCount(); !ok {
+		return &ValidationError{Name: "quota_total_count", err: errors.New(`ent: missing required field "UserSubscription.quota_total_count"`)}
+	}
+	if _, ok := _c.mutation.QuotaUsedCount(); !ok {
+		return &ValidationError{Name: "quota_used_count", err: errors.New(`ent: missing required field "UserSubscription.quota_used_count"`)}
 	}
 	if _, ok := _c.mutation.AssignedAt(); !ok {
 		return &ValidationError{Name: "assigned_at", err: errors.New(`ent: missing required field "UserSubscription.assigned_at"`)}
@@ -472,6 +591,30 @@ func (_c *UserSubscriptionCreate) createSpec() (*UserSubscription, *sqlgraph.Cre
 	if value, ok := _c.mutation.MonthlyUsageUsd(); ok {
 		_spec.SetField(usersubscription.FieldMonthlyUsageUsd, field.TypeFloat64, value)
 		_node.MonthlyUsageUsd = value
+	}
+	if value, ok := _c.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaCount, field.TypeInt, value)
+		_node.WindowQuotaCount = value
+	}
+	if value, ok := _c.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaMinutes, field.TypeInt, value)
+		_node.WindowQuotaMinutes = value
+	}
+	if value, ok := _c.mutation.WindowUsageCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowUsageCount, field.TypeInt, value)
+		_node.WindowUsageCount = value
+	}
+	if value, ok := _c.mutation.WindowStart(); ok {
+		_spec.SetField(usersubscription.FieldWindowStart, field.TypeTime, value)
+		_node.WindowStart = &value
+	}
+	if value, ok := _c.mutation.QuotaTotalCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaTotalCount, field.TypeInt, value)
+		_node.QuotaTotalCount = value
+	}
+	if value, ok := _c.mutation.QuotaUsedCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaUsedCount, field.TypeInt, value)
+		_node.QuotaUsedCount = value
 	}
 	if value, ok := _c.mutation.AssignedAt(); ok {
 		_spec.SetField(usersubscription.FieldAssignedAt, field.TypeTime, value)
@@ -798,6 +941,114 @@ func (u *UserSubscriptionUpsert) AddMonthlyUsageUsd(v float64) *UserSubscription
 	return u
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (u *UserSubscriptionUpsert) SetWindowQuotaCount(v int) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldWindowQuotaCount, v)
+	return u
+}
+
+// UpdateWindowQuotaCount sets the "window_quota_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateWindowQuotaCount() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldWindowQuotaCount)
+	return u
+}
+
+// AddWindowQuotaCount adds v to the "window_quota_count" field.
+func (u *UserSubscriptionUpsert) AddWindowQuotaCount(v int) *UserSubscriptionUpsert {
+	u.Add(usersubscription.FieldWindowQuotaCount, v)
+	return u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsert) SetWindowQuotaMinutes(v int) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldWindowQuotaMinutes, v)
+	return u
+}
+
+// UpdateWindowQuotaMinutes sets the "window_quota_minutes" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateWindowQuotaMinutes() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldWindowQuotaMinutes)
+	return u
+}
+
+// AddWindowQuotaMinutes adds v to the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsert) AddWindowQuotaMinutes(v int) *UserSubscriptionUpsert {
+	u.Add(usersubscription.FieldWindowQuotaMinutes, v)
+	return u
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (u *UserSubscriptionUpsert) SetWindowUsageCount(v int) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldWindowUsageCount, v)
+	return u
+}
+
+// UpdateWindowUsageCount sets the "window_usage_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateWindowUsageCount() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldWindowUsageCount)
+	return u
+}
+
+// AddWindowUsageCount adds v to the "window_usage_count" field.
+func (u *UserSubscriptionUpsert) AddWindowUsageCount(v int) *UserSubscriptionUpsert {
+	u.Add(usersubscription.FieldWindowUsageCount, v)
+	return u
+}
+
+// SetWindowStart sets the "window_start" field.
+func (u *UserSubscriptionUpsert) SetWindowStart(v time.Time) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldWindowStart, v)
+	return u
+}
+
+// UpdateWindowStart sets the "window_start" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateWindowStart() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldWindowStart)
+	return u
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (u *UserSubscriptionUpsert) ClearWindowStart() *UserSubscriptionUpsert {
+	u.SetNull(usersubscription.FieldWindowStart)
+	return u
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (u *UserSubscriptionUpsert) SetQuotaTotalCount(v int) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldQuotaTotalCount, v)
+	return u
+}
+
+// UpdateQuotaTotalCount sets the "quota_total_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateQuotaTotalCount() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldQuotaTotalCount)
+	return u
+}
+
+// AddQuotaTotalCount adds v to the "quota_total_count" field.
+func (u *UserSubscriptionUpsert) AddQuotaTotalCount(v int) *UserSubscriptionUpsert {
+	u.Add(usersubscription.FieldQuotaTotalCount, v)
+	return u
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (u *UserSubscriptionUpsert) SetQuotaUsedCount(v int) *UserSubscriptionUpsert {
+	u.Set(usersubscription.FieldQuotaUsedCount, v)
+	return u
+}
+
+// UpdateQuotaUsedCount sets the "quota_used_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsert) UpdateQuotaUsedCount() *UserSubscriptionUpsert {
+	u.SetExcluded(usersubscription.FieldQuotaUsedCount)
+	return u
+}
+
+// AddQuotaUsedCount adds v to the "quota_used_count" field.
+func (u *UserSubscriptionUpsert) AddQuotaUsedCount(v int) *UserSubscriptionUpsert {
+	u.Add(usersubscription.FieldQuotaUsedCount, v)
+	return u
+}
+
 // SetAssignedBy sets the "assigned_by" field.
 func (u *UserSubscriptionUpsert) SetAssignedBy(v int64) *UserSubscriptionUpsert {
 	u.Set(usersubscription.FieldAssignedBy, v)
@@ -1119,6 +1370,132 @@ func (u *UserSubscriptionUpsertOne) AddMonthlyUsageUsd(v float64) *UserSubscript
 func (u *UserSubscriptionUpsertOne) UpdateMonthlyUsageUsd() *UserSubscriptionUpsertOne {
 	return u.Update(func(s *UserSubscriptionUpsert) {
 		s.UpdateMonthlyUsageUsd()
+	})
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (u *UserSubscriptionUpsertOne) SetWindowQuotaCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowQuotaCount(v)
+	})
+}
+
+// AddWindowQuotaCount adds v to the "window_quota_count" field.
+func (u *UserSubscriptionUpsertOne) AddWindowQuotaCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowQuotaCount(v)
+	})
+}
+
+// UpdateWindowQuotaCount sets the "window_quota_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateWindowQuotaCount() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowQuotaCount()
+	})
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsertOne) SetWindowQuotaMinutes(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowQuotaMinutes(v)
+	})
+}
+
+// AddWindowQuotaMinutes adds v to the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsertOne) AddWindowQuotaMinutes(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowQuotaMinutes(v)
+	})
+}
+
+// UpdateWindowQuotaMinutes sets the "window_quota_minutes" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateWindowQuotaMinutes() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowQuotaMinutes()
+	})
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (u *UserSubscriptionUpsertOne) SetWindowUsageCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowUsageCount(v)
+	})
+}
+
+// AddWindowUsageCount adds v to the "window_usage_count" field.
+func (u *UserSubscriptionUpsertOne) AddWindowUsageCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowUsageCount(v)
+	})
+}
+
+// UpdateWindowUsageCount sets the "window_usage_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateWindowUsageCount() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowUsageCount()
+	})
+}
+
+// SetWindowStart sets the "window_start" field.
+func (u *UserSubscriptionUpsertOne) SetWindowStart(v time.Time) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowStart(v)
+	})
+}
+
+// UpdateWindowStart sets the "window_start" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateWindowStart() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowStart()
+	})
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (u *UserSubscriptionUpsertOne) ClearWindowStart() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.ClearWindowStart()
+	})
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (u *UserSubscriptionUpsertOne) SetQuotaTotalCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetQuotaTotalCount(v)
+	})
+}
+
+// AddQuotaTotalCount adds v to the "quota_total_count" field.
+func (u *UserSubscriptionUpsertOne) AddQuotaTotalCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddQuotaTotalCount(v)
+	})
+}
+
+// UpdateQuotaTotalCount sets the "quota_total_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateQuotaTotalCount() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateQuotaTotalCount()
+	})
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (u *UserSubscriptionUpsertOne) SetQuotaUsedCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetQuotaUsedCount(v)
+	})
+}
+
+// AddQuotaUsedCount adds v to the "quota_used_count" field.
+func (u *UserSubscriptionUpsertOne) AddQuotaUsedCount(v int) *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddQuotaUsedCount(v)
+	})
+}
+
+// UpdateQuotaUsedCount sets the "quota_used_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertOne) UpdateQuotaUsedCount() *UserSubscriptionUpsertOne {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateQuotaUsedCount()
 	})
 }
 
@@ -1617,6 +1994,132 @@ func (u *UserSubscriptionUpsertBulk) AddMonthlyUsageUsd(v float64) *UserSubscrip
 func (u *UserSubscriptionUpsertBulk) UpdateMonthlyUsageUsd() *UserSubscriptionUpsertBulk {
 	return u.Update(func(s *UserSubscriptionUpsert) {
 		s.UpdateMonthlyUsageUsd()
+	})
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (u *UserSubscriptionUpsertBulk) SetWindowQuotaCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowQuotaCount(v)
+	})
+}
+
+// AddWindowQuotaCount adds v to the "window_quota_count" field.
+func (u *UserSubscriptionUpsertBulk) AddWindowQuotaCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowQuotaCount(v)
+	})
+}
+
+// UpdateWindowQuotaCount sets the "window_quota_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateWindowQuotaCount() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowQuotaCount()
+	})
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsertBulk) SetWindowQuotaMinutes(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowQuotaMinutes(v)
+	})
+}
+
+// AddWindowQuotaMinutes adds v to the "window_quota_minutes" field.
+func (u *UserSubscriptionUpsertBulk) AddWindowQuotaMinutes(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowQuotaMinutes(v)
+	})
+}
+
+// UpdateWindowQuotaMinutes sets the "window_quota_minutes" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateWindowQuotaMinutes() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowQuotaMinutes()
+	})
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (u *UserSubscriptionUpsertBulk) SetWindowUsageCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowUsageCount(v)
+	})
+}
+
+// AddWindowUsageCount adds v to the "window_usage_count" field.
+func (u *UserSubscriptionUpsertBulk) AddWindowUsageCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddWindowUsageCount(v)
+	})
+}
+
+// UpdateWindowUsageCount sets the "window_usage_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateWindowUsageCount() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowUsageCount()
+	})
+}
+
+// SetWindowStart sets the "window_start" field.
+func (u *UserSubscriptionUpsertBulk) SetWindowStart(v time.Time) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetWindowStart(v)
+	})
+}
+
+// UpdateWindowStart sets the "window_start" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateWindowStart() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateWindowStart()
+	})
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (u *UserSubscriptionUpsertBulk) ClearWindowStart() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.ClearWindowStart()
+	})
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (u *UserSubscriptionUpsertBulk) SetQuotaTotalCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetQuotaTotalCount(v)
+	})
+}
+
+// AddQuotaTotalCount adds v to the "quota_total_count" field.
+func (u *UserSubscriptionUpsertBulk) AddQuotaTotalCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddQuotaTotalCount(v)
+	})
+}
+
+// UpdateQuotaTotalCount sets the "quota_total_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateQuotaTotalCount() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateQuotaTotalCount()
+	})
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (u *UserSubscriptionUpsertBulk) SetQuotaUsedCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.SetQuotaUsedCount(v)
+	})
+}
+
+// AddQuotaUsedCount adds v to the "quota_used_count" field.
+func (u *UserSubscriptionUpsertBulk) AddQuotaUsedCount(v int) *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.AddQuotaUsedCount(v)
+	})
+}
+
+// UpdateQuotaUsedCount sets the "quota_used_count" field to the value that was provided on create.
+func (u *UserSubscriptionUpsertBulk) UpdateQuotaUsedCount() *UserSubscriptionUpsertBulk {
+	return u.Update(func(s *UserSubscriptionUpsert) {
+		s.UpdateQuotaUsedCount()
 	})
 }
 

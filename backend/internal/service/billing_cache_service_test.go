@@ -14,6 +14,7 @@ import (
 type billingCacheWorkerStub struct {
 	balanceUpdates      int64
 	subscriptionUpdates int64
+	subscriptionData    *SubscriptionCacheData
 }
 
 func (b *billingCacheWorkerStub) GetUserBalance(ctx context.Context, userID int64) (float64, error) {
@@ -35,6 +36,9 @@ func (b *billingCacheWorkerStub) InvalidateUserBalance(ctx context.Context, user
 }
 
 func (b *billingCacheWorkerStub) GetSubscriptionCache(ctx context.Context, userID, groupID int64) (*SubscriptionCacheData, error) {
+	if b.subscriptionData != nil {
+		return b.subscriptionData, nil
+	}
 	return nil, errors.New("not implemented")
 }
 
@@ -101,4 +105,38 @@ func TestBillingCacheServiceEnqueueAfterStopReturnsFalse(t *testing.T) {
 		amount: 1,
 	})
 	require.False(t, enqueued)
+}
+
+func TestBillingCacheServiceCheckSubscriptionWindowQuotaExceeded(t *testing.T) {
+	start := time.Now().Add(-time.Hour)
+	cache := &billingCacheWorkerStub{subscriptionData: &SubscriptionCacheData{
+		Status:             SubscriptionStatusActive,
+		ExpiresAt:          time.Now().Add(time.Hour),
+		WindowQuotaCount:   2,
+		WindowQuotaMinutes: 180,
+		WindowUsageCount:   2,
+		WindowStart:        &start,
+	}}
+	svc := NewBillingCacheService(cache, nil, nil, nil, nil, nil, &config.Config{})
+	t.Cleanup(svc.Stop)
+
+	err := svc.checkSubscriptionEligibility(context.Background(), 1, &Group{ID: 2}, &UserSubscription{})
+	require.ErrorIs(t, err, ErrSubscriptionWindowQuotaExceeded)
+}
+
+func TestBillingCacheServiceCheckSubscriptionWindowQuotaExpiredWindowAllows(t *testing.T) {
+	start := time.Now().Add(-4 * time.Hour)
+	cache := &billingCacheWorkerStub{subscriptionData: &SubscriptionCacheData{
+		Status:             SubscriptionStatusActive,
+		ExpiresAt:          time.Now().Add(time.Hour),
+		WindowQuotaCount:   2,
+		WindowQuotaMinutes: 180,
+		WindowUsageCount:   2,
+		WindowStart:        &start,
+	}}
+	svc := NewBillingCacheService(cache, nil, nil, nil, nil, nil, &config.Config{})
+	t.Cleanup(svc.Stop)
+
+	err := svc.checkSubscriptionEligibility(context.Background(), 1, &Group{ID: 2}, &UserSubscription{})
+	require.NoError(t, err)
 }

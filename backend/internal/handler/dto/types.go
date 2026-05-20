@@ -88,10 +88,12 @@ type Group struct {
 	IsExclusive    bool    `json:"is_exclusive"`
 	Status         string  `json:"status"`
 
-	SubscriptionType string   `json:"subscription_type"`
-	DailyLimitUSD    *float64 `json:"daily_limit_usd"`
-	WeeklyLimitUSD   *float64 `json:"weekly_limit_usd"`
-	MonthlyLimitUSD  *float64 `json:"monthly_limit_usd"`
+	SubscriptionType   string   `json:"subscription_type"`
+	DailyLimitUSD      *float64 `json:"daily_limit_usd"`
+	WeeklyLimitUSD     *float64 `json:"weekly_limit_usd"`
+	MonthlyLimitUSD    *float64 `json:"monthly_limit_usd"`
+	WindowQuotaCount   int      `json:"window_quota_count"`
+	WindowQuotaMinutes int      `json:"window_quota_minutes"`
 
 	// 图片生成计费配置（仅 antigravity 平台使用）
 	AllowImageGeneration bool     `json:"allow_image_generation"`
@@ -506,6 +508,13 @@ type UserSubscription struct {
 	DailyUsageUSD   float64 `json:"daily_usage_usd"`
 	WeeklyUsageUSD  float64 `json:"weekly_usage_usd"`
 	MonthlyUsageUSD float64 `json:"monthly_usage_usd"`
+
+	WindowQuotaCount   int        `json:"window_quota_count"`
+	WindowQuotaMinutes int        `json:"window_quota_minutes"`
+	WindowUsageCount   int        `json:"window_usage_count"`
+	WindowStart        *time.Time `json:"window_start"`
+	QuotaTotalCount    int        `json:"quota_total_count"`
+	QuotaUsedCount     int        `json:"quota_used_count"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

@@ -365,6 +365,83 @@ func (_u *PaymentOrderUpdate) ClearSubscriptionDays() *PaymentOrderUpdate {
 	return _u
 }
 
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (_u *PaymentOrderUpdate) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderUpdate {
+	_u.mutation.ResetSubscriptionWindowQuotaCount()
+	_u.mutation.SetSubscriptionWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableSubscriptionWindowQuotaCount(v *int) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetSubscriptionWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionWindowQuotaCount adds value to the "subscription_window_quota_count" field.
+func (_u *PaymentOrderUpdate) AddSubscriptionWindowQuotaCount(v int) *PaymentOrderUpdate {
+	_u.mutation.AddSubscriptionWindowQuotaCount(v)
+	return _u
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (_u *PaymentOrderUpdate) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpdate {
+	_u.mutation.ResetSubscriptionWindowQuotaMinutes()
+	_u.mutation.SetSubscriptionWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableSubscriptionWindowQuotaMinutes(v *int) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetSubscriptionWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionWindowQuotaMinutes adds value to the "subscription_window_quota_minutes" field.
+func (_u *PaymentOrderUpdate) AddSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpdate {
+	_u.mutation.AddSubscriptionWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (_u *PaymentOrderUpdate) SetSubscriptionPlanType(v string) *PaymentOrderUpdate {
+	_u.mutation.SetSubscriptionPlanType(v)
+	return _u
+}
+
+// SetNillableSubscriptionPlanType sets the "subscription_plan_type" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableSubscriptionPlanType(v *string) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetSubscriptionPlanType(*v)
+	}
+	return _u
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (_u *PaymentOrderUpdate) SetSubscriptionQuotaCount(v int) *PaymentOrderUpdate {
+	_u.mutation.ResetSubscriptionQuotaCount()
+	_u.mutation.SetSubscriptionQuotaCount(v)
+	return _u
+}
+
+// SetNillableSubscriptionQuotaCount sets the "subscription_quota_count" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableSubscriptionQuotaCount(v *int) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetSubscriptionQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionQuotaCount adds value to the "subscription_quota_count" field.
+func (_u *PaymentOrderUpdate) AddSubscriptionQuotaCount(v int) *PaymentOrderUpdate {
+	_u.mutation.AddSubscriptionQuotaCount(v)
+	return _u
+}
+
 // SetProviderInstanceID sets the "provider_instance_id" field.
 func (_u *PaymentOrderUpdate) SetProviderInstanceID(v string) *PaymentOrderUpdate {
 	_u.mutation.SetProviderInstanceID(v)
@@ -803,6 +880,11 @@ func (_u *PaymentOrderUpdate) check() error {
 			return &ValidationError{Name: "order_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.order_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SubscriptionPlanType(); ok {
+		if err := paymentorder.SubscriptionPlanTypeValidator(v); err != nil {
+			return &ValidationError{Name: "subscription_plan_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.subscription_plan_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ProviderInstanceID(); ok {
 		if err := paymentorder.ProviderInstanceIDValidator(v); err != nil {
 			return &ValidationError{Name: "provider_instance_id", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.provider_instance_id": %w`, err)}
@@ -940,6 +1022,27 @@ func (_u *PaymentOrderUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.SubscriptionDaysCleared() {
 		_spec.ClearField(paymentorder.FieldSubscriptionDays, field.TypeInt)
+	}
+	if value, ok := _u.mutation.SubscriptionWindowQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionWindowQuotaCount(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SubscriptionWindowQuotaMinutes(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionWindowQuotaMinutes(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SubscriptionPlanType(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionPlanType, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SubscriptionQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionQuotaCount(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionQuotaCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.ProviderInstanceID(); ok {
 		_spec.SetField(paymentorder.FieldProviderInstanceID, field.TypeString, value)
@@ -1428,6 +1531,83 @@ func (_u *PaymentOrderUpdateOne) ClearSubscriptionDays() *PaymentOrderUpdateOne 
 	return _u
 }
 
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (_u *PaymentOrderUpdateOne) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderUpdateOne {
+	_u.mutation.ResetSubscriptionWindowQuotaCount()
+	_u.mutation.SetSubscriptionWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableSubscriptionWindowQuotaCount(v *int) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetSubscriptionWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionWindowQuotaCount adds value to the "subscription_window_quota_count" field.
+func (_u *PaymentOrderUpdateOne) AddSubscriptionWindowQuotaCount(v int) *PaymentOrderUpdateOne {
+	_u.mutation.AddSubscriptionWindowQuotaCount(v)
+	return _u
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (_u *PaymentOrderUpdateOne) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpdateOne {
+	_u.mutation.ResetSubscriptionWindowQuotaMinutes()
+	_u.mutation.SetSubscriptionWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableSubscriptionWindowQuotaMinutes(v *int) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetSubscriptionWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionWindowQuotaMinutes adds value to the "subscription_window_quota_minutes" field.
+func (_u *PaymentOrderUpdateOne) AddSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpdateOne {
+	_u.mutation.AddSubscriptionWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (_u *PaymentOrderUpdateOne) SetSubscriptionPlanType(v string) *PaymentOrderUpdateOne {
+	_u.mutation.SetSubscriptionPlanType(v)
+	return _u
+}
+
+// SetNillableSubscriptionPlanType sets the "subscription_plan_type" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableSubscriptionPlanType(v *string) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetSubscriptionPlanType(*v)
+	}
+	return _u
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (_u *PaymentOrderUpdateOne) SetSubscriptionQuotaCount(v int) *PaymentOrderUpdateOne {
+	_u.mutation.ResetSubscriptionQuotaCount()
+	_u.mutation.SetSubscriptionQuotaCount(v)
+	return _u
+}
+
+// SetNillableSubscriptionQuotaCount sets the "subscription_quota_count" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableSubscriptionQuotaCount(v *int) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetSubscriptionQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddSubscriptionQuotaCount adds value to the "subscription_quota_count" field.
+func (_u *PaymentOrderUpdateOne) AddSubscriptionQuotaCount(v int) *PaymentOrderUpdateOne {
+	_u.mutation.AddSubscriptionQuotaCount(v)
+	return _u
+}
+
 // SetProviderInstanceID sets the "provider_instance_id" field.
 func (_u *PaymentOrderUpdateOne) SetProviderInstanceID(v string) *PaymentOrderUpdateOne {
 	_u.mutation.SetProviderInstanceID(v)
@@ -1879,6 +2059,11 @@ func (_u *PaymentOrderUpdateOne) check() error {
 			return &ValidationError{Name: "order_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.order_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SubscriptionPlanType(); ok {
+		if err := paymentorder.SubscriptionPlanTypeValidator(v); err != nil {
+			return &ValidationError{Name: "subscription_plan_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.subscription_plan_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ProviderInstanceID(); ok {
 		if err := paymentorder.ProviderInstanceIDValidator(v); err != nil {
 			return &ValidationError{Name: "provider_instance_id", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.provider_instance_id": %w`, err)}
@@ -2033,6 +2218,27 @@ func (_u *PaymentOrderUpdateOne) sqlSave(ctx context.Context) (_node *PaymentOrd
 	}
 	if _u.mutation.SubscriptionDaysCleared() {
 		_spec.ClearField(paymentorder.FieldSubscriptionDays, field.TypeInt)
+	}
+	if value, ok := _u.mutation.SubscriptionWindowQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionWindowQuotaCount(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SubscriptionWindowQuotaMinutes(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionWindowQuotaMinutes(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SubscriptionPlanType(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionPlanType, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SubscriptionQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSubscriptionQuotaCount(); ok {
+		_spec.AddField(paymentorder.FieldSubscriptionQuotaCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.ProviderInstanceID(); ok {
 		_spec.SetField(paymentorder.FieldProviderInstanceID, field.TypeString, value)

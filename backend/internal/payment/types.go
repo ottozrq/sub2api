@@ -41,6 +41,13 @@ const (
 	OrderTypeSubscription = "subscription"
 )
 
+// Subscription plan types distinguish time-window subscriptions from fixed
+// request-count packs fulfilled through the same user subscription entitlement.
+const (
+	PlanTypeSubscription = "subscription"
+	PlanTypeQuotaPack    = "quota_pack"
+)
+
 // Entity statuses shared across users, groups, etc.
 const (
 	EntityStatusActive = "active"

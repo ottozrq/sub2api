@@ -211,6 +211,62 @@ func (_c *PaymentOrderCreate) SetNillableSubscriptionDays(v *int) *PaymentOrderC
 	return _c
 }
 
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (_c *PaymentOrderCreate) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderCreate {
+	_c.mutation.SetSubscriptionWindowQuotaCount(v)
+	return _c
+}
+
+// SetNillableSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableSubscriptionWindowQuotaCount(v *int) *PaymentOrderCreate {
+	if v != nil {
+		_c.SetSubscriptionWindowQuotaCount(*v)
+	}
+	return _c
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (_c *PaymentOrderCreate) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderCreate {
+	_c.mutation.SetSubscriptionWindowQuotaMinutes(v)
+	return _c
+}
+
+// SetNillableSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableSubscriptionWindowQuotaMinutes(v *int) *PaymentOrderCreate {
+	if v != nil {
+		_c.SetSubscriptionWindowQuotaMinutes(*v)
+	}
+	return _c
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (_c *PaymentOrderCreate) SetSubscriptionPlanType(v string) *PaymentOrderCreate {
+	_c.mutation.SetSubscriptionPlanType(v)
+	return _c
+}
+
+// SetNillableSubscriptionPlanType sets the "subscription_plan_type" field if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableSubscriptionPlanType(v *string) *PaymentOrderCreate {
+	if v != nil {
+		_c.SetSubscriptionPlanType(*v)
+	}
+	return _c
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (_c *PaymentOrderCreate) SetSubscriptionQuotaCount(v int) *PaymentOrderCreate {
+	_c.mutation.SetSubscriptionQuotaCount(v)
+	return _c
+}
+
+// SetNillableSubscriptionQuotaCount sets the "subscription_quota_count" field if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableSubscriptionQuotaCount(v *int) *PaymentOrderCreate {
+	if v != nil {
+		_c.SetSubscriptionQuotaCount(*v)
+	}
+	return _c
+}
+
 // SetProviderInstanceID sets the "provider_instance_id" field.
 func (_c *PaymentOrderCreate) SetProviderInstanceID(v string) *PaymentOrderCreate {
 	_c.mutation.SetProviderInstanceID(v)
@@ -525,6 +581,22 @@ func (_c *PaymentOrderCreate) defaults() {
 		v := paymentorder.DefaultOrderType
 		_c.mutation.SetOrderType(v)
 	}
+	if _, ok := _c.mutation.SubscriptionWindowQuotaCount(); !ok {
+		v := paymentorder.DefaultSubscriptionWindowQuotaCount
+		_c.mutation.SetSubscriptionWindowQuotaCount(v)
+	}
+	if _, ok := _c.mutation.SubscriptionWindowQuotaMinutes(); !ok {
+		v := paymentorder.DefaultSubscriptionWindowQuotaMinutes
+		_c.mutation.SetSubscriptionWindowQuotaMinutes(v)
+	}
+	if _, ok := _c.mutation.SubscriptionPlanType(); !ok {
+		v := paymentorder.DefaultSubscriptionPlanType
+		_c.mutation.SetSubscriptionPlanType(v)
+	}
+	if _, ok := _c.mutation.SubscriptionQuotaCount(); !ok {
+		v := paymentorder.DefaultSubscriptionQuotaCount
+		_c.mutation.SetSubscriptionQuotaCount(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := paymentorder.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -616,6 +688,23 @@ func (_c *PaymentOrderCreate) check() error {
 		if err := paymentorder.OrderTypeValidator(v); err != nil {
 			return &ValidationError{Name: "order_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.order_type": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.SubscriptionWindowQuotaCount(); !ok {
+		return &ValidationError{Name: "subscription_window_quota_count", err: errors.New(`ent: missing required field "PaymentOrder.subscription_window_quota_count"`)}
+	}
+	if _, ok := _c.mutation.SubscriptionWindowQuotaMinutes(); !ok {
+		return &ValidationError{Name: "subscription_window_quota_minutes", err: errors.New(`ent: missing required field "PaymentOrder.subscription_window_quota_minutes"`)}
+	}
+	if _, ok := _c.mutation.SubscriptionPlanType(); !ok {
+		return &ValidationError{Name: "subscription_plan_type", err: errors.New(`ent: missing required field "PaymentOrder.subscription_plan_type"`)}
+	}
+	if v, ok := _c.mutation.SubscriptionPlanType(); ok {
+		if err := paymentorder.SubscriptionPlanTypeValidator(v); err != nil {
+			return &ValidationError{Name: "subscription_plan_type", err: fmt.Errorf(`ent: validator failed for field "PaymentOrder.subscription_plan_type": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SubscriptionQuotaCount(); !ok {
+		return &ValidationError{Name: "subscription_quota_count", err: errors.New(`ent: missing required field "PaymentOrder.subscription_quota_count"`)}
 	}
 	if v, ok := _c.mutation.ProviderInstanceID(); ok {
 		if err := paymentorder.ProviderInstanceIDValidator(v); err != nil {
@@ -768,6 +857,22 @@ func (_c *PaymentOrderCreate) createSpec() (*PaymentOrder, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.SubscriptionDays(); ok {
 		_spec.SetField(paymentorder.FieldSubscriptionDays, field.TypeInt, value)
 		_node.SubscriptionDays = &value
+	}
+	if value, ok := _c.mutation.SubscriptionWindowQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaCount, field.TypeInt, value)
+		_node.SubscriptionWindowQuotaCount = value
+	}
+	if value, ok := _c.mutation.SubscriptionWindowQuotaMinutes(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionWindowQuotaMinutes, field.TypeInt, value)
+		_node.SubscriptionWindowQuotaMinutes = value
+	}
+	if value, ok := _c.mutation.SubscriptionPlanType(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionPlanType, field.TypeString, value)
+		_node.SubscriptionPlanType = value
+	}
+	if value, ok := _c.mutation.SubscriptionQuotaCount(); ok {
+		_spec.SetField(paymentorder.FieldSubscriptionQuotaCount, field.TypeInt, value)
+		_node.SubscriptionQuotaCount = value
 	}
 	if value, ok := _c.mutation.ProviderInstanceID(); ok {
 		_spec.SetField(paymentorder.FieldProviderInstanceID, field.TypeString, value)
@@ -1213,6 +1318,72 @@ func (u *PaymentOrderUpsert) AddSubscriptionDays(v int) *PaymentOrderUpsert {
 // ClearSubscriptionDays clears the value of the "subscription_days" field.
 func (u *PaymentOrderUpsert) ClearSubscriptionDays() *PaymentOrderUpsert {
 	u.SetNull(paymentorder.FieldSubscriptionDays)
+	return u
+}
+
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsert) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsert {
+	u.Set(paymentorder.FieldSubscriptionWindowQuotaCount, v)
+	return u
+}
+
+// UpdateSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsert) UpdateSubscriptionWindowQuotaCount() *PaymentOrderUpsert {
+	u.SetExcluded(paymentorder.FieldSubscriptionWindowQuotaCount)
+	return u
+}
+
+// AddSubscriptionWindowQuotaCount adds v to the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsert) AddSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsert {
+	u.Add(paymentorder.FieldSubscriptionWindowQuotaCount, v)
+	return u
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsert) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsert {
+	u.Set(paymentorder.FieldSubscriptionWindowQuotaMinutes, v)
+	return u
+}
+
+// UpdateSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field to the value that was provided on create.
+func (u *PaymentOrderUpsert) UpdateSubscriptionWindowQuotaMinutes() *PaymentOrderUpsert {
+	u.SetExcluded(paymentorder.FieldSubscriptionWindowQuotaMinutes)
+	return u
+}
+
+// AddSubscriptionWindowQuotaMinutes adds v to the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsert) AddSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsert {
+	u.Add(paymentorder.FieldSubscriptionWindowQuotaMinutes, v)
+	return u
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (u *PaymentOrderUpsert) SetSubscriptionPlanType(v string) *PaymentOrderUpsert {
+	u.Set(paymentorder.FieldSubscriptionPlanType, v)
+	return u
+}
+
+// UpdateSubscriptionPlanType sets the "subscription_plan_type" field to the value that was provided on create.
+func (u *PaymentOrderUpsert) UpdateSubscriptionPlanType() *PaymentOrderUpsert {
+	u.SetExcluded(paymentorder.FieldSubscriptionPlanType)
+	return u
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (u *PaymentOrderUpsert) SetSubscriptionQuotaCount(v int) *PaymentOrderUpsert {
+	u.Set(paymentorder.FieldSubscriptionQuotaCount, v)
+	return u
+}
+
+// UpdateSubscriptionQuotaCount sets the "subscription_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsert) UpdateSubscriptionQuotaCount() *PaymentOrderUpsert {
+	u.SetExcluded(paymentorder.FieldSubscriptionQuotaCount)
+	return u
+}
+
+// AddSubscriptionQuotaCount adds v to the "subscription_quota_count" field.
+func (u *PaymentOrderUpsert) AddSubscriptionQuotaCount(v int) *PaymentOrderUpsert {
+	u.Add(paymentorder.FieldSubscriptionQuotaCount, v)
 	return u
 }
 
@@ -1925,6 +2096,83 @@ func (u *PaymentOrderUpsertOne) UpdateSubscriptionDays() *PaymentOrderUpsertOne 
 func (u *PaymentOrderUpsertOne) ClearSubscriptionDays() *PaymentOrderUpsertOne {
 	return u.Update(func(s *PaymentOrderUpsert) {
 		s.ClearSubscriptionDays()
+	})
+}
+
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsertOne) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionWindowQuotaCount(v)
+	})
+}
+
+// AddSubscriptionWindowQuotaCount adds v to the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsertOne) AddSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionWindowQuotaCount(v)
+	})
+}
+
+// UpdateSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsertOne) UpdateSubscriptionWindowQuotaCount() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionWindowQuotaCount()
+	})
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsertOne) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionWindowQuotaMinutes(v)
+	})
+}
+
+// AddSubscriptionWindowQuotaMinutes adds v to the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsertOne) AddSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionWindowQuotaMinutes(v)
+	})
+}
+
+// UpdateSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field to the value that was provided on create.
+func (u *PaymentOrderUpsertOne) UpdateSubscriptionWindowQuotaMinutes() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionWindowQuotaMinutes()
+	})
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (u *PaymentOrderUpsertOne) SetSubscriptionPlanType(v string) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionPlanType(v)
+	})
+}
+
+// UpdateSubscriptionPlanType sets the "subscription_plan_type" field to the value that was provided on create.
+func (u *PaymentOrderUpsertOne) UpdateSubscriptionPlanType() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionPlanType()
+	})
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (u *PaymentOrderUpsertOne) SetSubscriptionQuotaCount(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionQuotaCount(v)
+	})
+}
+
+// AddSubscriptionQuotaCount adds v to the "subscription_quota_count" field.
+func (u *PaymentOrderUpsertOne) AddSubscriptionQuotaCount(v int) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionQuotaCount(v)
+	})
+}
+
+// UpdateSubscriptionQuotaCount sets the "subscription_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsertOne) UpdateSubscriptionQuotaCount() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionQuotaCount()
 	})
 }
 
@@ -2857,6 +3105,83 @@ func (u *PaymentOrderUpsertBulk) UpdateSubscriptionDays() *PaymentOrderUpsertBul
 func (u *PaymentOrderUpsertBulk) ClearSubscriptionDays() *PaymentOrderUpsertBulk {
 	return u.Update(func(s *PaymentOrderUpsert) {
 		s.ClearSubscriptionDays()
+	})
+}
+
+// SetSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsertBulk) SetSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionWindowQuotaCount(v)
+	})
+}
+
+// AddSubscriptionWindowQuotaCount adds v to the "subscription_window_quota_count" field.
+func (u *PaymentOrderUpsertBulk) AddSubscriptionWindowQuotaCount(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionWindowQuotaCount(v)
+	})
+}
+
+// UpdateSubscriptionWindowQuotaCount sets the "subscription_window_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsertBulk) UpdateSubscriptionWindowQuotaCount() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionWindowQuotaCount()
+	})
+}
+
+// SetSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsertBulk) SetSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionWindowQuotaMinutes(v)
+	})
+}
+
+// AddSubscriptionWindowQuotaMinutes adds v to the "subscription_window_quota_minutes" field.
+func (u *PaymentOrderUpsertBulk) AddSubscriptionWindowQuotaMinutes(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionWindowQuotaMinutes(v)
+	})
+}
+
+// UpdateSubscriptionWindowQuotaMinutes sets the "subscription_window_quota_minutes" field to the value that was provided on create.
+func (u *PaymentOrderUpsertBulk) UpdateSubscriptionWindowQuotaMinutes() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionWindowQuotaMinutes()
+	})
+}
+
+// SetSubscriptionPlanType sets the "subscription_plan_type" field.
+func (u *PaymentOrderUpsertBulk) SetSubscriptionPlanType(v string) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionPlanType(v)
+	})
+}
+
+// UpdateSubscriptionPlanType sets the "subscription_plan_type" field to the value that was provided on create.
+func (u *PaymentOrderUpsertBulk) UpdateSubscriptionPlanType() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionPlanType()
+	})
+}
+
+// SetSubscriptionQuotaCount sets the "subscription_quota_count" field.
+func (u *PaymentOrderUpsertBulk) SetSubscriptionQuotaCount(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetSubscriptionQuotaCount(v)
+	})
+}
+
+// AddSubscriptionQuotaCount adds v to the "subscription_quota_count" field.
+func (u *PaymentOrderUpsertBulk) AddSubscriptionQuotaCount(v int) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.AddSubscriptionQuotaCount(v)
+	})
+}
+
+// UpdateSubscriptionQuotaCount sets the "subscription_quota_count" field to the value that was provided on create.
+func (u *PaymentOrderUpsertBulk) UpdateSubscriptionQuotaCount() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateSubscriptionQuotaCount()
 	})
 }
 

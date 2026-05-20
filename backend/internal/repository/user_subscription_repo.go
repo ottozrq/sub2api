@@ -35,6 +35,12 @@ func (r *userSubscriptionRepository) Create(ctx context.Context, sub *service.Us
 		SetDailyUsageUsd(sub.DailyUsageUSD).
 		SetWeeklyUsageUsd(sub.WeeklyUsageUSD).
 		SetMonthlyUsageUsd(sub.MonthlyUsageUSD).
+		SetWindowQuotaCount(sub.WindowQuotaCount).
+		SetWindowQuotaMinutes(sub.WindowQuotaMinutes).
+		SetWindowUsageCount(sub.WindowUsageCount).
+		SetNillableWindowStart(sub.WindowStart).
+		SetQuotaTotalCount(sub.QuotaTotalCount).
+		SetQuotaUsedCount(sub.QuotaUsedCount).
 		SetNillableAssignedBy(sub.AssignedBy)
 
 	if sub.StartsAt.IsZero() {
@@ -119,6 +125,12 @@ func (r *userSubscriptionRepository) Update(ctx context.Context, sub *service.Us
 		SetDailyUsageUsd(sub.DailyUsageUSD).
 		SetWeeklyUsageUsd(sub.WeeklyUsageUSD).
 		SetMonthlyUsageUsd(sub.MonthlyUsageUSD).
+		SetWindowQuotaCount(sub.WindowQuotaCount).
+		SetWindowQuotaMinutes(sub.WindowQuotaMinutes).
+		SetWindowUsageCount(sub.WindowUsageCount).
+		SetNillableWindowStart(sub.WindowStart).
+		SetQuotaTotalCount(sub.QuotaTotalCount).
+		SetQuotaUsedCount(sub.QuotaUsedCount).
 		SetNillableAssignedBy(sub.AssignedBy).
 		SetAssignedAt(sub.AssignedAt).
 		SetNotes(sub.Notes)
@@ -336,6 +348,28 @@ func (r *userSubscriptionRepository) ResetMonthlyUsage(ctx context.Context, id i
 	return translatePersistenceError(err, service.ErrSubscriptionNotFound, nil)
 }
 
+func (r *userSubscriptionRepository) UpdateWindowQuotaPolicy(ctx context.Context, id int64, count, minutes int) error {
+	client := clientFromContext(ctx, r.client)
+	_, err := client.UserSubscription.UpdateOneID(id).
+		SetWindowQuotaCount(count).
+		SetWindowQuotaMinutes(minutes).
+		SetWindowUsageCount(0).
+		ClearWindowStart().
+		Save(ctx)
+	return translatePersistenceError(err, service.ErrSubscriptionNotFound, nil)
+}
+
+func (r *userSubscriptionRepository) AddQuotaTotal(ctx context.Context, id int64, count int) error {
+	if count <= 0 {
+		return nil
+	}
+	client := clientFromContext(ctx, r.client)
+	_, err := client.UserSubscription.UpdateOneID(id).
+		AddQuotaTotalCount(count).
+		Save(ctx)
+	return translatePersistenceError(err, service.ErrSubscriptionNotFound, nil)
+}
+
 // IncrementUsage 原子性地累加订阅用量。
 // 限额检查已在请求前由 BillingCacheService.CheckBillingEligibility 完成，
 // 此处仅负责记录实际消费，确保消费数据的完整性。
@@ -346,6 +380,26 @@ func (r *userSubscriptionRepository) IncrementUsage(ctx context.Context, id int6
 			daily_usage_usd = us.daily_usage_usd + $1,
 			weekly_usage_usd = us.weekly_usage_usd + $1,
 			monthly_usage_usd = us.monthly_usage_usd + $1,
+			window_start = CASE
+				WHEN us.window_quota_count > 0
+					AND us.window_quota_minutes > 0
+					AND (us.window_start IS NULL OR us.window_start + (us.window_quota_minutes * INTERVAL '1 minute') <= NOW())
+				THEN NOW()
+				ELSE us.window_start
+			END,
+			window_usage_count = CASE
+				WHEN us.window_quota_count > 0 AND us.window_quota_minutes > 0 THEN
+					CASE
+						WHEN us.window_start IS NULL OR us.window_start + (us.window_quota_minutes * INTERVAL '1 minute') <= NOW()
+						THEN 1
+						ELSE us.window_usage_count + 1
+					END
+				ELSE us.window_usage_count
+			END,
+			quota_used_count = CASE
+				WHEN us.quota_total_count > 0 THEN us.quota_used_count + 1
+				ELSE us.quota_used_count
+			END,
 			updated_at = NOW()
 		FROM groups g
 		WHERE us.id = $2
@@ -442,6 +496,12 @@ func userSubscriptionEntityToService(m *dbent.UserSubscription) *service.UserSub
 		DailyUsageUSD:      m.DailyUsageUsd,
 		WeeklyUsageUSD:     m.WeeklyUsageUsd,
 		MonthlyUsageUSD:    m.MonthlyUsageUsd,
+		WindowQuotaCount:   m.WindowQuotaCount,
+		WindowQuotaMinutes: m.WindowQuotaMinutes,
+		WindowUsageCount:   m.WindowUsageCount,
+		WindowStart:        m.WindowStart,
+		QuotaTotalCount:    m.QuotaTotalCount,
+		QuotaUsedCount:     m.QuotaUsedCount,
 		AssignedBy:         m.AssignedBy,
 		AssignedAt:         m.AssignedAt,
 		Notes:              derefString(m.Notes),

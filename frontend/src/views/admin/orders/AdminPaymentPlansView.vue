@@ -27,6 +27,14 @@
           />
           <span v-else class="text-sm text-gray-400">-</span>
         </template>
+        <template #cell-plan_type="{ value, row }">
+          <span class="badge" :class="value === 'quota_pack' ? 'badge-warning' : 'badge-info'">
+            {{ value === 'quota_pack' ? t('payment.admin.planTypeQuotaPack') : t('payment.admin.planTypeSubscription') }}
+          </span>
+          <span v-if="value === 'quota_pack'" class="ml-2 text-xs text-gray-500">
+            {{ t('payment.planCard.requests', { count: row.quota_count || 0 }) }}
+          </span>
+        </template>
         <template #cell-price="{ value, row }">
           <div class="text-sm">
             <span class="font-medium text-gray-900 dark:text-white">${{ (value ?? 0).toFixed(2) }}</span>
@@ -131,6 +139,7 @@ const planColumns = computed((): Column[] => [
   { key: 'id', label: 'ID' },
   { key: 'name', label: t('payment.admin.planName') },
   { key: 'group_id', label: t('payment.admin.group') },
+  { key: 'plan_type', label: t('payment.admin.planType') },
   { key: 'price', label: t('payment.admin.price') },
   { key: 'validity_days', label: t('payment.admin.validityDays') },
   { key: 'for_sale', label: t('payment.admin.forSale') },

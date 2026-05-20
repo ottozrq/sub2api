@@ -18,21 +18,34 @@ import (
 // 注：ErrInsufficientBalance在redeem_service.go中定义
 // 注：ErrDailyLimitExceeded/ErrWeeklyLimitExceeded/ErrMonthlyLimitExceeded在subscription_service.go中定义
 var (
-	ErrSubscriptionInvalid       = infraerrors.Forbidden("SUBSCRIPTION_INVALID", "subscription is invalid or expired")
-	ErrBillingServiceUnavailable = infraerrors.ServiceUnavailable("BILLING_SERVICE_ERROR", "Billing service temporarily unavailable. Please retry later.")
+	ErrSubscriptionInvalid             = infraerrors.Forbidden("SUBSCRIPTION_INVALID", "subscription is invalid or expired")
+	ErrSubscriptionWindowQuotaExceeded = infraerrors.TooManyRequests("SUBSCRIPTION_WINDOW_QUOTA_EXCEEDED", "subscription window quota exceeded")
+	ErrSubscriptionQuotaExceeded       = infraerrors.TooManyRequests("SUBSCRIPTION_QUOTA_EXCEEDED", "subscription quota exhausted")
+	ErrGroupWindowQuotaExceeded        = infraerrors.TooManyRequests("GROUP_WINDOW_QUOTA_EXCEEDED", "group window quota exceeded")
+	ErrBillingServiceUnavailable       = infraerrors.ServiceUnavailable("BILLING_SERVICE_ERROR", "Billing service temporarily unavailable. Please retry later.")
 	// RPM 超限错误。gateway_handler 负责映射为 HTTP 429。
 	ErrGroupRPMExceeded = infraerrors.TooManyRequests("GROUP_RPM_EXCEEDED", "group requests-per-minute limit exceeded")
 	ErrUserRPMExceeded  = infraerrors.TooManyRequests("USER_RPM_EXCEEDED", "user requests-per-minute limit exceeded")
 )
 
+type userGroupWindowQuotaCache interface {
+	IncrementUserGroupWindow(ctx context.Context, userID, groupID int64, windowMinutes int) (count int, err error)
+}
+
 // subscriptionCacheData 订阅缓存数据结构（内部使用）
 type subscriptionCacheData struct {
-	Status       string
-	ExpiresAt    time.Time
-	DailyUsage   float64
-	WeeklyUsage  float64
-	MonthlyUsage float64
-	Version      int64
+	Status             string
+	ExpiresAt          time.Time
+	DailyUsage         float64
+	WeeklyUsage        float64
+	MonthlyUsage       float64
+	WindowQuotaCount   int
+	WindowQuotaMinutes int
+	WindowUsageCount   int
+	WindowStart        *time.Time
+	QuotaTotalCount    int
+	QuotaUsedCount     int
+	Version            int64
 }
 
 // 缓存写入任务类型
@@ -420,23 +433,35 @@ func (s *BillingCacheService) GetSubscriptionStatus(ctx context.Context, userID,
 
 func (s *BillingCacheService) convertFromPortsData(data *SubscriptionCacheData) *subscriptionCacheData {
 	return &subscriptionCacheData{
-		Status:       data.Status,
-		ExpiresAt:    data.ExpiresAt,
-		DailyUsage:   data.DailyUsage,
-		WeeklyUsage:  data.WeeklyUsage,
-		MonthlyUsage: data.MonthlyUsage,
-		Version:      data.Version,
+		Status:             data.Status,
+		ExpiresAt:          data.ExpiresAt,
+		DailyUsage:         data.DailyUsage,
+		WeeklyUsage:        data.WeeklyUsage,
+		MonthlyUsage:       data.MonthlyUsage,
+		WindowQuotaCount:   data.WindowQuotaCount,
+		WindowQuotaMinutes: data.WindowQuotaMinutes,
+		WindowUsageCount:   data.WindowUsageCount,
+		WindowStart:        data.WindowStart,
+		QuotaTotalCount:    data.QuotaTotalCount,
+		QuotaUsedCount:     data.QuotaUsedCount,
+		Version:            data.Version,
 	}
 }
 
 func (s *BillingCacheService) convertToPortsData(data *subscriptionCacheData) *SubscriptionCacheData {
 	return &SubscriptionCacheData{
-		Status:       data.Status,
-		ExpiresAt:    data.ExpiresAt,
-		DailyUsage:   data.DailyUsage,
-		WeeklyUsage:  data.WeeklyUsage,
-		MonthlyUsage: data.MonthlyUsage,
-		Version:      data.Version,
+		Status:             data.Status,
+		ExpiresAt:          data.ExpiresAt,
+		DailyUsage:         data.DailyUsage,
+		WeeklyUsage:        data.WeeklyUsage,
+		MonthlyUsage:       data.MonthlyUsage,
+		WindowQuotaCount:   data.WindowQuotaCount,
+		WindowQuotaMinutes: data.WindowQuotaMinutes,
+		WindowUsageCount:   data.WindowUsageCount,
+		WindowStart:        data.WindowStart,
+		QuotaTotalCount:    data.QuotaTotalCount,
+		QuotaUsedCount:     data.QuotaUsedCount,
+		Version:            data.Version,
 	}
 }
 
@@ -448,12 +473,18 @@ func (s *BillingCacheService) getSubscriptionFromDB(ctx context.Context, userID,
 	}
 
 	return &subscriptionCacheData{
-		Status:       sub.Status,
-		ExpiresAt:    sub.ExpiresAt,
-		DailyUsage:   sub.DailyUsageUSD,
-		WeeklyUsage:  sub.WeeklyUsageUSD,
-		MonthlyUsage: sub.MonthlyUsageUSD,
-		Version:      sub.UpdatedAt.Unix(),
+		Status:             sub.Status,
+		ExpiresAt:          sub.ExpiresAt,
+		DailyUsage:         sub.DailyUsageUSD,
+		WeeklyUsage:        sub.WeeklyUsageUSD,
+		MonthlyUsage:       sub.MonthlyUsageUSD,
+		WindowQuotaCount:   sub.WindowQuotaCount,
+		WindowQuotaMinutes: sub.WindowQuotaMinutes,
+		WindowUsageCount:   sub.WindowUsageCount,
+		WindowStart:        sub.WindowStart,
+		QuotaTotalCount:    sub.QuotaTotalCount,
+		QuotaUsedCount:     sub.QuotaUsedCount,
+		Version:            sub.UpdatedAt.Unix(),
 	}, nil
 }
 
@@ -682,6 +713,9 @@ func (s *BillingCacheService) CheckBillingEligibility(ctx context.Context, user 
 		if err := s.checkBalanceEligibility(ctx, user.ID); err != nil {
 			return err
 		}
+		if err := s.checkGroupWindowQuota(ctx, user, group); err != nil {
+			return err
+		}
 	}
 
 	// Check API Key rate limits (applies to both billing modes)
@@ -696,6 +730,40 @@ func (s *BillingCacheService) CheckBillingEligibility(ctx context.Context, user 
 		return err
 	}
 
+	return nil
+}
+
+func (s *BillingCacheService) checkGroupWindowQuota(ctx context.Context, user *User, group *Group) error {
+	if s == nil || user == nil || group == nil {
+		return nil
+	}
+	if group.WindowQuotaCount <= 0 || group.WindowQuotaMinutes <= 0 {
+		return nil
+	}
+	cache, ok := s.userRPMCache.(userGroupWindowQuotaCache)
+	if !ok || cache == nil {
+		logger.LegacyPrintf(
+			"service.billing_cache",
+			"Warning: group window quota configured but cache unavailable for user=%d group=%d",
+			user.ID,
+			group.ID,
+		)
+		return nil
+	}
+	count, err := cache.IncrementUserGroupWindow(ctx, user.ID, group.ID, group.WindowQuotaMinutes)
+	if err != nil {
+		logger.LegacyPrintf(
+			"service.billing_cache",
+			"Warning: group window quota increment failed for user=%d group=%d: %v",
+			user.ID,
+			group.ID,
+			err,
+		)
+		return nil
+	}
+	if count > group.WindowQuotaCount {
+		return ErrGroupWindowQuotaExceeded
+	}
 	return nil
 }
 
@@ -829,6 +897,10 @@ func (s *BillingCacheService) checkSubscriptionEligibility(ctx context.Context, 
 		return ErrSubscriptionInvalid
 	}
 
+	if subData.QuotaTotalCount > 0 && subData.QuotaUsedCount >= subData.QuotaTotalCount {
+		return ErrSubscriptionQuotaExceeded
+	}
+
 	// 检查限额（使用传入的Group限额配置）
 	if group.HasDailyLimit() && subData.DailyUsage >= *group.DailyLimitUSD {
 		return ErrDailyLimitExceeded
@@ -840,6 +912,22 @@ func (s *BillingCacheService) checkSubscriptionEligibility(ctx context.Context, 
 
 	if group.HasMonthlyLimit() && subData.MonthlyUsage >= *group.MonthlyLimitUSD {
 		return ErrMonthlyLimitExceeded
+	}
+
+	if subData.WindowQuotaCount > 0 && subData.WindowQuotaMinutes > 0 {
+		now := time.Now()
+		windowUsage := subData.WindowUsageCount
+		if subData.WindowStart == nil {
+			windowUsage = 0
+		} else {
+			resetAt := subData.WindowStart.Add(time.Duration(subData.WindowQuotaMinutes) * time.Minute)
+			if !resetAt.After(now) {
+				windowUsage = 0
+			}
+		}
+		if windowUsage >= subData.WindowQuotaCount {
+			return ErrSubscriptionWindowQuotaExceeded
+		}
 	}
 
 	return nil

@@ -133,44 +133,68 @@
               </span>
               <!-- Subscription Limits - compact single line -->
               <div
-                v-if="row.subscription_type === 'subscription'"
+                v-if="
+                  row.subscription_type === 'subscription' ||
+                  hasGroupWindowQuota(row)
+                "
                 class="text-xs text-gray-500 dark:text-gray-400"
               >
                 <template
                   v-if="
-                    row.daily_limit_usd ||
-                    row.weekly_limit_usd ||
-                    row.monthly_limit_usd
+                    (row.subscription_type === 'subscription' &&
+                      (row.daily_limit_usd ||
+                        row.weekly_limit_usd ||
+                        row.monthly_limit_usd)) ||
+                    hasGroupWindowQuota(row)
                   "
                 >
-                  <span v-if="row.daily_limit_usd"
+                  <span v-if="row.subscription_type === 'subscription' && row.daily_limit_usd"
                     >${{ row.daily_limit_usd }}/{{
                       t("admin.groups.limitDay")
                     }}</span
                   >
                   <span
                     v-if="
+                      row.subscription_type === 'subscription' &&
                       row.daily_limit_usd &&
                       (row.weekly_limit_usd || row.monthly_limit_usd)
                     "
                     class="mx-1 text-gray-300 dark:text-gray-600"
                     >·</span
                   >
-                  <span v-if="row.weekly_limit_usd"
+                  <span v-if="row.subscription_type === 'subscription' && row.weekly_limit_usd"
                     >${{ row.weekly_limit_usd }}/{{
                       t("admin.groups.limitWeek")
                     }}</span
                   >
                   <span
-                    v-if="row.weekly_limit_usd && row.monthly_limit_usd"
+                    v-if="
+                      row.subscription_type === 'subscription' &&
+                      row.weekly_limit_usd &&
+                      row.monthly_limit_usd
+                    "
                     class="mx-1 text-gray-300 dark:text-gray-600"
                     >·</span
                   >
-                  <span v-if="row.monthly_limit_usd"
+                  <span v-if="row.subscription_type === 'subscription' && row.monthly_limit_usd"
                     >${{ row.monthly_limit_usd }}/{{
                       t("admin.groups.limitMonth")
                     }}</span
                   >
+                  <span
+                    v-if="
+                      row.subscription_type === 'subscription' &&
+                      (row.daily_limit_usd ||
+                        row.weekly_limit_usd ||
+                        row.monthly_limit_usd) &&
+                      hasGroupWindowQuota(row)
+                    "
+                    class="mx-1 text-gray-300 dark:text-gray-600"
+                    >·</span
+                  >
+                  <span v-if="hasGroupWindowQuota(row)">{{
+                    formatGroupWindowQuota(row)
+                  }}</span>
                 </template>
                 <span v-else class="text-gray-400 dark:text-gray-500">{{
                   t("admin.groups.subscription.noLimit")
@@ -602,7 +626,7 @@
             </p>
           </div>
 
-          <!-- Subscription limits (only show when subscription type is selected) -->
+          <!-- Subscription usage limits (only show when subscription type is selected) -->
           <div
             v-if="createForm.subscription_type === 'subscription'"
             class="space-y-4 border-l-2 border-primary-200 pl-4 dark:border-primary-800"
@@ -646,6 +670,36 @@
                 :placeholder="t('admin.groups.subscription.noLimit')"
               />
             </div>
+          </div>
+
+          <div class="space-y-3 border-l-2 border-primary-200 pl-4 dark:border-primary-800">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label class="input-label">{{
+                  t("admin.groups.subscription.windowQuotaCount")
+                }}</label>
+                <input
+                  v-model.number="createForm.window_quota_count"
+                  type="number"
+                  min="0"
+                  class="input"
+                />
+              </div>
+              <div>
+                <label class="input-label">{{
+                  t("admin.groups.subscription.windowQuotaMinutes")
+                }}</label>
+                <input
+                  v-model.number="createForm.window_quota_minutes"
+                  type="number"
+                  min="0"
+                  class="input"
+                />
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.subscription.windowQuotaHint") }}
+            </p>
           </div>
         </div>
 
@@ -1787,7 +1841,7 @@
             </p>
           </div>
 
-          <!-- Subscription limits (only show when subscription type is selected) -->
+          <!-- Subscription usage limits (only show when subscription type is selected) -->
           <div
             v-if="editForm.subscription_type === 'subscription'"
             class="space-y-4 border-l-2 border-primary-200 pl-4 dark:border-primary-800"
@@ -1831,6 +1885,36 @@
                 :placeholder="t('admin.groups.subscription.noLimit')"
               />
             </div>
+          </div>
+
+          <div class="space-y-3 border-l-2 border-primary-200 pl-4 dark:border-primary-800">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label class="input-label">{{
+                  t("admin.groups.subscription.windowQuotaCount")
+                }}</label>
+                <input
+                  v-model.number="editForm.window_quota_count"
+                  type="number"
+                  min="0"
+                  class="input"
+                />
+              </div>
+              <div>
+                <label class="input-label">{{
+                  t("admin.groups.subscription.windowQuotaMinutes")
+                }}</label>
+                <input
+                  v-model.number="editForm.window_quota_minutes"
+                  type="number"
+                  min="0"
+                  class="input"
+                />
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.subscription.windowQuotaHint") }}
+            </p>
           </div>
         </div>
 
@@ -3109,6 +3193,8 @@ const createForm = reactive({
   daily_limit_usd: null as number | null,
   weekly_limit_usd: null as number | null,
   monthly_limit_usd: null as number | null,
+  window_quota_count: 0,
+  window_quota_minutes: 180,
   // 图片生成计费配置
   allow_image_generation: false,
   image_rate_independent: false,
@@ -3394,6 +3480,8 @@ const editForm = reactive({
   daily_limit_usd: null as number | null,
   weekly_limit_usd: null as number | null,
   monthly_limit_usd: null as number | null,
+  window_quota_count: 0,
+  window_quota_minutes: 180,
   // 图片生成计费配置
   allow_image_generation: false,
   image_rate_independent: false,
@@ -3641,6 +3729,8 @@ const closeCreateModal = () => {
   createForm.daily_limit_usd = null;
   createForm.weekly_limit_usd = null;
   createForm.monthly_limit_usd = null;
+  createForm.window_quota_count = 0;
+  createForm.window_quota_minutes = 180;
   createForm.allow_image_generation = false;
   createForm.image_rate_independent = false;
   createForm.image_rate_multiplier = 1;
@@ -3678,6 +3768,32 @@ const normalizeOptionalLimit = (
   return Number.isFinite(value) && value > 0 ? value : null;
 };
 
+const normalizeWindowQuotaValue = (
+  value: number | string | null | undefined,
+): number => {
+  if (value === null || value === undefined || value === "") {
+    return 0;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
+};
+
+const hasGroupWindowQuota = (group: AdminGroup): boolean =>
+  (group.window_quota_count || 0) > 0 &&
+  (group.window_quota_minutes || 0) > 0;
+
+const formatGroupWindowQuota = (group: AdminGroup): string => {
+  const minutes = group.window_quota_minutes || 0;
+  const windowText =
+    minutes % 60 === 0
+      ? t("admin.groups.subscription.hoursCount", { count: minutes / 60 })
+      : t("admin.groups.subscription.minutesCount", { count: minutes });
+  return t("admin.groups.subscription.windowQuotaValue", {
+    count: group.window_quota_count,
+    window: windowText,
+  });
+};
+
 const normalizeImageRateMultiplier = (
   value: number | string | null | undefined,
 ): number => {
@@ -3707,6 +3823,10 @@ const handleCreateGroup = async () => {
       monthly_limit_usd: normalizeOptionalLimit(
         createForm.monthly_limit_usd as number | string | null,
       ),
+      window_quota_count:
+        normalizeWindowQuotaValue(createForm.window_quota_count),
+      window_quota_minutes:
+        normalizeWindowQuotaValue(createForm.window_quota_minutes),
       model_routing: convertRoutingRulesToApiFormat(
         createModelRoutingRules.value,
       ),
@@ -3760,6 +3880,8 @@ const handleEdit = async (group: AdminGroup) => {
   editForm.daily_limit_usd = group.daily_limit_usd;
   editForm.weekly_limit_usd = group.weekly_limit_usd;
   editForm.monthly_limit_usd = group.monthly_limit_usd;
+  editForm.window_quota_count = group.window_quota_count || 0;
+  editForm.window_quota_minutes = group.window_quota_minutes || 180;
   editForm.allow_image_generation = group.allow_image_generation ?? false;
   editForm.image_rate_independent = group.image_rate_independent ?? false;
   editForm.image_rate_multiplier = group.image_rate_multiplier ?? 1;
@@ -3832,6 +3954,10 @@ const handleUpdateGroup = async () => {
       monthly_limit_usd: normalizeOptionalLimit(
         editForm.monthly_limit_usd as number | string | null,
       ),
+      window_quota_count:
+        normalizeWindowQuotaValue(editForm.window_quota_count),
+      window_quota_minutes:
+        normalizeWindowQuotaValue(editForm.window_quota_minutes),
       fallback_group_id:
         editForm.fallback_group_id === null ? 0 : editForm.fallback_group_id,
       fallback_group_id_on_invalid_request:

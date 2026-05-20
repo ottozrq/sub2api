@@ -55,6 +55,14 @@ type PaymentOrder struct {
 	SubscriptionGroupID *int64 `json:"subscription_group_id,omitempty"`
 	// SubscriptionDays holds the value of the "subscription_days" field.
 	SubscriptionDays *int `json:"subscription_days,omitempty"`
+	// SubscriptionWindowQuotaCount holds the value of the "subscription_window_quota_count" field.
+	SubscriptionWindowQuotaCount int `json:"subscription_window_quota_count,omitempty"`
+	// SubscriptionWindowQuotaMinutes holds the value of the "subscription_window_quota_minutes" field.
+	SubscriptionWindowQuotaMinutes int `json:"subscription_window_quota_minutes,omitempty"`
+	// SubscriptionPlanType holds the value of the "subscription_plan_type" field.
+	SubscriptionPlanType string `json:"subscription_plan_type,omitempty"`
+	// SubscriptionQuotaCount holds the value of the "subscription_quota_count" field.
+	SubscriptionQuotaCount int `json:"subscription_quota_count,omitempty"`
 	// ProviderInstanceID holds the value of the "provider_instance_id" field.
 	ProviderInstanceID *string `json:"provider_instance_id,omitempty"`
 	// ProviderKey holds the value of the "provider_key" field.
@@ -134,9 +142,9 @@ func (*PaymentOrder) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case paymentorder.FieldAmount, paymentorder.FieldPayAmount, paymentorder.FieldFeeRate, paymentorder.FieldRefundAmount:
 			values[i] = new(sql.NullFloat64)
-		case paymentorder.FieldID, paymentorder.FieldUserID, paymentorder.FieldPlanID, paymentorder.FieldSubscriptionGroupID, paymentorder.FieldSubscriptionDays:
+		case paymentorder.FieldID, paymentorder.FieldUserID, paymentorder.FieldPlanID, paymentorder.FieldSubscriptionGroupID, paymentorder.FieldSubscriptionDays, paymentorder.FieldSubscriptionWindowQuotaCount, paymentorder.FieldSubscriptionWindowQuotaMinutes, paymentorder.FieldSubscriptionQuotaCount:
 			values[i] = new(sql.NullInt64)
-		case paymentorder.FieldUserEmail, paymentorder.FieldUserName, paymentorder.FieldUserNotes, paymentorder.FieldRechargeCode, paymentorder.FieldOutTradeNo, paymentorder.FieldPaymentType, paymentorder.FieldPaymentTradeNo, paymentorder.FieldPayURL, paymentorder.FieldQrCode, paymentorder.FieldQrCodeImg, paymentorder.FieldOrderType, paymentorder.FieldProviderInstanceID, paymentorder.FieldProviderKey, paymentorder.FieldStatus, paymentorder.FieldRefundReason, paymentorder.FieldRefundRequestReason, paymentorder.FieldRefundRequestedBy, paymentorder.FieldFailedReason, paymentorder.FieldClientIP, paymentorder.FieldSrcHost, paymentorder.FieldSrcURL:
+		case paymentorder.FieldUserEmail, paymentorder.FieldUserName, paymentorder.FieldUserNotes, paymentorder.FieldRechargeCode, paymentorder.FieldOutTradeNo, paymentorder.FieldPaymentType, paymentorder.FieldPaymentTradeNo, paymentorder.FieldPayURL, paymentorder.FieldQrCode, paymentorder.FieldQrCodeImg, paymentorder.FieldOrderType, paymentorder.FieldSubscriptionPlanType, paymentorder.FieldProviderInstanceID, paymentorder.FieldProviderKey, paymentorder.FieldStatus, paymentorder.FieldRefundReason, paymentorder.FieldRefundRequestReason, paymentorder.FieldRefundRequestedBy, paymentorder.FieldFailedReason, paymentorder.FieldClientIP, paymentorder.FieldSrcHost, paymentorder.FieldSrcURL:
 			values[i] = new(sql.NullString)
 		case paymentorder.FieldRefundAt, paymentorder.FieldRefundRequestedAt, paymentorder.FieldExpiresAt, paymentorder.FieldPaidAt, paymentorder.FieldCompletedAt, paymentorder.FieldFailedAt, paymentorder.FieldCreatedAt, paymentorder.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -275,6 +283,30 @@ func (_m *PaymentOrder) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.SubscriptionDays = new(int)
 				*_m.SubscriptionDays = int(value.Int64)
+			}
+		case paymentorder.FieldSubscriptionWindowQuotaCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field subscription_window_quota_count", values[i])
+			} else if value.Valid {
+				_m.SubscriptionWindowQuotaCount = int(value.Int64)
+			}
+		case paymentorder.FieldSubscriptionWindowQuotaMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field subscription_window_quota_minutes", values[i])
+			} else if value.Valid {
+				_m.SubscriptionWindowQuotaMinutes = int(value.Int64)
+			}
+		case paymentorder.FieldSubscriptionPlanType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field subscription_plan_type", values[i])
+			} else if value.Valid {
+				_m.SubscriptionPlanType = value.String
+			}
+		case paymentorder.FieldSubscriptionQuotaCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field subscription_quota_count", values[i])
+			} else if value.Valid {
+				_m.SubscriptionQuotaCount = int(value.Int64)
 			}
 		case paymentorder.FieldProviderInstanceID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -524,6 +556,18 @@ func (_m *PaymentOrder) String() string {
 		builder.WriteString("subscription_days=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("subscription_window_quota_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SubscriptionWindowQuotaCount))
+	builder.WriteString(", ")
+	builder.WriteString("subscription_window_quota_minutes=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SubscriptionWindowQuotaMinutes))
+	builder.WriteString(", ")
+	builder.WriteString("subscription_plan_type=")
+	builder.WriteString(_m.SubscriptionPlanType)
+	builder.WriteString(", ")
+	builder.WriteString("subscription_quota_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SubscriptionQuotaCount))
 	builder.WriteString(", ")
 	if v := _m.ProviderInstanceID; v != nil {
 		builder.WriteString("provider_instance_id=")

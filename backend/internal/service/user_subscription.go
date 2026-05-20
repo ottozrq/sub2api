@@ -19,6 +19,13 @@ type UserSubscription struct {
 	WeeklyUsageUSD  float64
 	MonthlyUsageUSD float64
 
+	WindowQuotaCount   int
+	WindowQuotaMinutes int
+	WindowUsageCount   int
+	WindowStart        *time.Time
+	QuotaTotalCount    int
+	QuotaUsedCount     int
+
 	AssignedBy *int64
 	AssignedAt time.Time
 	Notes      string
@@ -92,6 +99,33 @@ func (s *UserSubscription) MonthlyResetTime() *time.Time {
 		return nil
 	}
 	t := s.MonthlyWindowStart.Add(30 * 24 * time.Hour)
+	return &t
+}
+
+func (s *UserSubscription) HasWindowQuota() bool {
+	return s.WindowQuotaCount > 0 && s.WindowQuotaMinutes > 0
+}
+
+func (s *UserSubscription) HasTotalQuota() bool {
+	return s.QuotaTotalCount > 0
+}
+
+func (s *UserSubscription) QuotaRemaining() int {
+	if !s.HasTotalQuota() {
+		return 0
+	}
+	remaining := s.QuotaTotalCount - s.QuotaUsedCount
+	if remaining < 0 {
+		return 0
+	}
+	return remaining
+}
+
+func (s *UserSubscription) WindowResetTime() *time.Time {
+	if !s.HasWindowQuota() || s.WindowStart == nil {
+		return nil
+	}
+	t := s.WindowStart.Add(time.Duration(s.WindowQuotaMinutes) * time.Minute)
 	return &t
 }
 

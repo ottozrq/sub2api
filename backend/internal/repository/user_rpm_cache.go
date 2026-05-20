@@ -18,11 +18,20 @@ import (
 //   - TTL：120s，覆盖当前分钟窗口 + 少量冗余。
 //   - 返回值语义：超限判断由调用方（billing_cache_service.checkRPM）与 RPMLimit 比较完成。
 const (
-	userGroupRPMKeyPrefix = "rpm:ug:"
-	userRPMKeyPrefix      = "rpm:u:"
+	userGroupRPMKeyPrefix    = "rpm:ug:"
+	userRPMKeyPrefix         = "rpm:u:"
+	userGroupWindowKeyPrefix = "quota:ug:"
 
 	userRPMKeyTTL = 120 * time.Second
 )
+
+var incrUserGroupWindowScript = redis.NewScript(`
+	local count = redis.call('INCR', KEYS[1])
+	if count == 1 then
+		redis.call('EXPIRE', KEYS[1], ARGV[1])
+	end
+	return count
+`)
 
 type userRPMCacheImpl struct {
 	rdb *redis.Client
@@ -61,6 +70,20 @@ func (c *userRPMCacheImpl) IncrementUserGroupRPM(ctx context.Context, userID, gr
 	}
 	key := fmt.Sprintf("%s%d:%d:%d", userGroupRPMKeyPrefix, userID, groupID, minute)
 	return c.atomicIncr(ctx, key)
+}
+
+// IncrementUserGroupWindow 递增 (user, group) 固定窗口计数。
+// 窗口从第一次请求开始，TTL 到期后自动进入下一窗口。
+func (c *userRPMCacheImpl) IncrementUserGroupWindow(ctx context.Context, userID, groupID int64, windowMinutes int) (int, error) {
+	if windowMinutes <= 0 {
+		return 0, nil
+	}
+	key := fmt.Sprintf("%s%d:%d:%d", userGroupWindowKeyPrefix, userID, groupID, windowMinutes)
+	val, err := incrUserGroupWindowScript.Run(ctx, c.rdb, []string{key}, int((time.Duration(windowMinutes) * time.Minute).Seconds())).Int()
+	if err != nil {
+		return 0, fmt.Errorf("user group window increment: %w", err)
+	}
+	return val, nil
 }
 
 // IncrementUserRPM 递增用户分钟计数。

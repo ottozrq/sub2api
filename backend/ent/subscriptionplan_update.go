@@ -125,6 +125,20 @@ func (_u *SubscriptionPlanUpdate) ClearOriginalPrice() *SubscriptionPlanUpdate {
 	return _u
 }
 
+// SetPlanType sets the "plan_type" field.
+func (_u *SubscriptionPlanUpdate) SetPlanType(v string) *SubscriptionPlanUpdate {
+	_u.mutation.SetPlanType(v)
+	return _u
+}
+
+// SetNillablePlanType sets the "plan_type" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdate) SetNillablePlanType(v *string) *SubscriptionPlanUpdate {
+	if v != nil {
+		_u.SetPlanType(*v)
+	}
+	return _u
+}
+
 // SetValidityDays sets the "validity_days" field.
 func (_u *SubscriptionPlanUpdate) SetValidityDays(v int) *SubscriptionPlanUpdate {
 	_u.mutation.ResetValidityDays()
@@ -185,6 +199,69 @@ func (_u *SubscriptionPlanUpdate) SetNillableProductName(v *string) *Subscriptio
 	if v != nil {
 		_u.SetProductName(*v)
 	}
+	return _u
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *SubscriptionPlanUpdate) SetWindowQuotaCount(v int) *SubscriptionPlanUpdate {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdate) SetNillableWindowQuotaCount(v *int) *SubscriptionPlanUpdate {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *SubscriptionPlanUpdate) AddWindowQuotaCount(v int) *SubscriptionPlanUpdate {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *SubscriptionPlanUpdate) SetWindowQuotaMinutes(v int) *SubscriptionPlanUpdate {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdate) SetNillableWindowQuotaMinutes(v *int) *SubscriptionPlanUpdate {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *SubscriptionPlanUpdate) AddWindowQuotaMinutes(v int) *SubscriptionPlanUpdate {
+	_u.mutation.AddWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetQuotaCount sets the "quota_count" field.
+func (_u *SubscriptionPlanUpdate) SetQuotaCount(v int) *SubscriptionPlanUpdate {
+	_u.mutation.ResetQuotaCount()
+	_u.mutation.SetQuotaCount(v)
+	return _u
+}
+
+// SetNillableQuotaCount sets the "quota_count" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdate) SetNillableQuotaCount(v *int) *SubscriptionPlanUpdate {
+	if v != nil {
+		_u.SetQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaCount adds value to the "quota_count" field.
+func (_u *SubscriptionPlanUpdate) AddQuotaCount(v int) *SubscriptionPlanUpdate {
+	_u.mutation.AddQuotaCount(v)
 	return _u
 }
 
@@ -277,6 +354,11 @@ func (_u *SubscriptionPlanUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PlanType(); ok {
+		if err := subscriptionplan.PlanTypeValidator(v); err != nil {
+			return &ValidationError{Name: "plan_type", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.plan_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ValidityUnit(); ok {
 		if err := subscriptionplan.ValidityUnitValidator(v); err != nil {
 			return &ValidationError{Name: "validity_unit", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.validity_unit": %w`, err)}
@@ -329,6 +411,9 @@ func (_u *SubscriptionPlanUpdate) sqlSave(ctx context.Context) (_node int, err e
 	if _u.mutation.OriginalPriceCleared() {
 		_spec.ClearField(subscriptionplan.FieldOriginalPrice, field.TypeFloat64)
 	}
+	if value, ok := _u.mutation.PlanType(); ok {
+		_spec.SetField(subscriptionplan.FieldPlanType, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.ValidityDays(); ok {
 		_spec.SetField(subscriptionplan.FieldValidityDays, field.TypeInt, value)
 	}
@@ -343,6 +428,24 @@ func (_u *SubscriptionPlanUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.ProductName(); ok {
 		_spec.SetField(subscriptionplan.FieldProductName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(subscriptionplan.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(subscriptionplan.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(subscriptionplan.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(subscriptionplan.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.QuotaCount(); ok {
+		_spec.SetField(subscriptionplan.FieldQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaCount(); ok {
+		_spec.AddField(subscriptionplan.FieldQuotaCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.ForSale(); ok {
 		_spec.SetField(subscriptionplan.FieldForSale, field.TypeBool, value)
@@ -473,6 +576,20 @@ func (_u *SubscriptionPlanUpdateOne) ClearOriginalPrice() *SubscriptionPlanUpdat
 	return _u
 }
 
+// SetPlanType sets the "plan_type" field.
+func (_u *SubscriptionPlanUpdateOne) SetPlanType(v string) *SubscriptionPlanUpdateOne {
+	_u.mutation.SetPlanType(v)
+	return _u
+}
+
+// SetNillablePlanType sets the "plan_type" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdateOne) SetNillablePlanType(v *string) *SubscriptionPlanUpdateOne {
+	if v != nil {
+		_u.SetPlanType(*v)
+	}
+	return _u
+}
+
 // SetValidityDays sets the "validity_days" field.
 func (_u *SubscriptionPlanUpdateOne) SetValidityDays(v int) *SubscriptionPlanUpdateOne {
 	_u.mutation.ResetValidityDays()
@@ -533,6 +650,69 @@ func (_u *SubscriptionPlanUpdateOne) SetNillableProductName(v *string) *Subscrip
 	if v != nil {
 		_u.SetProductName(*v)
 	}
+	return _u
+}
+
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *SubscriptionPlanUpdateOne) SetWindowQuotaCount(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdateOne) SetNillableWindowQuotaCount(v *int) *SubscriptionPlanUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *SubscriptionPlanUpdateOne) AddWindowQuotaCount(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *SubscriptionPlanUpdateOne) SetWindowQuotaMinutes(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdateOne) SetNillableWindowQuotaMinutes(v *int) *SubscriptionPlanUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *SubscriptionPlanUpdateOne) AddWindowQuotaMinutes(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.AddWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetQuotaCount sets the "quota_count" field.
+func (_u *SubscriptionPlanUpdateOne) SetQuotaCount(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.ResetQuotaCount()
+	_u.mutation.SetQuotaCount(v)
+	return _u
+}
+
+// SetNillableQuotaCount sets the "quota_count" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdateOne) SetNillableQuotaCount(v *int) *SubscriptionPlanUpdateOne {
+	if v != nil {
+		_u.SetQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaCount adds value to the "quota_count" field.
+func (_u *SubscriptionPlanUpdateOne) AddQuotaCount(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.AddQuotaCount(v)
 	return _u
 }
 
@@ -638,6 +818,11 @@ func (_u *SubscriptionPlanUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.PlanType(); ok {
+		if err := subscriptionplan.PlanTypeValidator(v); err != nil {
+			return &ValidationError{Name: "plan_type", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.plan_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.ValidityUnit(); ok {
 		if err := subscriptionplan.ValidityUnitValidator(v); err != nil {
 			return &ValidationError{Name: "validity_unit", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.validity_unit": %w`, err)}
@@ -707,6 +892,9 @@ func (_u *SubscriptionPlanUpdateOne) sqlSave(ctx context.Context) (_node *Subscr
 	if _u.mutation.OriginalPriceCleared() {
 		_spec.ClearField(subscriptionplan.FieldOriginalPrice, field.TypeFloat64)
 	}
+	if value, ok := _u.mutation.PlanType(); ok {
+		_spec.SetField(subscriptionplan.FieldPlanType, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.ValidityDays(); ok {
 		_spec.SetField(subscriptionplan.FieldValidityDays, field.TypeInt, value)
 	}
@@ -721,6 +909,24 @@ func (_u *SubscriptionPlanUpdateOne) sqlSave(ctx context.Context) (_node *Subscr
 	}
 	if value, ok := _u.mutation.ProductName(); ok {
 		_spec.SetField(subscriptionplan.FieldProductName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(subscriptionplan.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(subscriptionplan.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(subscriptionplan.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(subscriptionplan.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.QuotaCount(); ok {
+		_spec.SetField(subscriptionplan.FieldQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaCount(); ok {
+		_spec.AddField(subscriptionplan.FieldQuotaCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.ForSale(); ok {
 		_spec.SetField(subscriptionplan.FieldForSale, field.TypeBool, value)

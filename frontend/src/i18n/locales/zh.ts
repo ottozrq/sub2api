@@ -4,14 +4,21 @@ export default {
     viewOnGithub: '在 GitHub 上查看',
     viewDocs: '查看文档',
     docs: '文档',
+    terms: '使用条款',
+    privacy: '隐私政策',
     switchToLight: '切换到浅色模式',
     switchToDark: '切换到深色模式',
     dashboard: '控制台',
     login: '登录',
     getStarted: '立即开始',
     goToDashboard: '进入控制台',
+    brandTagline: '致力于为国人提供稳定 AI 服务',
+    buyPlans: '购买套餐',
+    checkUsage: '查用量',
+    heroBadge: '稳定 AI 服务中转站',
+    heroHeadline: '人人可拥有的 AI 中转能力',
     // 新增：面向用户的价值主张
-    heroSubtitle: '一个密钥，畅用多个 AI 模型',
+    heroSubtitle: '一个密钥接入 Claude、GPT、Gemini 等主流模型，支持套餐、次卡、窗口额度和实时用量统计。',
     heroDescription: '无需管理多个订阅账号，一站式接入 Claude、GPT、Gemini 等主流 AI 服务',
     tags: {
       subscriptionToApi: '订阅转 API',
@@ -52,6 +59,90 @@ export default {
       multiAccountDesc: '智能调度多个上游账号，自动切换和负载均衡，告别频繁报错。',
       balanceQuota: '用多少付多少',
       balanceQuotaDesc: '按实际使用量计费，支持设置配额上限，团队用量一目了然。'
+    },
+    workflow: {
+      title: '从购买到调用，保持一条直线',
+      description: '参考成熟 API Gateway 的控制台路径，把套餐、密钥、模型调用和用量统计串成一个完整闭环。',
+      steps: {
+        plan: {
+          title: '选择套餐或次卡',
+          description: '支持周卡、月卡和按调用次数扣减的次卡，窗口额度会自动随套餐生效。'
+        },
+        key: {
+          title: '生成统一 API Key',
+          description: '一个密钥即可进入可用分组，后续可在控制台查看余额、订阅和调用记录。'
+        },
+        call: {
+          title: '替换 Base URL 开始调用',
+          description: '保持 OpenAI 兼容调用体验，同时可转发 Claude、GPT、Gemini 等模型。'
+        }
+      }
+    },
+    integration: {
+      consoleTitle: 'openai-compatible gateway',
+      copyHint: '只需要替换 baseURL 和 apiKey',
+      endpoints: {
+        chat: '聊天补全',
+        responses: 'Responses 兼容',
+        messages: 'Anthropic Messages',
+        images: '图片生成'
+      }
+    },
+    modelHub: {
+      title: '像模型广场一样管理能力入口',
+      description: '把不同服务商、不同模型和不同调用协议收敛到统一入口，用户看到的是清晰套餐和密钥，后台负责调度与治理。',
+      routingTitle: '智能路由与分组策略',
+      routingDesc: '按分组、窗口额度、账号状态和模型能力选择可用上游，减少单账号限流对业务的影响。',
+      capabilities: {
+        chat: '对话',
+        code: '代码',
+        vision: '视觉',
+        image: '图像',
+        audio: '音频'
+      },
+      providers: {
+        claude: 'Sonnet / Opus / Claude Code',
+        gpt: 'GPT / Codex / Responses',
+        gemini: 'Gemini / Imagen / 长上下文',
+        antigravity: 'Antigravity / 混合调度'
+      },
+      policies: {
+        failover: '上游失败自动切换',
+        window: '窗口额度与次卡并行',
+        billing: '调用后实时扣减'
+      }
+    },
+    operations: {
+      items: {
+        keys: {
+          title: '密钥分发',
+          description: '为不同用户、项目或客户端发放独立密钥，便于追踪和停用。'
+        },
+        usage: {
+          title: '用量明细',
+          description: '按请求记录额度、成本和状态，定位消耗来源更直接。'
+        },
+        groups: {
+          title: '分组套餐',
+          description: '用分组承载倍率、窗口额度和模型范围，再映射到可售套餐。'
+        },
+        store: {
+          title: '在线开通',
+          description: '首页展示上架套餐，用户登录后可直接进入购买与续费流程。'
+        }
+      }
+    },
+    pricing: {
+      eyebrow: '订阅套餐',
+      title: '选择适合你的访问窗口',
+      description: '所有上架套餐都会自动展示在这里，价格、有效期和窗口额度与后台保持同步。',
+      cta: '去开通',
+      loginCta: '登录后开通',
+      windowQuota: '窗口额度',
+      defaultPlanDescription: '稳定接入主流 AI 模型，适合个人和团队使用。',
+      featureApiAccess: '统一 API 接入',
+      featureWindowQuota: '窗口额度控制',
+      featureUnifiedKey: '一个密钥统一调用'
     },
     // 优势对比
     comparison: {
@@ -182,8 +273,8 @@ export default {
 
   // Setup Wizard
   setup: {
-    title: 'Sub2API 安装向导',
-    description: '配置您的 Sub2API 实例',
+    title: '熔鉴AI 安装向导',
+    description: '配置您的熔鉴AI实例',
     database: {
       title: '数据库配置',
       description: '连接到您的 PostgreSQL 数据库',
@@ -2138,6 +2229,12 @@ export default {
         dailyLimit: '每日限额（USD）',
         weeklyLimit: '每周限额（USD）',
         monthlyLimit: '每月限额（USD）',
+        windowQuotaCount: '窗口次数',
+        windowQuotaMinutes: '窗口分钟数',
+        windowQuotaHint: '例如 40 次 / 3 小时：窗口次数填 40，窗口分钟数填 180；次数或分钟数为 0 表示不限制。',
+        windowQuotaValue: '{count} 次 / {window}',
+        hoursCount: '{count} 小时',
+        minutesCount: '{count} 分钟',
         defaultValidityDays: '默认有效期（天）',
         validityHint: '分配给用户时订阅的有效天数',
         noLimit: '无限制'
@@ -5380,7 +5477,7 @@ export default {
       },
       linuxdo: {
         title: 'LinuxDo Connect 登录',
-        description: '配置 LinuxDo Connect OAuth，用于 Sub2API 用户登录',
+        description: '配置 LinuxDo Connect OAuth，用于熔鉴AI用户登录',
         enable: '启用 LinuxDo 登录',
         enableHint: '在登录/注册页面显示 LinuxDo 登录入口',
         clientId: 'Client ID',
@@ -5537,7 +5634,7 @@ export default {
           '禁用用户注册、公开页面和自助服务功能。仅管理员可以登录和管理平台。',
         siteName: '站点名称',
         siteNameHint: '显示在邮件和页面标题中',
-        siteNamePlaceholder: 'Sub2API',
+        siteNamePlaceholder: '熔鉴AI',
         siteSubtitle: '站点副标题',
         siteSubtitleHint: '显示在登录和注册页面',
         siteSubtitlePlaceholder: '订阅转 API 转换平台',
@@ -5807,7 +5904,7 @@ export default {
         fromEmail: '发件人邮箱',
         fromEmailPlaceholder: "noreply{'@'}example.com",
         fromName: '发件人名称',
-        fromNamePlaceholder: 'Sub2API',
+        fromNamePlaceholder: '熔鉴AI',
         useTls: '使用 TLS',
         useTlsHint: '为 SMTP 连接启用 TLS 加密'
       },
@@ -6412,16 +6509,16 @@ export default {
     // Admin tour steps
     admin: {
       welcome: {
-        title: '👋 欢迎使用 Sub2API',
+        title: '👋 欢迎使用熔鉴AI',
         description:
-          '<div style="line-height: 1.8;"><p style="margin-bottom: 16px;">Sub2API 是一个强大的 AI 服务中转平台，让您轻松管理和分发 AI 服务。</p><p style="margin-bottom: 12px;"><b>🎯 核心功能：</b></p><ul style="margin-left: 20px; margin-bottom: 16px;"><li>📦 <b>分组管理</b> - 创建不同的服务套餐（VIP、免费试用等）</li><li>🔗 <b>账号池</b> - 连接多个上游 AI 服务商账号</li><li>🔑 <b>密钥分发</b> - 为用户生成独立的 API Key</li><li>💰 <b>计费管理</b> - 灵活的费率和配额控制</li></ul><p style="color: #10b981; font-weight: 600;">接下来，我们将用 3 分钟带您完成首次配置 →</p></div>',
+          '<div style="line-height: 1.8;"><p style="margin-bottom: 16px;">熔鉴AI 是一个强大的 AI 服务中转平台，让您轻松管理和分发 AI 服务。</p><p style="margin-bottom: 12px;"><b>🎯 核心功能：</b></p><ul style="margin-left: 20px; margin-bottom: 16px;"><li>📦 <b>分组管理</b> - 创建不同的服务套餐（VIP、免费试用等）</li><li>🔗 <b>账号池</b> - 连接多个上游 AI 服务商账号</li><li>🔑 <b>密钥分发</b> - 为用户生成独立的 API Key</li><li>💰 <b>计费管理</b> - 灵活的费率和配额控制</li></ul><p style="color: #10b981; font-weight: 600;">接下来，我们将用 3 分钟带您完成首次配置 →</p></div>',
         nextBtn: '开始配置 🚀',
         prevBtn: '跳过'
       },
       groupManage: {
         title: '📦 第一步：分组管理',
         description:
-          '<div style="line-height: 1.7;"><p style="margin-bottom: 12px;"><b>什么是分组？</b></p><p style="margin-bottom: 12px;">分组是 Sub2API 的核心概念，它就像一个"服务套餐"：</p><ul style="margin-left: 20px; margin-bottom: 12px; font-size: 13px;"><li>🎯 每个分组可以包含多个上游账号</li><li>💰 每个分组有独立的计费倍率</li><li>👥 可以设置为公开或专属分组</li></ul><p style="margin-top: 12px; padding: 8px 12px; background: #f0fdf4; border-left: 3px solid #10b981; border-radius: 4px; font-size: 13px;"><b>💡 示例：</b>您可以创建"VIP专线"（高倍率）和"免费试用"（低倍率）两个分组</p><p style="margin-top: 16px; color: #10b981; font-weight: 600;">👉 点击左侧的"分组管理"开始</p></div>'
+          '<div style="line-height: 1.7;"><p style="margin-bottom: 12px;"><b>什么是分组？</b></p><p style="margin-bottom: 12px;">分组是熔鉴AI的核心概念，它就像一个"服务套餐"：</p><ul style="margin-left: 20px; margin-bottom: 12px; font-size: 13px;"><li>🎯 每个分组可以包含多个上游账号</li><li>💰 每个分组有独立的计费倍率</li><li>👥 可以设置为公开或专属分组</li></ul><p style="margin-top: 12px; padding: 8px 12px; background: #f0fdf4; border-left: 3px solid #10b981; border-radius: 4px; font-size: 13px;"><b>💡 示例：</b>您可以创建"VIP专线"（高倍率）和"免费试用"（低倍率）两个分组</p><p style="margin-top: 16px; color: #10b981; font-weight: 600;">👉 点击左侧的"分组管理"开始</p></div>'
       },
       createGroup: {
         title: '➕ 创建新分组',
@@ -6533,9 +6630,9 @@ export default {
     // User tour steps
     user: {
       welcome: {
-        title: '👋 欢迎使用 Sub2API',
+        title: '👋 欢迎使用熔鉴AI',
         description:
-          '<div style="line-height: 1.8;"><p style="margin-bottom: 16px;">您好！欢迎来到 Sub2API AI 服务平台。</p><p style="margin-bottom: 12px;"><b>🎯 快速开始：</b></p><ul style="margin-left: 20px; margin-bottom: 16px;"><li>🔑 创建 API 密钥</li><li>📋 复制密钥到您的应用</li><li>🚀 开始使用 AI 服务</li></ul><p style="color: #10b981; font-weight: 600;">只需 1 分钟，让我们开始吧 →</p></div>',
+          '<div style="line-height: 1.8;"><p style="margin-bottom: 16px;">您好！欢迎来到熔鉴AI服务平台。</p><p style="margin-bottom: 12px;"><b>🎯 快速开始：</b></p><ul style="margin-left: 20px; margin-bottom: 16px;"><li>🔑 创建 API 密钥</li><li>📋 复制密钥到您的应用</li><li>🚀 开始使用 AI 服务</li></ul><p style="color: #10b981; font-weight: 600;">只需 1 分钟，让我们开始吧 →</p></div>',
         nextBtn: '开始 🚀',
         prevBtn: '跳过'
       },
@@ -6734,6 +6831,13 @@ export default {
       dailyLimit: '日限额',
       weeklyLimit: '周限额',
       monthlyLimit: '月限额',
+      windowQuota: '窗口额度',
+      windowQuotaValue: '{count} 次 / {window}',
+      totalQuota: '总次数',
+      requests: '{count} 次',
+      quotaPack: '次卡',
+      hours: '{count} 小时',
+      minutes: '{count} 分钟',
       quota: '配额',
       unlimited: '无限制',
       models: '模型',
@@ -6822,8 +6926,22 @@ export default {
       deletePlanConfirm: '确定要删除此套餐吗？',
       originalPrice: '原价',
       price: '价格',
+      planType: '套餐类型',
+      planTypeSubscription: '订阅卡',
+      planTypeQuotaPack: '次卡',
+      quotaCount: '总次数',
+      quotaCountHint: '次卡购买后按成功调用扣减，扣完即不可再用。',
+      quotaCountRequired: '次卡总次数必须大于 0',
       validityDays: '有效期（天）',
       validityUnit: '有效期单位',
+      windowQuota: '窗口额度',
+      windowQuotaCount: '窗口次数',
+      windowQuotaMinutes: '窗口分钟数',
+      windowQuotaHint: '例如 40 次 / 3 小时：窗口次数填 40，窗口分钟数填 180；次数或分钟数为 0 表示不限制。',
+      windowQuotaInvalid: '窗口额度不能为负数',
+      windowQuotaValue: '{count} 次 / {window}',
+      hoursCount: '{count} 小时',
+      minutesCount: '{count} 分钟',
       sortOrder: '排序',
       forSale: '上架状态',
       onSale: '上架',

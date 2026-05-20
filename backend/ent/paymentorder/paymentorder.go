@@ -50,6 +50,14 @@ const (
 	FieldSubscriptionGroupID = "subscription_group_id"
 	// FieldSubscriptionDays holds the string denoting the subscription_days field in the database.
 	FieldSubscriptionDays = "subscription_days"
+	// FieldSubscriptionWindowQuotaCount holds the string denoting the subscription_window_quota_count field in the database.
+	FieldSubscriptionWindowQuotaCount = "subscription_window_quota_count"
+	// FieldSubscriptionWindowQuotaMinutes holds the string denoting the subscription_window_quota_minutes field in the database.
+	FieldSubscriptionWindowQuotaMinutes = "subscription_window_quota_minutes"
+	// FieldSubscriptionPlanType holds the string denoting the subscription_plan_type field in the database.
+	FieldSubscriptionPlanType = "subscription_plan_type"
+	// FieldSubscriptionQuotaCount holds the string denoting the subscription_quota_count field in the database.
+	FieldSubscriptionQuotaCount = "subscription_quota_count"
 	// FieldProviderInstanceID holds the string denoting the provider_instance_id field in the database.
 	FieldProviderInstanceID = "provider_instance_id"
 	// FieldProviderKey holds the string denoting the provider_key field in the database.
@@ -126,6 +134,10 @@ var Columns = []string{
 	FieldPlanID,
 	FieldSubscriptionGroupID,
 	FieldSubscriptionDays,
+	FieldSubscriptionWindowQuotaCount,
+	FieldSubscriptionWindowQuotaMinutes,
+	FieldSubscriptionPlanType,
+	FieldSubscriptionQuotaCount,
 	FieldProviderInstanceID,
 	FieldProviderKey,
 	FieldProviderSnapshot,
@@ -180,6 +192,16 @@ var (
 	DefaultOrderType string
 	// OrderTypeValidator is a validator for the "order_type" field. It is called by the builders before save.
 	OrderTypeValidator func(string) error
+	// DefaultSubscriptionWindowQuotaCount holds the default value on creation for the "subscription_window_quota_count" field.
+	DefaultSubscriptionWindowQuotaCount int
+	// DefaultSubscriptionWindowQuotaMinutes holds the default value on creation for the "subscription_window_quota_minutes" field.
+	DefaultSubscriptionWindowQuotaMinutes int
+	// DefaultSubscriptionPlanType holds the default value on creation for the "subscription_plan_type" field.
+	DefaultSubscriptionPlanType string
+	// SubscriptionPlanTypeValidator is a validator for the "subscription_plan_type" field. It is called by the builders before save.
+	SubscriptionPlanTypeValidator func(string) error
+	// DefaultSubscriptionQuotaCount holds the default value on creation for the "subscription_quota_count" field.
+	DefaultSubscriptionQuotaCount int
 	// ProviderInstanceIDValidator is a validator for the "provider_instance_id" field. It is called by the builders before save.
 	ProviderInstanceIDValidator func(string) error
 	// ProviderKeyValidator is a validator for the "provider_key" field. It is called by the builders before save.
@@ -302,6 +324,26 @@ func BySubscriptionGroupID(opts ...sql.OrderTermOption) OrderOption {
 // BySubscriptionDays orders the results by the subscription_days field.
 func BySubscriptionDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSubscriptionDays, opts...).ToFunc()
+}
+
+// BySubscriptionWindowQuotaCount orders the results by the subscription_window_quota_count field.
+func BySubscriptionWindowQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionWindowQuotaCount, opts...).ToFunc()
+}
+
+// BySubscriptionWindowQuotaMinutes orders the results by the subscription_window_quota_minutes field.
+func BySubscriptionWindowQuotaMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionWindowQuotaMinutes, opts...).ToFunc()
+}
+
+// BySubscriptionPlanType orders the results by the subscription_plan_type field.
+func BySubscriptionPlanType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionPlanType, opts...).ToFunc()
+}
+
+// BySubscriptionQuotaCount orders the results by the subscription_quota_count field.
+func BySubscriptionQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubscriptionQuotaCount, opts...).ToFunc()
 }
 
 // ByProviderInstanceID orders the results by the provider_instance_id field.

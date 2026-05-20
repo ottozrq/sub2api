@@ -250,6 +250,131 @@ func (_u *UserSubscriptionUpdate) AddMonthlyUsageUsd(v float64) *UserSubscriptio
 	return _u
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *UserSubscriptionUpdate) SetWindowQuotaCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableWindowQuotaCount(v *int) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *UserSubscriptionUpdate) AddWindowQuotaCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *UserSubscriptionUpdate) SetWindowQuotaMinutes(v int) *UserSubscriptionUpdate {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableWindowQuotaMinutes(v *int) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *UserSubscriptionUpdate) AddWindowQuotaMinutes(v int) *UserSubscriptionUpdate {
+	_u.mutation.AddWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (_u *UserSubscriptionUpdate) SetWindowUsageCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.ResetWindowUsageCount()
+	_u.mutation.SetWindowUsageCount(v)
+	return _u
+}
+
+// SetNillableWindowUsageCount sets the "window_usage_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableWindowUsageCount(v *int) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetWindowUsageCount(*v)
+	}
+	return _u
+}
+
+// AddWindowUsageCount adds value to the "window_usage_count" field.
+func (_u *UserSubscriptionUpdate) AddWindowUsageCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.AddWindowUsageCount(v)
+	return _u
+}
+
+// SetWindowStart sets the "window_start" field.
+func (_u *UserSubscriptionUpdate) SetWindowStart(v time.Time) *UserSubscriptionUpdate {
+	_u.mutation.SetWindowStart(v)
+	return _u
+}
+
+// SetNillableWindowStart sets the "window_start" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableWindowStart(v *time.Time) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetWindowStart(*v)
+	}
+	return _u
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (_u *UserSubscriptionUpdate) ClearWindowStart() *UserSubscriptionUpdate {
+	_u.mutation.ClearWindowStart()
+	return _u
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (_u *UserSubscriptionUpdate) SetQuotaTotalCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.ResetQuotaTotalCount()
+	_u.mutation.SetQuotaTotalCount(v)
+	return _u
+}
+
+// SetNillableQuotaTotalCount sets the "quota_total_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableQuotaTotalCount(v *int) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetQuotaTotalCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaTotalCount adds value to the "quota_total_count" field.
+func (_u *UserSubscriptionUpdate) AddQuotaTotalCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.AddQuotaTotalCount(v)
+	return _u
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (_u *UserSubscriptionUpdate) SetQuotaUsedCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.ResetQuotaUsedCount()
+	_u.mutation.SetQuotaUsedCount(v)
+	return _u
+}
+
+// SetNillableQuotaUsedCount sets the "quota_used_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdate) SetNillableQuotaUsedCount(v *int) *UserSubscriptionUpdate {
+	if v != nil {
+		_u.SetQuotaUsedCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaUsedCount adds value to the "quota_used_count" field.
+func (_u *UserSubscriptionUpdate) AddQuotaUsedCount(v int) *UserSubscriptionUpdate {
+	_u.mutation.AddQuotaUsedCount(v)
+	return _u
+}
+
 // SetAssignedBy sets the "assigned_by" field.
 func (_u *UserSubscriptionUpdate) SetAssignedBy(v int64) *UserSubscriptionUpdate {
 	_u.mutation.SetAssignedBy(v)
@@ -515,6 +640,42 @@ func (_u *UserSubscriptionUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.AddedMonthlyUsageUsd(); ok {
 		_spec.AddField(usersubscription.FieldMonthlyUsageUsd, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(usersubscription.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(usersubscription.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowUsageCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowUsageCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowUsageCount(); ok {
+		_spec.AddField(usersubscription.FieldWindowUsageCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowStart(); ok {
+		_spec.SetField(usersubscription.FieldWindowStart, field.TypeTime, value)
+	}
+	if _u.mutation.WindowStartCleared() {
+		_spec.ClearField(usersubscription.FieldWindowStart, field.TypeTime)
+	}
+	if value, ok := _u.mutation.QuotaTotalCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaTotalCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaTotalCount(); ok {
+		_spec.AddField(usersubscription.FieldQuotaTotalCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.QuotaUsedCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaUsedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaUsedCount(); ok {
+		_spec.AddField(usersubscription.FieldQuotaUsedCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AssignedAt(); ok {
 		_spec.SetField(usersubscription.FieldAssignedAt, field.TypeTime, value)
@@ -896,6 +1057,131 @@ func (_u *UserSubscriptionUpdateOne) AddMonthlyUsageUsd(v float64) *UserSubscrip
 	return _u
 }
 
+// SetWindowQuotaCount sets the "window_quota_count" field.
+func (_u *UserSubscriptionUpdateOne) SetWindowQuotaCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.ResetWindowQuotaCount()
+	_u.mutation.SetWindowQuotaCount(v)
+	return _u
+}
+
+// SetNillableWindowQuotaCount sets the "window_quota_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableWindowQuotaCount(v *int) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaCount(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaCount adds value to the "window_quota_count" field.
+func (_u *UserSubscriptionUpdateOne) AddWindowQuotaCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.AddWindowQuotaCount(v)
+	return _u
+}
+
+// SetWindowQuotaMinutes sets the "window_quota_minutes" field.
+func (_u *UserSubscriptionUpdateOne) SetWindowQuotaMinutes(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.ResetWindowQuotaMinutes()
+	_u.mutation.SetWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetNillableWindowQuotaMinutes sets the "window_quota_minutes" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableWindowQuotaMinutes(v *int) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetWindowQuotaMinutes(*v)
+	}
+	return _u
+}
+
+// AddWindowQuotaMinutes adds value to the "window_quota_minutes" field.
+func (_u *UserSubscriptionUpdateOne) AddWindowQuotaMinutes(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.AddWindowQuotaMinutes(v)
+	return _u
+}
+
+// SetWindowUsageCount sets the "window_usage_count" field.
+func (_u *UserSubscriptionUpdateOne) SetWindowUsageCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.ResetWindowUsageCount()
+	_u.mutation.SetWindowUsageCount(v)
+	return _u
+}
+
+// SetNillableWindowUsageCount sets the "window_usage_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableWindowUsageCount(v *int) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetWindowUsageCount(*v)
+	}
+	return _u
+}
+
+// AddWindowUsageCount adds value to the "window_usage_count" field.
+func (_u *UserSubscriptionUpdateOne) AddWindowUsageCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.AddWindowUsageCount(v)
+	return _u
+}
+
+// SetWindowStart sets the "window_start" field.
+func (_u *UserSubscriptionUpdateOne) SetWindowStart(v time.Time) *UserSubscriptionUpdateOne {
+	_u.mutation.SetWindowStart(v)
+	return _u
+}
+
+// SetNillableWindowStart sets the "window_start" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableWindowStart(v *time.Time) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetWindowStart(*v)
+	}
+	return _u
+}
+
+// ClearWindowStart clears the value of the "window_start" field.
+func (_u *UserSubscriptionUpdateOne) ClearWindowStart() *UserSubscriptionUpdateOne {
+	_u.mutation.ClearWindowStart()
+	return _u
+}
+
+// SetQuotaTotalCount sets the "quota_total_count" field.
+func (_u *UserSubscriptionUpdateOne) SetQuotaTotalCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.ResetQuotaTotalCount()
+	_u.mutation.SetQuotaTotalCount(v)
+	return _u
+}
+
+// SetNillableQuotaTotalCount sets the "quota_total_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableQuotaTotalCount(v *int) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetQuotaTotalCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaTotalCount adds value to the "quota_total_count" field.
+func (_u *UserSubscriptionUpdateOne) AddQuotaTotalCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.AddQuotaTotalCount(v)
+	return _u
+}
+
+// SetQuotaUsedCount sets the "quota_used_count" field.
+func (_u *UserSubscriptionUpdateOne) SetQuotaUsedCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.ResetQuotaUsedCount()
+	_u.mutation.SetQuotaUsedCount(v)
+	return _u
+}
+
+// SetNillableQuotaUsedCount sets the "quota_used_count" field if the given value is not nil.
+func (_u *UserSubscriptionUpdateOne) SetNillableQuotaUsedCount(v *int) *UserSubscriptionUpdateOne {
+	if v != nil {
+		_u.SetQuotaUsedCount(*v)
+	}
+	return _u
+}
+
+// AddQuotaUsedCount adds value to the "quota_used_count" field.
+func (_u *UserSubscriptionUpdateOne) AddQuotaUsedCount(v int) *UserSubscriptionUpdateOne {
+	_u.mutation.AddQuotaUsedCount(v)
+	return _u
+}
+
 // SetAssignedBy sets the "assigned_by" field.
 func (_u *UserSubscriptionUpdateOne) SetAssignedBy(v int64) *UserSubscriptionUpdateOne {
 	_u.mutation.SetAssignedBy(v)
@@ -1191,6 +1477,42 @@ func (_u *UserSubscriptionUpdateOne) sqlSave(ctx context.Context) (_node *UserSu
 	}
 	if value, ok := _u.mutation.AddedMonthlyUsageUsd(); ok {
 		_spec.AddField(usersubscription.FieldMonthlyUsageUsd, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaCount(); ok {
+		_spec.AddField(usersubscription.FieldWindowQuotaCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowQuotaMinutes(); ok {
+		_spec.SetField(usersubscription.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowQuotaMinutes(); ok {
+		_spec.AddField(usersubscription.FieldWindowQuotaMinutes, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowUsageCount(); ok {
+		_spec.SetField(usersubscription.FieldWindowUsageCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedWindowUsageCount(); ok {
+		_spec.AddField(usersubscription.FieldWindowUsageCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.WindowStart(); ok {
+		_spec.SetField(usersubscription.FieldWindowStart, field.TypeTime, value)
+	}
+	if _u.mutation.WindowStartCleared() {
+		_spec.ClearField(usersubscription.FieldWindowStart, field.TypeTime)
+	}
+	if value, ok := _u.mutation.QuotaTotalCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaTotalCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaTotalCount(); ok {
+		_spec.AddField(usersubscription.FieldQuotaTotalCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.QuotaUsedCount(); ok {
+		_spec.SetField(usersubscription.FieldQuotaUsedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedQuotaUsedCount(); ok {
+		_spec.AddField(usersubscription.FieldQuotaUsedCount, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AssignedAt(); ok {
 		_spec.SetField(usersubscription.FieldAssignedAt, field.TypeTime, value)

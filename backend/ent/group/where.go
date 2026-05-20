@@ -120,6 +120,16 @@ func MonthlyLimitUsd(v float64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldMonthlyLimitUsd, v))
 }
 
+// WindowQuotaCount applies equality check predicate on the "window_quota_count" field. It's identical to WindowQuotaCountEQ.
+func WindowQuotaCount(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaMinutes applies equality check predicate on the "window_quota_minutes" field. It's identical to WindowQuotaMinutesEQ.
+func WindowQuotaMinutes(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldWindowQuotaMinutes, v))
+}
+
 // DefaultValidityDays applies equality check predicate on the "default_validity_days" field. It's identical to DefaultValidityDaysEQ.
 func DefaultValidityDays(v int) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldDefaultValidityDays, v))
@@ -873,6 +883,86 @@ func MonthlyLimitUsdIsNil() predicate.Group {
 // MonthlyLimitUsdNotNil applies the NotNil predicate on the "monthly_limit_usd" field.
 func MonthlyLimitUsdNotNil() predicate.Group {
 	return predicate.Group(sql.FieldNotNull(FieldMonthlyLimitUsd))
+}
+
+// WindowQuotaCountEQ applies the EQ predicate on the "window_quota_count" field.
+func WindowQuotaCountEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountNEQ applies the NEQ predicate on the "window_quota_count" field.
+func WindowQuotaCountNEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountIn applies the In predicate on the "window_quota_count" field.
+func WindowQuotaCountIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldWindowQuotaCount, vs...))
+}
+
+// WindowQuotaCountNotIn applies the NotIn predicate on the "window_quota_count" field.
+func WindowQuotaCountNotIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldWindowQuotaCount, vs...))
+}
+
+// WindowQuotaCountGT applies the GT predicate on the "window_quota_count" field.
+func WindowQuotaCountGT(v int) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountGTE applies the GTE predicate on the "window_quota_count" field.
+func WindowQuotaCountGTE(v int) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountLT applies the LT predicate on the "window_quota_count" field.
+func WindowQuotaCountLT(v int) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaCountLTE applies the LTE predicate on the "window_quota_count" field.
+func WindowQuotaCountLTE(v int) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldWindowQuotaCount, v))
+}
+
+// WindowQuotaMinutesEQ applies the EQ predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesNEQ applies the NEQ predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesNEQ(v int) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesIn applies the In predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldWindowQuotaMinutes, vs...))
+}
+
+// WindowQuotaMinutesNotIn applies the NotIn predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesNotIn(vs ...int) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldWindowQuotaMinutes, vs...))
+}
+
+// WindowQuotaMinutesGT applies the GT predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesGT(v int) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesGTE applies the GTE predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesGTE(v int) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesLT applies the LT predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesLT(v int) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldWindowQuotaMinutes, v))
+}
+
+// WindowQuotaMinutesLTE applies the LTE predicate on the "window_quota_minutes" field.
+func WindowQuotaMinutesLTE(v int) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldWindowQuotaMinutes, v))
 }
 
 // DefaultValidityDaysEQ applies the EQ predicate on the "default_validity_days" field.

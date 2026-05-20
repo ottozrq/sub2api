@@ -23,6 +23,8 @@ const (
 	FieldPrice = "price"
 	// FieldOriginalPrice holds the string denoting the original_price field in the database.
 	FieldOriginalPrice = "original_price"
+	// FieldPlanType holds the string denoting the plan_type field in the database.
+	FieldPlanType = "plan_type"
 	// FieldValidityDays holds the string denoting the validity_days field in the database.
 	FieldValidityDays = "validity_days"
 	// FieldValidityUnit holds the string denoting the validity_unit field in the database.
@@ -31,6 +33,12 @@ const (
 	FieldFeatures = "features"
 	// FieldProductName holds the string denoting the product_name field in the database.
 	FieldProductName = "product_name"
+	// FieldWindowQuotaCount holds the string denoting the window_quota_count field in the database.
+	FieldWindowQuotaCount = "window_quota_count"
+	// FieldWindowQuotaMinutes holds the string denoting the window_quota_minutes field in the database.
+	FieldWindowQuotaMinutes = "window_quota_minutes"
+	// FieldQuotaCount holds the string denoting the quota_count field in the database.
+	FieldQuotaCount = "quota_count"
 	// FieldForSale holds the string denoting the for_sale field in the database.
 	FieldForSale = "for_sale"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
@@ -51,10 +59,14 @@ var Columns = []string{
 	FieldDescription,
 	FieldPrice,
 	FieldOriginalPrice,
+	FieldPlanType,
 	FieldValidityDays,
 	FieldValidityUnit,
 	FieldFeatures,
 	FieldProductName,
+	FieldWindowQuotaCount,
+	FieldWindowQuotaMinutes,
+	FieldQuotaCount,
 	FieldForSale,
 	FieldSortOrder,
 	FieldCreatedAt,
@@ -76,6 +88,10 @@ var (
 	NameValidator func(string) error
 	// DefaultDescription holds the default value on creation for the "description" field.
 	DefaultDescription string
+	// DefaultPlanType holds the default value on creation for the "plan_type" field.
+	DefaultPlanType string
+	// PlanTypeValidator is a validator for the "plan_type" field. It is called by the builders before save.
+	PlanTypeValidator func(string) error
 	// DefaultValidityDays holds the default value on creation for the "validity_days" field.
 	DefaultValidityDays int
 	// DefaultValidityUnit holds the default value on creation for the "validity_unit" field.
@@ -88,6 +104,12 @@ var (
 	DefaultProductName string
 	// ProductNameValidator is a validator for the "product_name" field. It is called by the builders before save.
 	ProductNameValidator func(string) error
+	// DefaultWindowQuotaCount holds the default value on creation for the "window_quota_count" field.
+	DefaultWindowQuotaCount int
+	// DefaultWindowQuotaMinutes holds the default value on creation for the "window_quota_minutes" field.
+	DefaultWindowQuotaMinutes int
+	// DefaultQuotaCount holds the default value on creation for the "quota_count" field.
+	DefaultQuotaCount int
 	// DefaultForSale holds the default value on creation for the "for_sale" field.
 	DefaultForSale bool
 	// DefaultSortOrder holds the default value on creation for the "sort_order" field.
@@ -133,6 +155,11 @@ func ByOriginalPrice(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOriginalPrice, opts...).ToFunc()
 }
 
+// ByPlanType orders the results by the plan_type field.
+func ByPlanType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPlanType, opts...).ToFunc()
+}
+
 // ByValidityDays orders the results by the validity_days field.
 func ByValidityDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldValidityDays, opts...).ToFunc()
@@ -151,6 +178,21 @@ func ByFeatures(opts ...sql.OrderTermOption) OrderOption {
 // ByProductName orders the results by the product_name field.
 func ByProductName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProductName, opts...).ToFunc()
+}
+
+// ByWindowQuotaCount orders the results by the window_quota_count field.
+func ByWindowQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaCount, opts...).ToFunc()
+}
+
+// ByWindowQuotaMinutes orders the results by the window_quota_minutes field.
+func ByWindowQuotaMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWindowQuotaMinutes, opts...).ToFunc()
+}
+
+// ByQuotaCount orders the results by the quota_count field.
+func ByQuotaCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldQuotaCount, opts...).ToFunc()
 }
 
 // ByForSale orders the results by the for_sale field.

@@ -70,6 +70,12 @@ func (Group) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			SchemaType(map[string]string{dialect.Postgres: "decimal(20,8)"}),
+		field.Int("window_quota_count").
+			Default(0).
+			Comment("订阅分组滚动窗口请求次数上限，0 表示不限制"),
+		field.Int("window_quota_minutes").
+			Default(0).
+			Comment("订阅分组滚动窗口分钟数，0 表示不限制"),
 		field.Int("default_validity_days").
 			Default(30),
 

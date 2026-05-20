@@ -30,6 +30,7 @@
           <div><span class="text-gray-500">{{ t('payment.admin.dailyLimit') }}:</span> <span class="ml-1 font-medium text-gray-700 dark:text-gray-300">{{ selectedGroupInfo.daily_limit_usd != null ? '$' + selectedGroupInfo.daily_limit_usd : t('payment.admin.unlimited') }}</span></div>
           <div><span class="text-gray-500">{{ t('payment.admin.weeklyLimit') }}:</span> <span class="ml-1 font-medium text-gray-700 dark:text-gray-300">{{ selectedGroupInfo.weekly_limit_usd != null ? '$' + selectedGroupInfo.weekly_limit_usd : t('payment.admin.unlimited') }}</span></div>
           <div><span class="text-gray-500">{{ t('payment.admin.monthlyLimit') }}:</span> <span class="ml-1 font-medium text-gray-700 dark:text-gray-300">{{ selectedGroupInfo.monthly_limit_usd != null ? '$' + selectedGroupInfo.monthly_limit_usd : t('payment.admin.unlimited') }}</span></div>
+          <div><span class="text-gray-500">{{ t('payment.admin.windowQuota') }}:</span> <span class="ml-1 font-medium text-gray-700 dark:text-gray-300">{{ selectedGroupWindowQuotaText }}</span></div>
         </div>
       </div>
 
@@ -39,8 +40,19 @@
         <div><label class="input-label">{{ t('payment.admin.originalPrice') }}</label><input v-model.number="planForm.original_price" type="number" step="0.01" min="0" class="input" /></div>
       </div>
       <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="input-label">{{ t('payment.admin.planType') }} <span class="text-red-500">*</span></label>
+          <Select v-model="planForm.plan_type" :options="planTypeOptions" />
+        </div>
         <div><label class="input-label">{{ t('payment.admin.validityDays') }} <span class="text-red-500">*</span></label><input v-model.number="planForm.validity_days" type="number" min="1" class="input" required /></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
         <div><label class="input-label">{{ t('payment.admin.validityUnit') }} <span class="text-red-500">*</span></label><Select v-model="planForm.validity_unit" :options="validityUnitOptions" /></div>
+        <div v-if="planForm.plan_type === 'quota_pack'">
+          <label class="input-label">{{ t('payment.admin.quotaCount') }} <span class="text-red-500">*</span></label>
+          <input v-model.number="planForm.quota_count" type="number" min="1" step="1" class="input" required />
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('payment.admin.quotaCountHint') }}</p>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div><label class="input-label">{{ t('payment.admin.sortOrder') }}</label><input v-model.number="planForm.sort_order" type="number" min="0" class="input" /></div>
@@ -105,13 +117,30 @@ const { t } = useI18n()
 const appStore = useAppStore()
 
 const saving = ref(false)
-const planForm = reactive({ name: '', group_id: null as number | null, description: '', price: 0, original_price: 0, validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true })
+const planForm = reactive({
+  name: '',
+  group_id: null as number | null,
+  description: '',
+  price: 0,
+  original_price: 0,
+  plan_type: 'subscription',
+  quota_count: 0,
+  validity_days: 30,
+  validity_unit: 'days',
+  sort_order: 0,
+  for_sale: true,
+})
 const planFeaturesText = ref('')
 
 const validityUnitOptions = computed(() => [
   { value: 'days', label: t('payment.admin.days') },
   { value: 'weeks', label: t('payment.admin.weeks') },
   { value: 'months', label: t('payment.admin.months') },
+])
+
+const planTypeOptions = computed(() => [
+  { value: 'subscription', label: t('payment.admin.planTypeSubscription') },
+  { value: 'quota_pack', label: t('payment.admin.planTypeQuotaPack') },
 ])
 
 const groupOptions = computed(() =>
@@ -129,14 +158,24 @@ const selectedGroupInfo = computed(() => {
   return props.groups.find(g => g.id === planForm.group_id) || null
 })
 
+const selectedGroupWindowQuotaText = computed(() => {
+  const group = selectedGroupInfo.value
+  if (!group?.window_quota_count || !group?.window_quota_minutes) return t('payment.admin.unlimited')
+  const minutes = group.window_quota_minutes
+  const unit = minutes % 60 === 0
+    ? t('payment.admin.hoursCount', { count: minutes / 60 })
+    : t('payment.admin.minutesCount', { count: minutes })
+  return t('payment.admin.windowQuotaValue', { count: group.window_quota_count, window: unit })
+})
+
 // Reset form when dialog opens
 watch(() => props.show, (visible) => {
   if (!visible) return
   if (props.plan) {
-    Object.assign(planForm, { name: props.plan.name, group_id: props.plan.group_id, description: props.plan.description, price: props.plan.price, original_price: props.plan.original_price || 0, validity_days: props.plan.validity_days, validity_unit: props.plan.validity_unit || 'days', sort_order: props.plan.sort_order || 0, for_sale: props.plan.for_sale })
+    Object.assign(planForm, { name: props.plan.name, group_id: props.plan.group_id, description: props.plan.description, price: props.plan.price, original_price: props.plan.original_price || 0, plan_type: props.plan.plan_type || 'subscription', quota_count: props.plan.quota_count || 0, validity_days: props.plan.validity_days, validity_unit: props.plan.validity_unit || 'days', sort_order: props.plan.sort_order || 0, for_sale: props.plan.for_sale })
     planFeaturesText.value = (props.plan.features || []).join('\n')
   } else {
-    Object.assign(planForm, { name: '', group_id: null, description: '', price: 0, original_price: 0, validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true })
+    Object.assign(planForm, { name: '', group_id: null, description: '', price: 0, original_price: 0, plan_type: 'subscription', quota_count: 0, validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true })
     planFeaturesText.value = ''
   }
 })
@@ -150,6 +189,8 @@ function buildPlanPayload() {
     description: planForm.description,
     price: planForm.price,
     original_price: planForm.original_price || 0,
+    plan_type: planForm.plan_type,
+    quota_count: planForm.plan_type === 'quota_pack' ? planForm.quota_count : 0,
     validity_days: planForm.validity_days,
     validity_unit: planForm.validity_unit,
     sort_order: planForm.sort_order,
@@ -169,6 +210,10 @@ async function handleSavePlan() {
   }
   if (!planForm.validity_days || planForm.validity_days < 1) {
     appStore.showError(t('payment.admin.validityDaysRequired'))
+    return
+  }
+  if (planForm.plan_type === 'quota_pack' && (!planForm.quota_count || planForm.quota_count < 1)) {
+    appStore.showError(t('payment.admin.quotaCountRequired'))
     return
   }
   saving.value = true

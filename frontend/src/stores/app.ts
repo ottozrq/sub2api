@@ -25,7 +25,7 @@ export const useAppStore = defineStore('app', () => {
   // Public settings cache state
   const publicSettingsLoaded = ref<boolean>(false)
   const publicSettingsLoading = ref<boolean>(false)
-  const siteName = ref<string>('Sub2API')
+  const siteName = ref<string>('熔鉴AI')
   const siteLogo = ref<string>('')
   const siteVersion = ref<string>('')
   const contactInfo = ref<string>('')
@@ -53,6 +53,12 @@ export const useAppStore = defineStore('app', () => {
   const loadingCount = ref<number>(0)
 
   // ==================== Actions ====================
+
+  function normalizeBrandName(value?: string | null): string {
+    const trimmed = value?.trim()
+    if (!trimmed || /^sub2api$/i.test(trimmed)) return '熔鉴AI'
+    return trimmed
+  }
 
   /**
    * Toggle sidebar collapsed state
@@ -292,7 +298,7 @@ export const useAppStore = defineStore('app', () => {
       window.__APP_CONFIG__ = { ...config }
     }
     cachedPublicSettings.value = config
-    siteName.value = config.site_name || 'Sub2API'
+    siteName.value = normalizeBrandName(config.site_name)
     siteLogo.value = config.site_logo || ''
     siteVersion.value = config.version || ''
     contactInfo.value = config.contact_info || ''

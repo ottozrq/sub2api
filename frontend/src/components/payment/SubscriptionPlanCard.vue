@@ -16,8 +16,8 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
             <h3 class="truncate text-base font-bold text-gray-900 dark:text-white">{{ plan.name }}</h3>
-            <span :class="['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium', badgeLightClass]">
-              {{ pLabel }}
+          <span :class="['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium', badgeLightClass]">
+              {{ planTypeLabel }}
             </span>
           </div>
           <p v-if="plan.description" class="mt-0.5 text-xs leading-relaxed text-gray-500 dark:text-dark-400 line-clamp-2">
@@ -55,7 +55,15 @@
           <span class="text-gray-400 dark:text-dark-500">{{ t('payment.planCard.monthlyLimit') }}</span>
           <span class="font-medium text-gray-700 dark:text-gray-300">${{ plan.monthly_limit_usd }}</span>
         </div>
-        <div v-if="plan.daily_limit_usd == null && plan.weekly_limit_usd == null && plan.monthly_limit_usd == null" class="flex items-center justify-between">
+        <div v-if="hasWindowQuota" class="col-span-2 flex items-center justify-between">
+          <span class="text-gray-400 dark:text-dark-500">{{ t('payment.planCard.windowQuota') }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ windowQuotaText }}</span>
+        </div>
+        <div v-if="isQuotaPack" class="col-span-2 flex items-center justify-between">
+          <span class="text-gray-400 dark:text-dark-500">{{ t('payment.planCard.totalQuota') }}</span>
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ totalQuotaText }}</span>
+        </div>
+        <div v-if="plan.daily_limit_usd == null && plan.weekly_limit_usd == null && plan.monthly_limit_usd == null && !hasWindowQuota && !isQuotaPack" class="flex items-center justify-between">
           <span class="text-gray-400 dark:text-dark-500">{{ t('payment.planCard.quota') }}</span>
           <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('payment.planCard.unlimited') }}</span>
         </div>
@@ -128,11 +136,24 @@ const iconClass = computed(() => platformIconClass(platform.value))
 const btnClass = computed(() => platformButtonClass(platform.value))
 const discountClass = computed(() => platformDiscountClass(platform.value))
 const pLabel = computed(() => platformLabel(platform.value))
+const isQuotaPack = computed(() => props.plan.plan_type === 'quota_pack')
+const planTypeLabel = computed(() => isQuotaPack.value ? t('payment.planCard.quotaPack') : pLabel.value)
 
 const discountText = computed(() => {
   if (!props.plan.original_price || props.plan.original_price <= 0) return ''
   const pct = Math.round((1 - props.plan.price / props.plan.original_price) * 100)
   return pct > 0 ? `-${pct}%` : ''
+})
+
+const hasWindowQuota = computed(() => (props.plan.window_quota_count || 0) > 0 && (props.plan.window_quota_minutes || 0) > 0)
+const totalQuotaText = computed(() => t('payment.planCard.requests', { count: props.plan.quota_count || 0 }))
+const windowQuotaText = computed(() => {
+  const minutes = props.plan.window_quota_minutes || 0
+  const hours = minutes / 60
+  const windowText = minutes % 60 === 0
+    ? t('payment.planCard.hours', { count: hours })
+    : t('payment.planCard.minutes', { count: minutes })
+  return t('payment.planCard.windowQuotaValue', { count: props.plan.window_quota_count, window: windowText })
 })
 
 const rateDisplay = computed(() => {
@@ -153,6 +174,7 @@ const modelScopeLabels = computed(() => {
 })
 
 const validitySuffix = computed(() => {
+  if (isQuotaPack.value) return totalQuotaText.value
   const u = props.plan.validity_unit || 'day'
   if (u === 'month') return t('payment.perMonth')
   if (u === 'year') return t('payment.perYear')

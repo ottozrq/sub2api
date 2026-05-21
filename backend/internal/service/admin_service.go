@@ -22,6 +22,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
 	"github.com/Wei-Shaw/sub2api/internal/util/httputil"
+	"github.com/lib/pq"
 )
 
 // AdminService interface defines admin management operations
@@ -33,6 +34,9 @@ type AdminService interface {
 	UpdateUser(ctx context.Context, id int64, input *UpdateUserInput) (*User, error)
 	DeleteUser(ctx context.Context, id int64) error
 	UpdateUserBalance(ctx context.Context, userID int64, balance float64, operation string, notes string) (*User, error)
+	ApplyUserDisposition(ctx context.Context, input UserDispositionInput) (*UserDispositionResult, error)
+	ListUserDispositions(ctx context.Context, page, pageSize int, filters UserDispositionListFilters) ([]UserDispositionAuditEntry, int64, error)
+	UnbanDispositionUser(ctx context.Context, input UserUnbanInput) (*UserUnbanResult, error)
 	BatchUpdateConcurrency(ctx context.Context, userIDs []int64, value int, mode string) (int, error)
 	GetUserAPIKeys(ctx context.Context, userID int64, page, pageSize int, sortBy, sortOrder string) ([]APIKey, int64, error)
 	GetUserUsageStats(ctx context.Context, userID int64, period string) (any, error)
@@ -139,6 +143,84 @@ type UpdateUserInput struct {
 	// GroupRates 用户专属分组倍率配置
 	// map[groupID]*rate，nil 表示删除该分组的专属倍率
 	GroupRates map[int64]*float64
+}
+
+type UserDispositionInput struct {
+	UserID              int64
+	OperatorUserID      int64
+	Reason              string
+	DisableUser         bool
+	DisableAPIKeys      bool
+	RevokeSubscriptions bool
+	ClearBalance        bool
+	FreezeBalance       bool
+	AppendNote          bool
+}
+
+func (in UserDispositionInput) hasDestructiveAction() bool {
+	return in.DisableUser ||
+		in.DisableAPIKeys ||
+		in.RevokeSubscriptions ||
+		in.ClearBalance ||
+		in.FreezeBalance
+}
+
+type UserDispositionResult struct {
+	UserID               int64   `json:"user_id"`
+	DisabledUser         bool    `json:"disabled_user"`
+	DisabledAPIKeys      int64   `json:"disabled_api_keys"`
+	DisabledAPIKeyIDs    []int64 `json:"disabled_api_key_ids,omitempty"`
+	RevokedSubscriptions int64   `json:"revoked_subscriptions"`
+	ClearedBalance       bool    `json:"cleared_balance"`
+	FrozenBalance        bool    `json:"frozen_balance"`
+	BalanceBefore        float64 `json:"balance_before"`
+	BalanceAfter         float64 `json:"balance_after"`
+	NoteAppended         bool    `json:"note_appended"`
+	AuditID              int64   `json:"audit_id"`
+}
+
+type UserDispositionListFilters struct {
+	Status string
+	Search string
+}
+
+type UserDispositionAuditUser struct {
+	ID       int64   `json:"id"`
+	Email    string  `json:"email"`
+	Username string  `json:"username"`
+	Status   string  `json:"status"`
+	Role     string  `json:"role"`
+	Balance  float64 `json:"balance"`
+}
+
+type UserDispositionAuditOperator struct {
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
+}
+
+type UserDispositionAuditEntry struct {
+	AuditID    int64                         `json:"audit_id"`
+	Reason     string                        `json:"reason"`
+	Actions    map[string]any                `json:"actions"`
+	Summary    map[string]any                `json:"summary"`
+	CreatedAt  time.Time                     `json:"created_at"`
+	User       UserDispositionAuditUser      `json:"user"`
+	Operator   *UserDispositionAuditOperator `json:"operator"`
+	IsDisabled bool                          `json:"is_disabled"`
+}
+
+type UserUnbanInput struct {
+	UserID         int64
+	OperatorUserID int64
+	Reason         string
+}
+
+type UserUnbanResult struct {
+	UserID           int64  `json:"user_id"`
+	UserStatusBefore string `json:"user_status_before"`
+	UserStatusAfter  string `json:"user_status_after"`
+	EnabledAPIKeys   int64  `json:"enabled_api_keys"`
+	AuditID          int64  `json:"audit_id"`
 }
 
 type AdminBindAuthIdentityInput struct {
@@ -918,6 +1000,501 @@ func (s *adminServiceImpl) UpdateUserBalance(ctx context.Context, userID int64, 
 	}
 
 	return user, nil
+}
+
+func (s *adminServiceImpl) ApplyUserDisposition(ctx context.Context, input UserDispositionInput) (*UserDispositionResult, error) {
+	input.Reason = strings.TrimSpace(input.Reason)
+	if input.UserID <= 0 {
+		return nil, infraerrors.BadRequest("INVALID_USER_ID", "invalid user id")
+	}
+	if input.Reason == "" {
+		return nil, infraerrors.BadRequest("REASON_REQUIRED", "disposition reason is required")
+	}
+	if input.ClearBalance && input.FreezeBalance {
+		return nil, infraerrors.BadRequest("CONFLICTING_BALANCE_ACTIONS", "balance cannot be cleared and frozen in the same disposition")
+	}
+	if input.FreezeBalance {
+		input.DisableUser = true
+		input.DisableAPIKeys = true
+	}
+	if !input.DisableUser && !input.DisableAPIKeys && !input.RevokeSubscriptions && !input.ClearBalance && !input.FreezeBalance && !input.AppendNote {
+		return nil, infraerrors.BadRequest("NO_ACTIONS", "select at least one disposition action")
+	}
+	user, err := s.userRepo.GetByID(ctx, input.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if user.Role == RoleAdmin && input.hasDestructiveAction() {
+		return nil, infraerrors.BadRequest("CANNOT_DISPOSE_ADMIN", "cannot apply destructive disposition actions to admin users")
+	}
+	if s.entClient == nil {
+		return nil, infraerrors.InternalServer("DATABASE_UNAVAILABLE", "database client is unavailable")
+	}
+	if input.RevokeSubscriptions && s.userSubRepo == nil {
+		return nil, infraerrors.InternalServer("SUBSCRIPTION_REPOSITORY_UNAVAILABLE", "subscription repository is not configured")
+	}
+
+	keysForInvalidation, _ := s.apiKeyRepo.ListKeysByUserID(ctx, input.UserID)
+	tx, err := s.entClient.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	opCtx := dbent.NewTxContext(ctx, tx)
+
+	result := &UserDispositionResult{
+		UserID:        input.UserID,
+		FrozenBalance: input.FreezeBalance,
+		BalanceBefore: user.Balance,
+		BalanceAfter:  user.Balance,
+	}
+
+	if input.DisableUser && user.Status != StatusDisabled {
+		user.Status = StatusDisabled
+		result.DisabledUser = true
+	}
+	if input.ClearBalance && user.Balance != 0 {
+		user.Balance = 0
+		result.ClearedBalance = true
+		result.BalanceAfter = 0
+	}
+	if input.AppendNote {
+		user.Notes = appendDispositionNote(user.Notes, input.Reason, input.OperatorUserID)
+		result.NoteAppended = true
+	}
+	if result.DisabledUser || result.ClearedBalance || result.NoteAppended {
+		if err := s.userRepo.Update(opCtx, user); err != nil {
+			return nil, fmt.Errorf("update user: %w", err)
+		}
+	}
+
+	if input.DisableAPIKeys {
+		keyRows, err := tx.Client().QueryContext(opCtx, `
+			SELECT id
+			FROM api_keys
+			WHERE user_id = $1 AND deleted_at IS NULL AND status <> $2
+		`, input.UserID, StatusAPIKeyDisabled)
+		if err != nil {
+			return nil, fmt.Errorf("list api keys to disable: %w", err)
+		}
+		for keyRows.Next() {
+			var keyID int64
+			if err := keyRows.Scan(&keyID); err != nil {
+				_ = keyRows.Close()
+				return nil, fmt.Errorf("scan api key to disable: %w", err)
+			}
+			result.DisabledAPIKeyIDs = append(result.DisabledAPIKeyIDs, keyID)
+		}
+		if err := keyRows.Err(); err != nil {
+			_ = keyRows.Close()
+			return nil, fmt.Errorf("iterate api keys to disable: %w", err)
+		}
+		if err := keyRows.Close(); err != nil {
+			return nil, fmt.Errorf("close api key rows: %w", err)
+		}
+		apiKeyResult, err := tx.Client().ExecContext(opCtx, `
+			UPDATE api_keys
+			SET status = $1, updated_at = NOW()
+			WHERE user_id = $2 AND deleted_at IS NULL AND id = ANY($3)
+		`, StatusAPIKeyDisabled, input.UserID, pq.Array(result.DisabledAPIKeyIDs))
+		if err != nil {
+			return nil, fmt.Errorf("disable api keys: %w", err)
+		}
+		result.DisabledAPIKeys, _ = apiKeyResult.RowsAffected()
+	}
+
+	var revokedSubs []UserSubscription
+	if input.RevokeSubscriptions {
+		subs, err := s.userSubRepo.ListActiveByUserID(opCtx, input.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("list active subscriptions: %w", err)
+		}
+		for _, sub := range subs {
+			if err := s.userSubRepo.Delete(opCtx, sub.ID); err != nil {
+				return nil, fmt.Errorf("revoke subscription %d: %w", sub.ID, err)
+			}
+			revokedSubs = append(revokedSubs, sub)
+		}
+		result.RevokedSubscriptions = int64(len(revokedSubs))
+	}
+
+	auditID, err := s.insertUserDispositionAudit(opCtx, tx, input, result)
+	if err != nil {
+		return nil, fmt.Errorf("write disposition audit: %w", err)
+	}
+	result.AuditID = auditID
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("commit disposition: %w", err)
+	}
+
+	if s.authCacheInvalidator != nil && (input.DisableUser || input.DisableAPIKeys) {
+		s.authCacheInvalidator.InvalidateAuthCacheByUserID(ctx, input.UserID)
+		for _, key := range keysForInvalidation {
+			s.authCacheInvalidator.InvalidateAuthCacheByKey(ctx, key)
+		}
+	}
+	if s.billingCacheService != nil && input.ClearBalance {
+		go func() {
+			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err := s.billingCacheService.InvalidateUserBalance(cacheCtx, input.UserID); err != nil {
+				logger.LegacyPrintf("service.admin", "invalidate user balance cache failed after disposition: user_id=%d err=%v", input.UserID, err)
+			}
+		}()
+	}
+	for _, sub := range revokedSubs {
+		s.invalidateRevokedSubscriptionCache(sub)
+	}
+	return result, nil
+}
+
+func appendDispositionNote(existing, reason string, operatorUserID int64) string {
+	stamp := time.Now().Format(time.RFC3339)
+	line := fmt.Sprintf("[%s] disposition by admin:%d - %s", stamp, operatorUserID, reason)
+	existing = strings.TrimSpace(existing)
+	if existing == "" {
+		return line
+	}
+	return existing + "\n" + line
+}
+
+func (s *adminServiceImpl) insertUserDispositionAudit(ctx context.Context, tx *dbent.Tx, input UserDispositionInput, result *UserDispositionResult) (int64, error) {
+	actions := map[string]bool{
+		"disable_user":         input.DisableUser,
+		"disable_api_keys":     input.DisableAPIKeys,
+		"revoke_subscriptions": input.RevokeSubscriptions,
+		"clear_balance":        input.ClearBalance,
+		"freeze_balance":       input.FreezeBalance,
+		"append_note":          input.AppendNote,
+	}
+	actionsJSON, _ := json.Marshal(actions)
+	summaryJSON, _ := json.Marshal(result)
+	var operator any
+	if input.OperatorUserID > 0 {
+		operator = input.OperatorUserID
+	}
+	var auditID int64
+	rows, err := tx.Client().QueryContext(ctx, `
+		INSERT INTO user_disposition_audits (user_id, operator_user_id, reason, actions, summary)
+		VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)
+		RETURNING id
+	`, input.UserID, operator, input.Reason, string(actionsJSON), string(summaryJSON))
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		if err := rows.Err(); err != nil {
+			return 0, err
+		}
+		return 0, sql.ErrNoRows
+	}
+	if err := rows.Scan(&auditID); err != nil {
+		return 0, err
+	}
+	return auditID, rows.Err()
+}
+
+type subscriptionCacheInvalidator interface {
+	InvalidateSubCache(userID, groupID int64)
+}
+
+func (s *adminServiceImpl) invalidateRevokedSubscriptionCache(sub UserSubscription) {
+	if s == nil {
+		return
+	}
+	if sub.UserID > 0 && sub.GroupID > 0 && s.defaultSubAssigner != nil {
+		if invalidator, ok := s.defaultSubAssigner.(subscriptionCacheInvalidator); ok {
+			invalidator.InvalidateSubCache(sub.UserID, sub.GroupID)
+		}
+	}
+	if s.billingCacheService != nil && sub.UserID > 0 && sub.GroupID > 0 {
+		userID, groupID := sub.UserID, sub.GroupID
+		go func() {
+			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = s.billingCacheService.InvalidateSubscription(cacheCtx, userID, groupID)
+		}()
+	}
+}
+
+func (s *adminServiceImpl) ListUserDispositions(ctx context.Context, page, pageSize int, filters UserDispositionListFilters) ([]UserDispositionAuditEntry, int64, error) {
+	if s.entClient == nil {
+		return nil, 0, infraerrors.InternalServer("DATABASE_UNAVAILABLE", "database client is unavailable")
+	}
+	filters.Status = strings.TrimSpace(filters.Status)
+	filters.Search = strings.TrimSpace(filters.Search)
+	if filters.Status != "" && filters.Status != StatusActive && filters.Status != StatusDisabled {
+		return nil, 0, infraerrors.BadRequest("INVALID_STATUS", "status must be active or disabled")
+	}
+	if runes := []rune(filters.Search); len(runes) > 100 {
+		filters.Search = string(runes[:100])
+	}
+
+	params := pagination.PaginationParams{Page: page, PageSize: pageSize}
+	searchLike := ""
+	if filters.Search != "" {
+		searchLike = "%" + filters.Search + "%"
+	}
+
+	const latestDispositionCTE = `
+WITH latest AS (
+	SELECT DISTINCT ON (a.user_id)
+		a.id AS audit_id,
+		a.user_id,
+		a.operator_user_id,
+		a.reason,
+		a.actions::text AS actions,
+		a.summary::text AS summary,
+		a.created_at,
+		u.email,
+		COALESCE(u.username, '') AS username,
+		u.status AS user_status,
+		u.role AS user_role,
+		u.balance::double precision AS user_balance,
+		op.email AS operator_email
+	FROM user_disposition_audits a
+	JOIN users u ON u.id = a.user_id AND u.deleted_at IS NULL
+	LEFT JOIN users op ON op.id = a.operator_user_id AND op.deleted_at IS NULL
+	ORDER BY a.user_id, a.created_at DESC, a.id DESC
+)`
+	const latestDispositionWhere = `
+WHERE ($1 = '' OR latest.user_status = $1)
+  AND ($2 = '' OR latest.email ILIKE $2 OR latest.username ILIKE $2 OR latest.reason ILIKE $2)`
+
+	var total int64
+	countRows, err := s.entClient.QueryContext(ctx, latestDispositionCTE+`
+SELECT COUNT(*)
+FROM latest
+`+latestDispositionWhere, filters.Status, searchLike)
+	if err != nil {
+		return nil, 0, err
+	}
+	if countRows.Next() {
+		if err := countRows.Scan(&total); err != nil {
+			_ = countRows.Close()
+			return nil, 0, err
+		}
+	}
+	if err := countRows.Close(); err != nil {
+		return nil, 0, err
+	}
+
+	rows, err := s.entClient.QueryContext(ctx, latestDispositionCTE+`
+SELECT audit_id,
+       user_id,
+       operator_user_id,
+       operator_email,
+       reason,
+       actions,
+       summary,
+       created_at,
+       email,
+       username,
+       user_status,
+       user_role,
+       user_balance
+FROM latest
+`+latestDispositionWhere+`
+ORDER BY created_at DESC, audit_id DESC
+OFFSET $3
+LIMIT $4`, filters.Status, searchLike, params.Offset(), params.Limit())
+	if err != nil {
+		return nil, 0, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make([]UserDispositionAuditEntry, 0, params.Limit())
+	for rows.Next() {
+		var item UserDispositionAuditEntry
+		var userID int64
+		var operatorID sql.NullInt64
+		var operatorEmail sql.NullString
+		var actionsJSON, summaryJSON string
+		if err := rows.Scan(
+			&item.AuditID,
+			&userID,
+			&operatorID,
+			&operatorEmail,
+			&item.Reason,
+			&actionsJSON,
+			&summaryJSON,
+			&item.CreatedAt,
+			&item.User.Email,
+			&item.User.Username,
+			&item.User.Status,
+			&item.User.Role,
+			&item.User.Balance,
+		); err != nil {
+			return nil, 0, err
+		}
+		item.User.ID = userID
+		item.IsDisabled = item.User.Status == StatusDisabled
+		item.Actions = decodeJSONObject(actionsJSON)
+		item.Summary = decodeJSONObject(summaryJSON)
+		if operatorID.Valid {
+			item.Operator = &UserDispositionAuditOperator{ID: operatorID.Int64}
+			if operatorEmail.Valid {
+				item.Operator.Email = operatorEmail.String
+			}
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+	return items, total, nil
+}
+
+func (s *adminServiceImpl) UnbanDispositionUser(ctx context.Context, input UserUnbanInput) (*UserUnbanResult, error) {
+	input.Reason = strings.TrimSpace(input.Reason)
+	if input.UserID <= 0 {
+		return nil, infraerrors.BadRequest("INVALID_USER_ID", "invalid user id")
+	}
+	if input.Reason == "" {
+		input.Reason = "admin unban"
+	}
+	if s.entClient == nil {
+		return nil, infraerrors.InternalServer("DATABASE_UNAVAILABLE", "database client is unavailable")
+	}
+
+	user, err := s.userRepo.GetByID(ctx, input.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if user.Role == RoleAdmin {
+		return nil, infraerrors.BadRequest("CANNOT_UNBAN_ADMIN", "admin users do not need disposition unban")
+	}
+
+	keysForInvalidation, _ := s.apiKeyRepo.ListKeysByUserID(ctx, input.UserID)
+	tx, err := s.entClient.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	opCtx := dbent.NewTxContext(ctx, tx)
+
+	result := &UserUnbanResult{
+		UserID:           input.UserID,
+		UserStatusBefore: user.Status,
+		UserStatusAfter:  StatusActive,
+	}
+	if user.Status != StatusActive {
+		user.Status = StatusActive
+		if err := s.userRepo.Update(opCtx, user); err != nil {
+			return nil, fmt.Errorf("restore user status: %w", err)
+		}
+	}
+
+	keyIDsToRestore, err := s.latestDispositionDisabledAPIKeyIDs(opCtx, tx, input.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("load disposition-disabled api keys: %w", err)
+	}
+	if len(keyIDsToRestore) > 0 {
+		apiKeyResult, err := tx.Client().ExecContext(opCtx, `
+			UPDATE api_keys
+			SET status = $1, updated_at = NOW()
+			WHERE user_id = $2 AND deleted_at IS NULL AND status = $3 AND id = ANY($4)
+		`, StatusAPIKeyActive, input.UserID, StatusAPIKeyDisabled, pq.Array(keyIDsToRestore))
+		if err != nil {
+			return nil, fmt.Errorf("enable api keys: %w", err)
+		}
+		result.EnabledAPIKeys, _ = apiKeyResult.RowsAffected()
+	}
+
+	auditID, err := s.insertUserUnbanAudit(opCtx, tx, input, result)
+	if err != nil {
+		return nil, fmt.Errorf("write unban audit: %w", err)
+	}
+	result.AuditID = auditID
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("commit unban: %w", err)
+	}
+
+	if s.authCacheInvalidator != nil {
+		s.authCacheInvalidator.InvalidateAuthCacheByUserID(ctx, input.UserID)
+		for _, key := range keysForInvalidation {
+			s.authCacheInvalidator.InvalidateAuthCacheByKey(ctx, key)
+		}
+	}
+	return result, nil
+}
+
+func decodeJSONObject(raw string) map[string]any {
+	out := map[string]any{}
+	if strings.TrimSpace(raw) == "" {
+		return out
+	}
+	if err := json.Unmarshal([]byte(raw), &out); err != nil {
+		return map[string]any{}
+	}
+	return out
+}
+
+func (s *adminServiceImpl) latestDispositionDisabledAPIKeyIDs(ctx context.Context, tx *dbent.Tx, userID int64) ([]int64, error) {
+	var summaryJSON string
+	rows, err := tx.Client().QueryContext(ctx, `
+		SELECT summary::text
+		FROM user_disposition_audits
+		WHERE user_id = $1
+		  AND COALESCE((actions->>'disable_api_keys')::boolean, false) = true
+		ORDER BY created_at DESC, id DESC
+		LIMIT 1
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+	if err := rows.Scan(&summaryJSON); err != nil {
+		return nil, err
+	}
+	var summary struct {
+		DisabledAPIKeyIDs []int64 `json:"disabled_api_key_ids"`
+	}
+	if err := json.Unmarshal([]byte(summaryJSON), &summary); err != nil {
+		return nil, err
+	}
+	return summary.DisabledAPIKeyIDs, rows.Err()
+}
+
+func (s *adminServiceImpl) insertUserUnbanAudit(ctx context.Context, tx *dbent.Tx, input UserUnbanInput, result *UserUnbanResult) (int64, error) {
+	actions := map[string]bool{
+		"unban_user":      true,
+		"enable_api_keys": true,
+	}
+	actionsJSON, _ := json.Marshal(actions)
+	summaryJSON, _ := json.Marshal(result)
+	var operator any
+	if input.OperatorUserID > 0 {
+		operator = input.OperatorUserID
+	}
+	var auditID int64
+	rows, err := tx.Client().QueryContext(ctx, `
+		INSERT INTO user_disposition_audits (user_id, operator_user_id, reason, actions, summary)
+		VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)
+		RETURNING id
+	`, input.UserID, operator, input.Reason, string(actionsJSON), string(summaryJSON))
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		if err := rows.Err(); err != nil {
+			return 0, err
+		}
+		return 0, sql.ErrNoRows
+	}
+	if err := rows.Scan(&auditID); err != nil {
+		return 0, err
+	}
+	return auditID, rows.Err()
 }
 
 func (s *adminServiceImpl) GetUserAPIKeys(ctx context.Context, userID int64, page, pageSize int, sortBy, sortOrder string) ([]APIKey, int64, error) {

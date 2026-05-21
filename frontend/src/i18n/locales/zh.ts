@@ -444,6 +444,7 @@ export default {
     affiliateTransferRecords: '提取记录',
     profile: '个人资料',
     users: '用户管理',
+    userDispositions: '处置审计',
     groups: '分组管理',
     channels: '渠道管理',
     availableChannels: '可用渠道',
@@ -1806,6 +1807,52 @@ export default {
       }
     },
 
+    dispositions: {
+      title: '处置审计',
+      description: '查看被审计或封禁的用户，并恢复访问权限',
+      searchPlaceholder: '搜索邮箱、用户名或处置原因...',
+      allAudited: '全部审计',
+      onlyDisabled: '仅封禁中',
+      onlyActive: '已解封/活跃',
+      statusDisabled: '封禁中',
+      statusActive: '已恢复',
+      noActions: '无动作',
+      unknownOperator: '未知管理员',
+      unban: '恢复访问',
+      alreadyActive: '已解封',
+      unbanTitle: '恢复用户访问',
+      unbanHint: '恢复访问会将用户状态恢复为 active，并仅启用最近一次处置中被自动禁用的 API Key；已撤销的订阅和已清空的余额不会自动还原。',
+      unbanReason: '恢复原因',
+      unbanReasonPlaceholder: '例如：申诉通过、误封恢复、风控解除等',
+      defaultUnbanReason: '管理员解封',
+      confirmUnban: '确认恢复',
+      unbanning: '恢复中...',
+      unbanSuccess: '恢复完成，已启用 {keys} 个 API Key',
+      unbanFailed: '恢复访问失败',
+      failedToLoad: '加载处置审计失败',
+      emptyTitle: '暂无处置审计',
+      emptyDescription: '当用户被处置或解封后，会出现在这里。',
+      columns: {
+        user: '用户',
+        status: '状态',
+        actions: '最近动作',
+        reason: '原因',
+        operator: '操作人',
+        createdAt: '最近处置时间',
+        manage: '操作'
+      },
+      actionLabels: {
+        disableUser: '禁用用户',
+        disableApiKeys: '禁用 API Key',
+        revokeSubscriptions: '撤销订阅',
+        clearBalance: '清空余额',
+        freezeBalance: '冻结余额',
+        appendNote: '写入备注',
+        unbanUser: '解封用户',
+        enableApiKeys: '启用 API Key'
+      }
+    },
+
     // Users Management
     users: {
       title: '用户管理',
@@ -1985,10 +2032,50 @@ export default {
       depositSuccess: '充值成功',
       withdrawSuccess: '退款成功',
       failedToDeposit: '充值失败',
-      failedToWithdraw: '退款失败',
-      useDepositWithdrawButtons: '请使用充值/退款按钮调整余额',
-      // 余额变动记录
-      balanceHistory: '充值记录',
+	      failedToWithdraw: '退款失败',
+	      useDepositWithdrawButtons: '请使用充值/退款按钮调整余额',
+	      disposition: {
+	        title: '用户处置中心',
+	        modeLabel: '处置类型',
+	        extraLabel: '附加选项',
+	        previewLabel: '将执行',
+	        modes: {
+	          freeze: {
+	            title: '风控冻结',
+	            description: '保留余额，禁用用户和 API Key，阻止继续消费'
+	          },
+	          access: {
+	            title: '撤销访问',
+	            description: '禁用 API Key 并撤销有效订阅，用户账号默认保留'
+	          },
+	          ban: {
+	            title: '封禁账户',
+	            description: '禁用用户、API Key，并撤销全部有效订阅'
+	          },
+	          note: {
+	            title: '仅备注审计',
+	            description: '不改变访问和余额，只记录处置原因'
+	          }
+	        },
+	        disableUser: '禁用用户',
+	        disableApiKeys: '禁用全部 API Key',
+	        revokeSubscriptions: '撤销全部有效订阅',
+	        clearBalance: '清空余额',
+	        freezeBalance: '冻结余额',
+	        freezeBalanceHint: '保留余额，但自动禁用用户和 API Key，阻止继续消费',
+	        extraRevokeSubscriptions: '同时撤销全部有效订阅',
+	        extraDisableUser: '同时禁用用户',
+	        extraClearBalance: '同时清空余额',
+	        appendNote: '把原因追加到用户备注',
+	        reason: '处置原因',
+	        reasonPlaceholder: '例如：退款后回收权益、违规使用、风控冻结等',
+	        submit: '执行处置',
+	        submitting: '处置中...',
+	        success: '处置完成：禁用 {keys} 个 Key，撤销 {subs} 个订阅',
+	        failed: '用户处置失败'
+	      },
+	      // 余额变动记录
+	      balanceHistory: '充值记录',
       balanceHistoryTip: '点击查看充值记录',
       balanceHistoryTitle: '用户充值和并发变动记录',
       noBalanceHistory: '暂无变动记录',

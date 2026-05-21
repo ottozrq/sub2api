@@ -125,6 +125,7 @@ type RefundPlan struct {
 	DeductionType   string
 	BalanceToDeduct float64
 	SubDaysToDeduct int
+	QuotaToDeduct   int
 	SubscriptionID  int64
 }
 
@@ -134,6 +135,7 @@ type RefundResult struct {
 	RequireForce    bool    `json:"require_force,omitempty"`
 	BalanceDeducted float64 `json:"balance_deducted,omitempty"`
 	SubDaysDeducted int     `json:"subscription_days_deducted,omitempty"`
+	QuotaDeducted   int     `json:"quota_deducted,omitempty"`
 }
 
 type DashboardStats struct {

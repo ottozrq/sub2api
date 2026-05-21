@@ -589,11 +589,21 @@
                 {{ t('admin.users.balanceHistory') }}
               </button>
 
-              <div class="my-1 border-t border-gray-100 dark:border-dark-700"></div>
+	              <div class="my-1 border-t border-gray-100 dark:border-dark-700"></div>
 
-              <!-- Delete (not for admin) -->
-              <button
-                v-if="user.role !== 'admin'"
+	              <!-- Disposition Center -->
+	              <button
+	                v-if="user.role !== 'admin'"
+	                @click="handleDisposition(user); closeActionMenu()"
+	                class="flex w-full items-center gap-2 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 dark:text-orange-300 dark:hover:bg-orange-900/20"
+	              >
+	                <Icon name="ban" size="sm" :stroke-width="2" />
+	                {{ t('admin.users.disposition.title') }}
+	              </button>
+
+	              <!-- Delete (not for admin) -->
+	              <button
+	                v-if="user.role !== 'admin'"
                 @click="handleDelete(user); closeActionMenu()"
                 class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
               >
@@ -611,12 +621,90 @@
     <UserEditModal :show="showEditModal" :user="editingUser" @close="closeEditModal" @success="loadUsers" />
     <UserApiKeysModal :show="showApiKeysModal" :user="viewingUser" @close="closeApiKeysModal" />
     <UserAllowedGroupsModal :show="showAllowedGroupsModal" :user="allowedGroupsUser" @close="closeAllowedGroupsModal" @success="loadUsers" />
-    <UserBalanceModal :show="showBalanceModal" :user="balanceUser" :operation="balanceOperation" @close="closeBalanceModal" @success="loadUsers" />
-    <UserBalanceHistoryModal :show="showBalanceHistoryModal" :user="balanceHistoryUser" @close="closeBalanceHistoryModal" @deposit="handleDepositFromHistory" @withdraw="handleWithdrawFromHistory" />
-    <GroupReplaceModal :show="showGroupReplaceModal" :user="groupReplaceUser" :old-group="groupReplaceOldGroup" :all-groups="allGroups" @close="closeGroupReplaceModal" @success="loadUsers" />
-    <UserAttributesConfigModal :show="showAttributesModal" @close="handleAttributesModalClose" />
-  </AppLayout>
-</template>
+	    <UserBalanceModal :show="showBalanceModal" :user="balanceUser" :operation="balanceOperation" @close="closeBalanceModal" @success="loadUsers" />
+	    <UserBalanceHistoryModal :show="showBalanceHistoryModal" :user="balanceHistoryUser" @close="closeBalanceHistoryModal" @deposit="handleDepositFromHistory" @withdraw="handleWithdrawFromHistory" />
+	    <GroupReplaceModal :show="showGroupReplaceModal" :user="groupReplaceUser" :old-group="groupReplaceOldGroup" :all-groups="allGroups" @close="closeGroupReplaceModal" @success="loadUsers" />
+	    <UserAttributesConfigModal :show="showAttributesModal" @close="handleAttributesModalClose" />
+
+	    <Teleport to="body">
+	      <div v-if="showDispositionModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 p-4">
+	        <div class="w-full max-w-lg rounded-xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-dark-800 dark:ring-white/10">
+	          <div class="border-b border-gray-100 px-5 py-4 dark:border-dark-700">
+	            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('admin.users.disposition.title') }}</h3>
+	            <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ dispositionUser?.email }}</p>
+	          </div>
+	          <div class="space-y-4 px-5 py-4">
+	            <div>
+	              <div class="mb-2 text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('admin.users.disposition.modeLabel') }}</div>
+	              <div class="grid gap-2 sm:grid-cols-2">
+	                <button
+	                  v-for="option in dispositionModeOptions"
+	                  :key="option.value"
+	                  type="button"
+	                  class="rounded-lg border p-3 text-left transition"
+	                  :class="dispositionForm.mode === option.value
+	                    ? 'border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 dark:border-primary-400 dark:bg-primary-500/10 dark:text-primary-100'
+	                    : 'border-gray-200 text-gray-700 hover:border-primary-300 dark:border-dark-700 dark:text-dark-200 dark:hover:border-primary-500'"
+	                  @click="selectDispositionMode(option.value)"
+	                >
+	                  <span class="block text-sm font-semibold">{{ option.title }}</span>
+	                  <span class="mt-1 block text-xs leading-5 text-gray-500 dark:text-dark-400">{{ option.description }}</span>
+	                </button>
+	              </div>
+	            </div>
+
+	            <div v-if="dispositionExtraOptions.length > 0" class="space-y-2">
+	              <div class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('admin.users.disposition.extraLabel') }}</div>
+	              <label
+	                v-for="option in dispositionExtraOptions"
+	                :key="option.key"
+	                class="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm dark:border-dark-700"
+	              >
+	                <input v-model="dispositionForm[option.key]" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+	                {{ option.label }}
+	              </label>
+	            </div>
+
+	            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600 dark:border-dark-700 dark:bg-dark-900/40 dark:text-dark-300">
+	              <div class="mb-2 font-medium text-gray-800 dark:text-dark-100">{{ t('admin.users.disposition.previewLabel') }}</div>
+	              <div class="flex flex-wrap gap-2">
+	                <span
+	                  v-for="effect in dispositionPreviewEffects"
+	                  :key="effect"
+	                  class="rounded-full bg-white px-2.5 py-1 text-xs text-gray-700 ring-1 ring-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:ring-dark-600"
+	                >
+	                  {{ effect }}
+	                </span>
+	              </div>
+	            </div>
+
+	            <div>
+	              <label class="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm dark:border-dark-700">
+	                <input v-model="dispositionForm.append_note" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+	                {{ t('admin.users.disposition.appendNote') }}
+	              </label>
+	            </div>
+	            <div>
+	              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('admin.users.disposition.reason') }}</label>
+	              <textarea
+	                v-model.trim="dispositionForm.reason"
+	                rows="3"
+	                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 dark:border-dark-600 dark:bg-dark-700 dark:text-white"
+	                :placeholder="t('admin.users.disposition.reasonPlaceholder')"
+	              />
+	            </div>
+	          </div>
+	          <div class="flex justify-end gap-3 border-t border-gray-100 px-5 py-4 dark:border-dark-700">
+	            <button type="button" class="btn btn-secondary" :disabled="submittingDisposition" @click="closeDispositionModal">{{ t('common.cancel') }}</button>
+	            <button type="button" class="btn btn-danger" :disabled="submittingDisposition || !canSubmitDisposition" @click="submitDisposition">
+	              {{ submittingDisposition ? t('admin.users.disposition.submitting') : t('admin.users.disposition.submit') }}
+	            </button>
+	          </div>
+	        </div>
+	      </div>
+	    </Teleport>
+	  </AppLayout>
+	</template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
@@ -1125,6 +1213,119 @@ const balanceOperation = ref<'add' | 'subtract'>('add')
 const showBalanceHistoryModal = ref(false)
 const balanceHistoryUser = ref<AdminUser | null>(null)
 
+// User disposition center
+type DispositionMode = 'freeze' | 'access' | 'ban' | 'note'
+type DispositionExtraKey = 'revoke_subscriptions' | 'clear_balance' | 'disable_user'
+
+const showDispositionModal = ref(false)
+const dispositionUser = ref<AdminUser | null>(null)
+const submittingDisposition = ref(false)
+const dispositionForm = reactive({
+  mode: 'freeze' as DispositionMode,
+  revoke_subscriptions: false,
+  clear_balance: false,
+  disable_user: false,
+  append_note: true,
+  reason: ''
+})
+
+const dispositionModeOptions = computed<Array<{ value: DispositionMode; title: string; description: string }>>(() => [
+  {
+    value: 'freeze',
+    title: t('admin.users.disposition.modes.freeze.title'),
+    description: t('admin.users.disposition.modes.freeze.description')
+  },
+  {
+    value: 'access',
+    title: t('admin.users.disposition.modes.access.title'),
+    description: t('admin.users.disposition.modes.access.description')
+  },
+  {
+    value: 'ban',
+    title: t('admin.users.disposition.modes.ban.title'),
+    description: t('admin.users.disposition.modes.ban.description')
+  },
+  {
+    value: 'note',
+    title: t('admin.users.disposition.modes.note.title'),
+    description: t('admin.users.disposition.modes.note.description')
+  }
+])
+
+const dispositionExtraOptions = computed<Array<{ key: DispositionExtraKey; label: string }>>(() => {
+  if (dispositionForm.mode === 'freeze') {
+    return [{ key: 'revoke_subscriptions', label: t('admin.users.disposition.extraRevokeSubscriptions') }]
+  }
+  if (dispositionForm.mode === 'access') {
+    return [
+      { key: 'disable_user', label: t('admin.users.disposition.extraDisableUser') },
+      { key: 'clear_balance', label: t('admin.users.disposition.extraClearBalance') }
+    ]
+  }
+  if (dispositionForm.mode === 'ban') {
+    return [{ key: 'clear_balance', label: t('admin.users.disposition.extraClearBalance') }]
+  }
+  return []
+})
+
+const buildDispositionPayload = () => {
+  const base = {
+    reason: dispositionForm.reason.trim(),
+    disable_user: false,
+    disable_api_keys: false,
+    revoke_subscriptions: false,
+    clear_balance: false,
+    freeze_balance: false,
+    append_note: dispositionForm.append_note
+  }
+
+  switch (dispositionForm.mode) {
+    case 'freeze':
+      return {
+        ...base,
+        disable_user: true,
+        disable_api_keys: true,
+        revoke_subscriptions: dispositionForm.revoke_subscriptions,
+        freeze_balance: true
+      }
+    case 'access':
+      return {
+        ...base,
+        disable_user: dispositionForm.disable_user,
+        disable_api_keys: true,
+        revoke_subscriptions: true,
+        clear_balance: dispositionForm.clear_balance
+      }
+    case 'ban':
+      return {
+        ...base,
+        disable_user: true,
+        disable_api_keys: true,
+        revoke_subscriptions: true,
+        clear_balance: dispositionForm.clear_balance
+      }
+    case 'note':
+      return {
+        ...base,
+        append_note: true
+      }
+  }
+}
+
+const dispositionPreviewEffects = computed(() => {
+  const payload = buildDispositionPayload()
+  const effects: string[] = []
+  if (payload.disable_user) effects.push(t('admin.users.disposition.disableUser'))
+  if (payload.disable_api_keys) effects.push(t('admin.users.disposition.disableApiKeys'))
+  if (payload.revoke_subscriptions) effects.push(t('admin.users.disposition.revokeSubscriptions'))
+  if (payload.freeze_balance) effects.push(t('admin.users.disposition.freezeBalance'))
+  if (payload.clear_balance) effects.push(t('admin.users.disposition.clearBalance'))
+  if (payload.append_note) effects.push(t('admin.users.disposition.appendNote'))
+  return effects
+})
+
+const canSubmitDisposition = computed(() => dispositionForm.reason.trim().length > 0)
+
 // 计算剩余天数
 const getDaysRemaining = (expiresAt: string): number => {
   const now = new Date()
@@ -1319,6 +1520,50 @@ const handleViewApiKeys = (user: AdminUser) => {
 const closeApiKeysModal = () => {
   showApiKeysModal.value = false
   viewingUser.value = null
+}
+
+const selectDispositionMode = (mode: DispositionMode) => {
+  dispositionForm.mode = mode
+  dispositionForm.revoke_subscriptions = false
+  dispositionForm.clear_balance = false
+  dispositionForm.disable_user = false
+}
+
+const handleDisposition = (user: AdminUser) => {
+  dispositionUser.value = user
+  dispositionForm.mode = 'freeze'
+  dispositionForm.revoke_subscriptions = false
+  dispositionForm.clear_balance = false
+  dispositionForm.disable_user = false
+  dispositionForm.append_note = true
+  dispositionForm.reason = ''
+  showDispositionModal.value = true
+}
+
+const closeDispositionModal = () => {
+  if (submittingDisposition.value) return
+  showDispositionModal.value = false
+  dispositionUser.value = null
+}
+
+const submitDisposition = async () => {
+  if (!dispositionUser.value || !canSubmitDisposition.value) return
+  submittingDisposition.value = true
+  try {
+    const result = await adminAPI.users.applyDisposition(dispositionUser.value.id, buildDispositionPayload())
+    appStore.showSuccess(t('admin.users.disposition.success', {
+      keys: result.disabled_api_keys,
+      subs: result.revoked_subscriptions
+    }))
+    showDispositionModal.value = false
+    dispositionUser.value = null
+    loadUsers()
+  } catch (error: any) {
+    appStore.showError(error.response?.data?.detail || t('admin.users.disposition.failed'))
+    console.error('Failed to apply user disposition:', error)
+  } finally {
+    submittingDisposition.value = false
+  }
 }
 
 const handleAllowedGroups = (user: AdminUser) => {

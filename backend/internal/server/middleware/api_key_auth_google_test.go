@@ -186,6 +186,9 @@ func (f fakeGoogleSubscriptionRepo) ResetMonthlyUsage(ctx context.Context, id in
 func (f fakeGoogleSubscriptionRepo) AddQuotaTotal(ctx context.Context, subscriptionID int64, count int) error {
 	return errors.New("not implemented")
 }
+func (f fakeGoogleSubscriptionRepo) AdjustQuotaTotal(ctx context.Context, subscriptionID int64, delta int) error {
+	return errors.New("not implemented")
+}
 func (f fakeGoogleSubscriptionRepo) IncrementUsage(ctx context.Context, id int64, costUSD float64) error {
 	return errors.New("not implemented")
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
+	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -66,6 +67,20 @@ type UpdateBalanceRequest struct {
 	Balance   float64 `json:"balance" binding:"required,gt=0"`
 	Operation string  `json:"operation" binding:"required,oneof=set add subtract"`
 	Notes     string  `json:"notes"`
+}
+
+type UserDispositionRequest struct {
+	Reason              string `json:"reason" binding:"required"`
+	DisableUser         bool   `json:"disable_user"`
+	DisableAPIKeys      bool   `json:"disable_api_keys"`
+	RevokeSubscriptions bool   `json:"revoke_subscriptions"`
+	ClearBalance        bool   `json:"clear_balance"`
+	FreezeBalance       bool   `json:"freeze_balance"`
+	AppendNote          bool   `json:"append_note"`
+}
+
+type UserUnbanRequest struct {
+	Reason string `json:"reason"`
 }
 
 type BindUserAuthIdentityRequest struct {
@@ -339,6 +354,90 @@ func (h *UserHandler) UpdateBalance(c *gin.Context) {
 		}
 		return dto.UserFromServiceAdmin(user), nil
 	})
+}
+
+// ApplyDisposition handles one-stop operational action for a user.
+// POST /api/v1/admin/users/:id/disposition
+func (h *UserHandler) ApplyDisposition(c *gin.Context) {
+	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	var req UserDispositionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	var operatorID int64
+	if subject, ok := middleware.GetAuthSubjectFromContext(c); ok {
+		operatorID = subject.UserID
+	}
+	result, err := h.adminService.ApplyUserDisposition(c.Request.Context(), service.UserDispositionInput{
+		UserID:              userID,
+		OperatorUserID:      operatorID,
+		Reason:              req.Reason,
+		DisableUser:         req.DisableUser,
+		DisableAPIKeys:      req.DisableAPIKeys,
+		RevokeSubscriptions: req.RevokeSubscriptions,
+		ClearBalance:        req.ClearBalance,
+		FreezeBalance:       req.FreezeBalance,
+		AppendNote:          req.AppendNote,
+	})
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, result)
+}
+
+// ListDispositions handles listing users that have disposition audit records.
+// GET /api/v1/admin/users/dispositions
+func (h *UserHandler) ListDispositions(c *gin.Context) {
+	page, pageSize := response.ParsePagination(c)
+	search := strings.TrimSpace(c.Query("search"))
+	if runes := []rune(search); len(runes) > 100 {
+		search = string(runes[:100])
+	}
+	items, total, err := h.adminService.ListUserDispositions(c.Request.Context(), page, pageSize, service.UserDispositionListFilters{
+		Status: strings.TrimSpace(c.Query("status")),
+		Search: search,
+	})
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Paginated(c, items, total, page, pageSize)
+}
+
+// UnbanDispositionUser restores access for a disposed/disabled user.
+// POST /api/v1/admin/users/:id/unban
+func (h *UserHandler) UnbanDispositionUser(c *gin.Context) {
+	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	var req UserUnbanRequest
+	_ = c.ShouldBindJSON(&req)
+
+	var operatorID int64
+	if subject, ok := middleware.GetAuthSubjectFromContext(c); ok {
+		operatorID = subject.UserID
+	}
+	result, err := h.adminService.UnbanDispositionUser(c.Request.Context(), service.UserUnbanInput{
+		UserID:         userID,
+		OperatorUserID: operatorID,
+		Reason:         req.Reason,
+	})
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, result)
 }
 
 // GetUserAPIKeys handles getting user's API keys

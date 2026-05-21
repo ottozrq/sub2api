@@ -113,6 +113,9 @@ func (userSubRepoNoop) UpdateWindowQuotaPolicy(context.Context, int64, int, int)
 func (userSubRepoNoop) AddQuotaTotal(context.Context, int64, int) error {
 	panic("unexpected AddQuotaTotal call")
 }
+func (userSubRepoNoop) AdjustQuotaTotal(context.Context, int64, int) error {
+	panic("unexpected AdjustQuotaTotal call")
+}
 func (userSubRepoNoop) ActivateWindows(context.Context, int64, time.Time) error {
 	panic("unexpected ActivateWindows call")
 }

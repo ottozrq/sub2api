@@ -572,6 +572,29 @@ func (s *SubscriptionService) ExtendSubscription(ctx context.Context, subscripti
 	return s.userSubRepo.GetByID(ctx, subscriptionID)
 }
 
+func (s *SubscriptionService) AdjustQuotaTotal(ctx context.Context, subscriptionID int64, delta int) (*UserSubscription, error) {
+	if delta == 0 {
+		return s.userSubRepo.GetByID(ctx, subscriptionID)
+	}
+	sub, err := s.userSubRepo.GetByID(ctx, subscriptionID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.userSubRepo.AdjustQuotaTotal(ctx, subscriptionID, delta); err != nil {
+		return nil, err
+	}
+	s.InvalidateSubCache(sub.UserID, sub.GroupID)
+	if s.billingCacheService != nil {
+		userID, groupID := sub.UserID, sub.GroupID
+		go func() {
+			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = s.billingCacheService.InvalidateSubscription(cacheCtx, userID, groupID)
+		}()
+	}
+	return s.userSubRepo.GetByID(ctx, subscriptionID)
+}
+
 // GetByID 根据ID获取订阅
 func (s *SubscriptionService) GetByID(ctx context.Context, id int64) (*UserSubscription, error) {
 	return s.userSubRepo.GetByID(ctx, id)

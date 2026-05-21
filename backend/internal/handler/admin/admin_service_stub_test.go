@@ -175,6 +175,46 @@ func (s *stubAdminService) UpdateUserBalance(ctx context.Context, userID int64, 
 	return &user, nil
 }
 
+func (s *stubAdminService) ApplyUserDisposition(ctx context.Context, input service.UserDispositionInput) (*service.UserDispositionResult, error) {
+	return &service.UserDispositionResult{
+		UserID:               input.UserID,
+		DisabledUser:         input.DisableUser,
+		DisabledAPIKeys:      1,
+		RevokedSubscriptions: 1,
+		ClearedBalance:       input.ClearBalance,
+		FrozenBalance:        input.FreezeBalance,
+		NoteAppended:         input.AppendNote,
+		AuditID:              99,
+	}, nil
+}
+
+func (s *stubAdminService) ListUserDispositions(ctx context.Context, page, pageSize int, filters service.UserDispositionListFilters) ([]service.UserDispositionAuditEntry, int64, error) {
+	return []service.UserDispositionAuditEntry{{
+		AuditID:   1,
+		Reason:    "test disposition",
+		Actions:   map[string]any{"disable_user": true},
+		Summary:   map[string]any{"disabled_user": true},
+		CreatedAt: time.Now(),
+		User: service.UserDispositionAuditUser{
+			ID:     1,
+			Email:  "user@example.com",
+			Status: service.StatusDisabled,
+			Role:   service.RoleUser,
+		},
+		IsDisabled: true,
+	}}, 1, nil
+}
+
+func (s *stubAdminService) UnbanDispositionUser(ctx context.Context, input service.UserUnbanInput) (*service.UserUnbanResult, error) {
+	return &service.UserUnbanResult{
+		UserID:           input.UserID,
+		UserStatusBefore: service.StatusDisabled,
+		UserStatusAfter:  service.StatusActive,
+		EnabledAPIKeys:   1,
+		AuditID:          2,
+	}, nil
+}
+
 func (s *stubAdminService) BatchUpdateConcurrency(ctx context.Context, userIDs []int64, value int, mode string) (int, error) {
 	return len(userIDs), nil
 }

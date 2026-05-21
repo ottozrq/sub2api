@@ -142,6 +142,7 @@ type usageLogRepository struct {
 	bestEffortBatchOnce sync.Once
 	bestEffortBatchCh   chan usageLogBestEffortRequest
 	bestEffortRecent    *gocache.Cache
+	retryWorkerOnce     sync.Once
 }
 
 const (
@@ -154,6 +155,11 @@ const (
 	usageLogBestEffortBatchWindow   = 20 * time.Millisecond
 	usageLogBestEffortBatchQueueCap = 32768
 	usageLogBestEffortRecentTTL     = 30 * time.Second
+
+	usageLogRetryPollInterval = time.Second
+	usageLogRetryLockTTL      = 30 * time.Second
+	usageLogRetryMaxDelay     = time.Hour
+	usageLogRetryMaxAttempts  = 20
 )
 
 type usageLogCreateRequest struct {
@@ -217,6 +223,7 @@ func newUsageLogRepositoryWithSQL(client *dbent.Client, sqlq sqlExecutor) *usage
 		repo.db = db
 	}
 	repo.bestEffortRecent = gocache.New(usageLogBestEffortRecentTTL, time.Minute)
+	repo.startUsageLogRetryWorker()
 	return repo
 }
 
@@ -304,6 +311,187 @@ func (r *usageLogRepository) CreateBestEffort(ctx context.Context, log *service.
 	case <-ctx.Done():
 		return service.MarkUsageLogCreateDropped(ctx.Err())
 	}
+}
+
+func (r *usageLogRepository) EnqueueUsageLogRetry(ctx context.Context, log *service.UsageLog, logKey string, cause error) error {
+	if r == nil || r.db == nil || log == nil {
+		return errors.New("usage log retry store unavailable")
+	}
+	payload, err := json.Marshal(log)
+	if err != nil {
+		return err
+	}
+	requestID := strings.TrimSpace(log.RequestID)
+	if requestID == "" {
+		return errors.New("usage log retry request_id is required")
+	}
+	if strings.TrimSpace(logKey) == "" {
+		logKey = "service.gateway"
+	}
+	_, err = r.db.ExecContext(ctx, `
+		INSERT INTO usage_log_retry_queue (request_id, api_key_id, log_key, payload, last_error, next_attempt_at)
+		VALUES ($1, $2, $3, $4::jsonb, $5, NOW())
+		ON CONFLICT (request_id, api_key_id)
+		DO UPDATE SET
+			payload = EXCLUDED.payload,
+			log_key = EXCLUDED.log_key,
+			status = 'pending',
+			attempts = 0,
+			last_error = EXCLUDED.last_error,
+			next_attempt_at = LEAST(usage_log_retry_queue.next_attempt_at, NOW()),
+			locked_until = NULL,
+			dead_lettered_at = NULL,
+			updated_at = NOW()
+	`, requestID, log.APIKeyID, logKey, string(payload), retryErrorString(cause))
+	return err
+}
+
+func (r *usageLogRepository) startUsageLogRetryWorker() {
+	if r == nil || r.db == nil {
+		return
+	}
+	r.retryWorkerOnce.Do(func() {
+		go r.runUsageLogRetryWorker()
+	})
+}
+
+func (r *usageLogRepository) runUsageLogRetryWorker() {
+	ticker := time.NewTicker(usageLogRetryPollInterval)
+	defer ticker.Stop()
+	for {
+		r.processUsageLogRetryBatch(context.Background(), 20)
+		<-ticker.C
+	}
+}
+
+type usageLogRetryRow struct {
+	id       int64
+	logKey   string
+	payload  string
+	attempts int
+}
+
+func (r *usageLogRepository) processUsageLogRetryBatch(ctx context.Context, limit int) {
+	if limit <= 0 {
+		limit = 20
+	}
+	for i := 0; i < limit; i++ {
+		row, ok, err := r.claimUsageLogRetry(ctx)
+		if err != nil {
+			logger.LegacyPrintf("repository.usage_log", "claim usage log retry failed: %v", err)
+			return
+		}
+		if !ok {
+			return
+		}
+		r.processUsageLogRetryRow(ctx, row)
+	}
+}
+
+func (r *usageLogRepository) claimUsageLogRetry(ctx context.Context) (usageLogRetryRow, bool, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return usageLogRetryRow{}, false, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var row usageLogRetryRow
+	err = tx.QueryRowContext(ctx, `
+		SELECT id, log_key, payload::text, attempts
+		FROM usage_log_retry_queue
+		WHERE next_attempt_at <= NOW()
+		  AND status = 'pending'
+		  AND (locked_until IS NULL OR locked_until < NOW())
+		ORDER BY next_attempt_at ASC, id ASC
+		FOR UPDATE SKIP LOCKED
+		LIMIT 1
+	`).Scan(&row.id, &row.logKey, &row.payload, &row.attempts)
+	if errors.Is(err, sql.ErrNoRows) {
+		return usageLogRetryRow{}, false, nil
+	}
+	if err != nil {
+		return usageLogRetryRow{}, false, err
+	}
+	if _, err := tx.ExecContext(ctx, `
+		UPDATE usage_log_retry_queue
+		SET locked_until = NOW() + $1::interval,
+			updated_at = NOW()
+		WHERE id = $2
+	`, fmt.Sprintf("%d seconds", int(usageLogRetryLockTTL.Seconds())), row.id); err != nil {
+		return usageLogRetryRow{}, false, err
+	}
+	if err := tx.Commit(); err != nil {
+		return usageLogRetryRow{}, false, err
+	}
+	return row, true, nil
+}
+
+func (r *usageLogRepository) processUsageLogRetryRow(ctx context.Context, row usageLogRetryRow) {
+	var log service.UsageLog
+	if err := json.Unmarshal([]byte(row.payload), &log); err != nil {
+		r.markUsageLogRetryFailed(ctx, row.id, row.attempts+1, err)
+		return
+	}
+	inserted, err := r.createSingle(ctx, r.sql, &log)
+	if err == nil {
+		if _, delErr := r.db.ExecContext(ctx, `DELETE FROM usage_log_retry_queue WHERE id = $1`, row.id); delErr != nil {
+			logger.LegacyPrintf("repository.usage_log", "delete usage log retry row failed: id=%d err=%v", row.id, delErr)
+		}
+		if inserted {
+			logger.LegacyPrintf(row.logKey, "Usage log persistent retry persisted: request_id=%s api_key_id=%d", log.RequestID, log.APIKeyID)
+		}
+		return
+	}
+	r.markUsageLogRetryFailed(ctx, row.id, row.attempts+1, err)
+}
+
+func (r *usageLogRepository) markUsageLogRetryFailed(ctx context.Context, id int64, attempts int, cause error) {
+	if attempts >= usageLogRetryMaxAttempts {
+		if _, err := r.db.ExecContext(ctx, `
+			UPDATE usage_log_retry_queue
+			SET attempts = $1,
+				status = 'dead',
+				last_error = $2,
+				locked_until = NULL,
+				dead_lettered_at = NOW(),
+				updated_at = NOW()
+			WHERE id = $3
+		`, attempts, retryErrorString(cause), id); err != nil {
+			logger.LegacyPrintf("repository.usage_log", "dead-letter usage log retry row failed: id=%d err=%v", id, err)
+		}
+		return
+	}
+	delay := usageLogRetryDelay(attempts)
+	if _, err := r.db.ExecContext(ctx, `
+		UPDATE usage_log_retry_queue
+		SET attempts = $1,
+			status = 'pending',
+			last_error = $2,
+			next_attempt_at = NOW() + $3::interval,
+			locked_until = NULL,
+			updated_at = NOW()
+		WHERE id = $4
+	`, attempts, retryErrorString(cause), fmt.Sprintf("%d seconds", int(delay.Seconds())), id); err != nil {
+		logger.LegacyPrintf("repository.usage_log", "update usage log retry failure state failed: id=%d err=%v", id, err)
+	}
+}
+
+func usageLogRetryDelay(attempts int) time.Duration {
+	if attempts < 1 {
+		return usageLogRetryPollInterval
+	}
+	delay := time.Second << min(attempts-1, 12)
+	if delay > usageLogRetryMaxDelay {
+		return usageLogRetryMaxDelay
+	}
+	return delay
+}
+
+func retryErrorString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
 }
 
 func (r *usageLogRepository) createSingle(ctx context.Context, sqlq sqlExecutor, log *service.UsageLog) (bool, error) {

@@ -26,6 +26,7 @@ type UserSubscriptionRepository interface {
 	UpdateNotes(ctx context.Context, subscriptionID int64, notes string) error
 	UpdateWindowQuotaPolicy(ctx context.Context, subscriptionID int64, count, minutes int) error
 	AddQuotaTotal(ctx context.Context, subscriptionID int64, count int) error
+	AdjustQuotaTotal(ctx context.Context, subscriptionID int64, delta int) error
 
 	ActivateWindows(ctx context.Context, id int64, start time.Time) error
 	ResetDailyUsage(ctx context.Context, id int64, newWindowStart time.Time) error

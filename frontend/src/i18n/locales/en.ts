@@ -444,6 +444,7 @@ export default {
     affiliateTransferRecords: 'Transfer Records',
     profile: 'Profile',
     users: 'Users',
+    userDispositions: 'Disposition Audit',
     groups: 'Groups',
     channels: 'Channels',
     availableChannels: 'Available Channels',
@@ -1785,6 +1786,52 @@ export default {
       }
     },
 
+    dispositions: {
+      title: 'Disposition Audit',
+      description: 'Review audited or banned users and restore access',
+      searchPlaceholder: 'Search email, username, or disposition reason...',
+      allAudited: 'All audited',
+      onlyDisabled: 'Disabled only',
+      onlyActive: 'Restored / active',
+      statusDisabled: 'Disabled',
+      statusActive: 'Restored',
+      noActions: 'No actions',
+      unknownOperator: 'Unknown admin',
+      unban: 'Restore access',
+      alreadyActive: 'Active',
+      unbanTitle: 'Restore user access',
+      unbanHint: 'Restore access sets the user status to active and only enables API keys automatically disabled by the latest disposition. Revoked subscriptions and cleared balance are not restored automatically.',
+      unbanReason: 'Restore reason',
+      unbanReasonPlaceholder: 'e.g., appeal approved, false positive, risk hold lifted',
+      defaultUnbanReason: 'Admin unban',
+      confirmUnban: 'Confirm restore',
+      unbanning: 'Restoring...',
+      unbanSuccess: 'Access restored, {keys} API key(s) enabled',
+      unbanFailed: 'Failed to restore access',
+      failedToLoad: 'Failed to load disposition audit',
+      emptyTitle: 'No disposition audits',
+      emptyDescription: 'Users appear here after a disposition or unban is recorded.',
+      columns: {
+        user: 'User',
+        status: 'Status',
+        actions: 'Latest actions',
+        reason: 'Reason',
+        operator: 'Operator',
+        createdAt: 'Latest time',
+        manage: 'Manage'
+      },
+      actionLabels: {
+        disableUser: 'Disable user',
+        disableApiKeys: 'Disable API keys',
+        revokeSubscriptions: 'Revoke subscriptions',
+        clearBalance: 'Clear balance',
+        freezeBalance: 'Freeze balance',
+        appendNote: 'Append note',
+        unbanUser: 'Unban user',
+        enableApiKeys: 'Enable API keys'
+      }
+    },
+
     // Users
     users: {
       title: 'User Management',
@@ -1928,10 +1975,50 @@ export default {
       depositSuccess: 'Deposit successful',
       withdrawSuccess: 'Withdraw successful',
       failedToDeposit: 'Failed to deposit',
-      failedToWithdraw: 'Failed to withdraw',
-      useDepositWithdrawButtons: 'Please use deposit/withdraw buttons to adjust balance',
-      // Balance History
-      balanceHistory: 'Recharge History',
+	      failedToWithdraw: 'Failed to withdraw',
+	      useDepositWithdrawButtons: 'Please use deposit/withdraw buttons to adjust balance',
+	      disposition: {
+	        title: 'Disposition Center',
+	        modeLabel: 'Disposition type',
+	        extraLabel: 'Additional options',
+	        previewLabel: 'Will apply',
+	        modes: {
+	          freeze: {
+	            title: 'Risk hold',
+	            description: 'Keep balance, disable user and API keys, and block further spending'
+	          },
+	          access: {
+	            title: 'Revoke access',
+	            description: 'Disable API keys and revoke active subscriptions while keeping the account'
+	          },
+	          ban: {
+	            title: 'Account ban',
+	            description: 'Disable the user, API keys, and all active subscriptions'
+	          },
+	          note: {
+	            title: 'Note only',
+	            description: 'Do not change access or balance, only record the reason'
+	          }
+	        },
+	        disableUser: 'Disable user',
+	        disableApiKeys: 'Disable all API keys',
+	        revokeSubscriptions: 'Revoke active subscriptions',
+	        clearBalance: 'Clear balance',
+	        freezeBalance: 'Freeze balance',
+	        freezeBalanceHint: 'Keep balance, but disable the user and API keys to block spending',
+	        extraRevokeSubscriptions: 'Also revoke active subscriptions',
+	        extraDisableUser: 'Also disable user',
+	        extraClearBalance: 'Also clear balance',
+	        appendNote: 'Append reason to admin notes',
+	        reason: 'Reason',
+	        reasonPlaceholder: 'e.g., refund entitlement recovery, abuse, risk hold',
+	        submit: 'Apply disposition',
+	        submitting: 'Applying...',
+	        success: 'Disposition applied: {keys} key(s) disabled, {subs} subscription(s) revoked',
+	        failed: 'Failed to apply user disposition'
+	      },
+	      // Balance History
+	      balanceHistory: 'Recharge History',
       balanceHistoryTip: 'Click to open recharge history',
       balanceHistoryTitle: 'User Recharge & Concurrency History',
       noBalanceHistory: 'No records found for this user',

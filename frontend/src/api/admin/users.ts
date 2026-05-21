@@ -44,6 +44,59 @@ export interface AdminBoundAuthIdentity {
   channel?: AdminBoundAuthIdentityChannel | null
 }
 
+export interface UserDispositionRequest {
+  reason: string
+  disable_user: boolean
+  disable_api_keys: boolean
+  revoke_subscriptions: boolean
+  clear_balance: boolean
+  freeze_balance: boolean
+  append_note: boolean
+}
+
+export interface UserDispositionResult {
+  user_id: number
+  disabled_user: boolean
+  disabled_api_keys: number
+  disabled_api_key_ids?: number[]
+  revoked_subscriptions: number
+  cleared_balance: boolean
+  frozen_balance: boolean
+  balance_before: number
+  balance_after: number
+  note_appended: boolean
+  audit_id: number
+}
+
+export interface UserDispositionAuditEntry {
+  audit_id: number
+  reason: string
+  actions: Record<string, unknown>
+  summary: Record<string, unknown>
+  created_at: string
+  is_disabled: boolean
+  user: {
+    id: number
+    email: string
+    username: string
+    status: 'active' | 'disabled'
+    role: string
+    balance: number
+  }
+  operator?: {
+    id: number
+    email: string
+  } | null
+}
+
+export interface UserUnbanResult {
+  user_id: number
+  user_status_before: string
+  user_status_after: string
+  enabled_api_keys: number
+  audit_id: number
+}
+
 /**
  * List all users with pagination
  * @param page - Page number (default: 1)
@@ -297,6 +350,50 @@ export async function bindUserAuthIdentity(
   return data
 }
 
+export async function applyDisposition(
+  userId: number,
+  input: UserDispositionRequest
+): Promise<UserDispositionResult> {
+  const { data } = await apiClient.post<UserDispositionResult>(
+    `/admin/users/${userId}/disposition`,
+    input
+  )
+  return data
+}
+
+export async function listDispositions(
+  page: number = 1,
+  pageSize: number = 20,
+  filters?: {
+    status?: 'active' | 'disabled' | ''
+    search?: string
+  }
+): Promise<PaginatedResponse<UserDispositionAuditEntry>> {
+  const { data } = await apiClient.get<PaginatedResponse<UserDispositionAuditEntry>>(
+    '/admin/users/dispositions',
+    {
+      params: {
+        page,
+        page_size: pageSize,
+        status: filters?.status,
+        search: filters?.search
+      }
+    }
+  )
+  return data
+}
+
+export async function unbanDispositionUser(
+  userId: number,
+  reason: string
+): Promise<UserUnbanResult> {
+  const { data } = await apiClient.post<UserUnbanResult>(
+    `/admin/users/${userId}/unban`,
+    { reason }
+  )
+  return data
+}
+
 export const usersAPI = {
   list,
   getById,
@@ -310,7 +407,10 @@ export const usersAPI = {
   getUserUsageStats,
   getUserBalanceHistory,
   replaceGroup,
-  bindUserAuthIdentity
+  bindUserAuthIdentity,
+  applyDisposition,
+  listDispositions,
+  unbanDispositionUser
 }
 
 export default usersAPI

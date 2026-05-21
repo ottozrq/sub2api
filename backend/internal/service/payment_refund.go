@@ -249,6 +249,9 @@ func (s *PaymentService) PrepareRefund(ctx context.Context, oid int64, amt float
 func (s *PaymentService) prepDeduct(ctx context.Context, o *dbent.PaymentOrder, p *RefundPlan, force bool) *RefundResult {
 	if o.OrderType == payment.OrderTypeSubscription {
 		p.DeductionType = payment.DeductionTypeSubscription
+		if o.SubscriptionPlanType == payment.PlanTypeQuotaPack && o.SubscriptionQuotaCount > 0 {
+			p.QuotaToDeduct = proratedRefundQuota(o.SubscriptionQuotaCount, o.Amount, p.RefundAmount)
+		}
 		if o.SubscriptionGroupID != nil && o.SubscriptionDays != nil {
 			p.SubDaysToDeduct = *o.SubscriptionDays
 			sub, err := s.subscriptionSvc.GetActiveSubscription(ctx, o.UserID, *o.SubscriptionGroupID)
@@ -270,6 +273,23 @@ func (s *PaymentService) prepDeduct(ctx context.Context, o *dbent.PaymentOrder, 
 	p.DeductionType = payment.DeductionTypeBalance
 	p.BalanceToDeduct = math.Min(p.RefundAmount, u.Balance)
 	return nil
+}
+
+func proratedRefundQuota(totalQuota int, orderAmount, refundAmount float64) int {
+	if totalQuota <= 0 || refundAmount <= 0 {
+		return 0
+	}
+	if orderAmount <= 0 || refundAmount >= orderAmount {
+		return totalQuota
+	}
+	quota := int(math.Ceil(float64(totalQuota) * refundAmount / orderAmount))
+	if quota < 1 {
+		return 1
+	}
+	if quota > totalQuota {
+		return totalQuota
+	}
+	return quota
 }
 
 func (s *PaymentService) ExecuteRefund(ctx context.Context, p *RefundPlan) (*RefundResult, error) {
@@ -313,6 +333,17 @@ func (s *PaymentService) ExecuteRefund(ctx context.Context, p *RefundPlan) (*Ref
 		} else {
 			slog.Warn("skipping subscription deduction on retry (previous rollback failed)", "orderID", p.OrderID)
 			p.SubDaysToDeduct = 0
+		}
+	}
+	if p.DeductionType == payment.DeductionTypeSubscription && p.QuotaToDeduct > 0 && p.SubscriptionID > 0 {
+		if !s.hasAuditLog(ctx, p.OrderID, "REFUND_ROLLBACK_FAILED") {
+			if _, err := s.subscriptionSvc.AdjustQuotaTotal(ctx, p.SubscriptionID, -p.QuotaToDeduct); err != nil {
+				s.restoreStatus(ctx, p)
+				return nil, fmt.Errorf("deduct subscription quota: %w", err)
+			}
+		} else {
+			slog.Warn("skipping subscription quota deduction on retry (previous rollback failed)", "orderID", p.OrderID)
+			p.QuotaToDeduct = 0
 		}
 	}
 	if err := s.gwRefund(ctx, p); err != nil {
@@ -383,8 +414,8 @@ func (s *PaymentService) markRefundOk(ctx context.Context, p *RefundPlan) (*Refu
 	if err != nil {
 		return nil, fmt.Errorf("mark refund: %w", err)
 	}
-	s.writeAuditLog(ctx, p.OrderID, "REFUND_SUCCESS", "admin", map[string]any{"refundAmount": p.RefundAmount, "reason": p.Reason, "balanceDeducted": p.BalanceToDeduct, "force": p.Force})
-	return &RefundResult{Success: true, BalanceDeducted: p.BalanceToDeduct, SubDaysDeducted: p.SubDaysToDeduct}, nil
+	s.writeAuditLog(ctx, p.OrderID, "REFUND_SUCCESS", "admin", map[string]any{"refundAmount": p.RefundAmount, "reason": p.Reason, "balanceDeducted": p.BalanceToDeduct, "subDaysDeducted": p.SubDaysToDeduct, "quotaDeducted": p.QuotaToDeduct, "force": p.Force})
+	return &RefundResult{Success: true, BalanceDeducted: p.BalanceToDeduct, SubDaysDeducted: p.SubDaysToDeduct, QuotaDeducted: p.QuotaToDeduct}, nil
 }
 
 func (s *PaymentService) RollbackRefund(ctx context.Context, p *RefundPlan, gErr error) bool {
@@ -399,6 +430,13 @@ func (s *PaymentService) RollbackRefund(ctx context.Context, p *RefundPlan, gErr
 		if _, err := s.subscriptionSvc.ExtendSubscription(ctx, p.SubscriptionID, p.SubDaysToDeduct); err != nil {
 			slog.Error("[CRITICAL] subscription rollback failed", "orderID", p.OrderID, "subID", p.SubscriptionID, "days", p.SubDaysToDeduct, "error", err)
 			s.writeAuditLog(ctx, p.OrderID, "REFUND_ROLLBACK_FAILED", "admin", map[string]any{"gatewayError": psErrMsg(gErr), "rollbackError": psErrMsg(err), "subDaysDeducted": p.SubDaysToDeduct})
+			return false
+		}
+	}
+	if p.DeductionType == payment.DeductionTypeSubscription && p.QuotaToDeduct > 0 && p.SubscriptionID > 0 {
+		if _, err := s.subscriptionSvc.AdjustQuotaTotal(ctx, p.SubscriptionID, p.QuotaToDeduct); err != nil {
+			slog.Error("[CRITICAL] subscription quota rollback failed", "orderID", p.OrderID, "subID", p.SubscriptionID, "quota", p.QuotaToDeduct, "error", err)
+			s.writeAuditLog(ctx, p.OrderID, "REFUND_ROLLBACK_FAILED", "admin", map[string]any{"gatewayError": psErrMsg(gErr), "rollbackError": psErrMsg(err), "quotaDeducted": p.QuotaToDeduct})
 			return false
 		}
 	}

@@ -370,6 +370,30 @@ func (r *userSubscriptionRepository) AddQuotaTotal(ctx context.Context, id int64
 	return translatePersistenceError(err, service.ErrSubscriptionNotFound, nil)
 }
 
+func (r *userSubscriptionRepository) AdjustQuotaTotal(ctx context.Context, id int64, delta int) error {
+	if delta == 0 {
+		return nil
+	}
+	client := clientFromContext(ctx, r.client)
+	result, err := client.ExecContext(ctx, `
+		UPDATE user_subscriptions
+		SET quota_total_count = GREATEST(quota_total_count + $1, 0),
+			updated_at = NOW()
+		WHERE id = $2 AND deleted_at IS NULL
+	`, delta, id)
+	if err != nil {
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return service.ErrSubscriptionNotFound
+	}
+	return nil
+}
+
 // IncrementUsage 原子性地累加订阅用量。
 // 限额检查已在请求前由 BillingCacheService.CheckBillingEligibility 完成，
 // 此处仅负责记录实际消费，确保消费数据的完整性。

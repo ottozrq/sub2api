@@ -1983,6 +1983,10 @@ export default {
 	        extraLabel: 'Additional options',
 	        previewLabel: 'Will apply',
 	        modes: {
+	          pause: {
+	            title: 'Pause user',
+	            description: 'Disable the user and API keys while keeping balance and subscriptions'
+	          },
 	          freeze: {
 	            title: 'Risk hold',
 	            description: 'Keep balance, disable user and API keys, and block further spending'
@@ -2874,7 +2878,8 @@ export default {
         user: 'User',
         group: 'Subscription Group',
         validityDays: 'Validity (Days)',
-        adjustDays: 'Adjust by (Days)'
+        adjustDays: 'Adjust by (Days)',
+        adjustTotalQuota: 'Adjust by (calls)'
       },
       selectUser: 'Select a user',
       selectGroup: 'Select a subscription group',
@@ -2882,17 +2887,26 @@ export default {
       validityHint: 'Number of days the subscription will be valid',
       adjustingFor: 'Adjusting subscription for',
       currentExpiration: 'Current expiration',
+      currentTotalQuota: 'Current total quota',
+      usedTotalQuota: 'Used calls',
       adjustDaysPlaceholder: 'Positive to extend, negative to shorten',
+      adjustTotalQuotaPlaceholder: 'Positive to add, negative to deduct',
       adjustHint: 'Enter positive number to extend, negative to shorten (remaining days must be > 0)',
+      adjustTotalQuotaHint: 'Use positive numbers to add calls and negative numbers to deduct calls. The total quota will not go below 0.',
+      totalQuotaAfter: 'Total quota after adjustment',
       assign: 'Assign',
       assigning: 'Assigning...',
       adjust: 'Adjust',
+      adjustQuota: 'Adjust Quota',
+      adjustTotalQuota: 'Adjust Total Quota',
       adjusting: 'Adjusting...',
       revoke: 'Revoke',
       resetQuota: 'Reset Quota',
       resetQuotaTitle: 'Reset Usage Quota',
       resetQuotaConfirm: "Reset the daily, weekly, and monthly usage quota for '{user}'? Usage will be zeroed and windows restarted from today.",
       quotaResetSuccess: 'Quota reset successfully',
+      totalQuota: 'Total calls',
+      totalQuotaAdjusted: 'Total quota adjusted successfully',
       failedToResetQuota: 'Failed to reset quota',
       noSubscriptionsYet: 'No subscriptions yet',
       assignFirstSubscription: 'Assign a subscription to get started.',
@@ -2902,6 +2916,7 @@ export default {
       failedToLoad: 'Failed to load subscriptions',
       failedToAssign: 'Failed to assign subscription',
       failedToAdjust: 'Failed to adjust subscription',
+      failedToAdjustTotalQuota: 'Failed to adjust total quota',
       failedToRevoke: 'Failed to revoke subscription',
       adjustWouldExpire: 'Remaining days after adjustment must be greater than 0',
       adjustOutOfRange: 'Adjustment days must be between -36500 and 36500',
@@ -2933,6 +2948,8 @@ export default {
         actions: {
           adjust: 'Adjust',
           adjustDesc: 'Extend or shorten the subscription validity period',
+          adjustQuota: 'Adjust Quota',
+          adjustQuotaDesc: 'Add or deduct fixed-call total quota',
           resetQuota: 'Reset Quota',
           resetQuotaDesc: 'Reset daily/weekly/monthly usage to zero',
           revoke: 'Revoke',

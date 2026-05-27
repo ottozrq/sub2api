@@ -324,12 +324,31 @@
                 </div>
               </div>
 
+              <!-- Total call quota -->
+              <div v-if="row.quota_total_count > 0" class="usage-row">
+                <div class="flex items-center gap-2">
+                  <span class="usage-label">{{ t('admin.subscriptions.totalQuota') }}</span>
+                  <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-dark-600">
+                    <div
+                      class="h-1.5 rounded-full bg-cyan-500 transition-all"
+                      :style="{ width: getCountQuotaProgressWidth(row.quota_used_count, row.quota_total_count) }"
+                    ></div>
+                  </div>
+                  <span class="usage-amount">
+                    {{ row.quota_used_count || 0 }}
+                    <span class="text-gray-400">/</span>
+                    {{ row.quota_total_count }}
+                  </span>
+                </div>
+              </div>
+
               <!-- No Limits - Unlimited badge -->
               <div
                 v-if="
                   !row.group?.daily_limit_usd &&
                   !row.group?.weekly_limit_usd &&
-                  !row.group?.monthly_limit_usd
+                  !row.group?.monthly_limit_usd &&
+                  !row.quota_total_count
                 "
                 class="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-2 dark:from-emerald-900/20 dark:to-teal-900/20"
               >
@@ -386,6 +405,14 @@
               >
                 <Icon name="calendar" size="sm" />
                 <span class="text-xs">{{ t('admin.subscriptions.adjust') }}</span>
+              </button>
+              <button
+                v-if="row.status === 'active'"
+                @click="handleAdjustTotalQuota(row)"
+                class="flex flex-col items-center gap-0.5 rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-cyan-50 hover:text-cyan-600 dark:hover:bg-cyan-900/20 dark:hover:text-cyan-400"
+              >
+                <Icon name="database" size="sm" />
+                <span class="text-xs">{{ t('admin.subscriptions.adjustQuota') }}</span>
               </button>
               <button
                 v-if="row.status === 'active'"
@@ -633,6 +660,67 @@
       </template>
     </BaseDialog>
 
+    <!-- Adjust Total Quota Modal -->
+    <BaseDialog
+      :show="showAdjustQuotaModal"
+      :title="t('admin.subscriptions.adjustTotalQuota')"
+      width="narrow"
+      @close="closeAdjustQuotaModal"
+    >
+      <form
+        v-if="quotaAdjustSubscription"
+        id="adjust-total-quota-form"
+        @submit.prevent="submitAdjustTotalQuota"
+        class="space-y-5"
+      >
+        <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ t('admin.subscriptions.adjustingFor') }}
+            <span class="font-medium text-gray-900 dark:text-white">{{ quotaAdjustSubscription.user?.email }}</span>
+          </p>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ t('admin.subscriptions.currentTotalQuota') }}:
+            <span class="font-medium text-gray-900 dark:text-white">{{ quotaAdjustSubscription.quota_total_count || 0 }}</span>
+          </p>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ t('admin.subscriptions.usedTotalQuota') }}:
+            <span class="font-medium text-gray-900 dark:text-white">{{ quotaAdjustSubscription.quota_used_count || 0 }}</span>
+          </p>
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.subscriptions.form.adjustTotalQuota') }}</label>
+          <input
+            v-model.number="quotaAdjustForm.delta"
+            type="number"
+            required
+            step="1"
+            class="input text-center"
+            :placeholder="t('admin.subscriptions.adjustTotalQuotaPlaceholder')"
+          />
+          <p class="input-hint">{{ t('admin.subscriptions.adjustTotalQuotaHint') }}</p>
+        </div>
+        <div class="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-sm text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/30 dark:text-cyan-200">
+          {{ t('admin.subscriptions.totalQuotaAfter') }}:
+          <span class="font-semibold">{{ adjustedTotalQuotaPreview }}</span>
+        </div>
+      </form>
+      <template #footer>
+        <div v-if="quotaAdjustSubscription" class="flex justify-end gap-3">
+          <button @click="closeAdjustQuotaModal" type="button" class="btn btn-secondary">
+            {{ t('common.cancel') }}
+          </button>
+          <button
+            type="submit"
+            form="adjust-total-quota-form"
+            :disabled="submitting || !quotaAdjustForm.delta"
+            class="btn btn-primary"
+          >
+            {{ submitting ? t('admin.subscriptions.adjusting') : t('admin.subscriptions.adjustQuota') }}
+          </button>
+        </div>
+      </template>
+    </BaseDialog>
+
     <!-- Revoke Confirmation Dialog -->
     <ConfirmDialog
       :show="showRevokeDialog"
@@ -776,6 +864,7 @@ const showGuideModal = ref(false)
 
 const guideActionRows = computed(() => [
   { action: t('admin.subscriptions.guide.actions.adjust'), desc: t('admin.subscriptions.guide.actions.adjustDesc') },
+  { action: t('admin.subscriptions.guide.actions.adjustQuota'), desc: t('admin.subscriptions.guide.actions.adjustQuotaDesc') },
   { action: t('admin.subscriptions.guide.actions.resetQuota'), desc: t('admin.subscriptions.guide.actions.resetQuotaDesc') },
   { action: t('admin.subscriptions.guide.actions.revoke'), desc: t('admin.subscriptions.guide.actions.revokeDesc') }
 ])
@@ -938,12 +1027,14 @@ const pagination = reactive({
 
 const showAssignModal = ref(false)
 const showExtendModal = ref(false)
+const showAdjustQuotaModal = ref(false)
 const showRevokeDialog = ref(false)
 const showResetQuotaConfirm = ref(false)
 const submitting = ref(false)
 const resettingSubscription = ref<UserSubscription | null>(null)
 const resettingQuota = ref(false)
 const extendingSubscription = ref<UserSubscription | null>(null)
+const quotaAdjustSubscription = ref<UserSubscription | null>(null)
 const revokingSubscription = ref<UserSubscription | null>(null)
 
 const assignForm = reactive({
@@ -954,6 +1045,15 @@ const assignForm = reactive({
 
 const extendForm = reactive({
   days: 30
+})
+
+const quotaAdjustForm = reactive({
+  delta: 0
+})
+
+const adjustedTotalQuotaPreview = computed(() => {
+  if (!quotaAdjustSubscription.value) return 0
+  return Math.max((quotaAdjustSubscription.value.quota_total_count || 0) + (quotaAdjustForm.delta || 0), 0)
 })
 
 // Group options for filter (all groups)
@@ -1240,6 +1340,37 @@ const handleExtendSubscription = async () => {
   }
 }
 
+const handleAdjustTotalQuota = (subscription: UserSubscription) => {
+  quotaAdjustSubscription.value = subscription
+  quotaAdjustForm.delta = 0
+  showAdjustQuotaModal.value = true
+}
+
+const closeAdjustQuotaModal = () => {
+  if (submitting.value) return
+  showAdjustQuotaModal.value = false
+  quotaAdjustSubscription.value = null
+  quotaAdjustForm.delta = 0
+}
+
+const submitAdjustTotalQuota = async () => {
+  if (!quotaAdjustSubscription.value || !quotaAdjustForm.delta) return
+  submitting.value = true
+  try {
+    await adminAPI.subscriptions.adjustTotalQuota(quotaAdjustSubscription.value.id, {
+      delta: quotaAdjustForm.delta
+    })
+    appStore.showSuccess(t('admin.subscriptions.totalQuotaAdjusted'))
+    closeAdjustQuotaModal()
+    await loadSubscriptions()
+  } catch (error: any) {
+    appStore.showError(error.response?.data?.detail || t('admin.subscriptions.failedToAdjustTotalQuota'))
+    console.error('Error adjusting total quota:', error)
+  } finally {
+    submitting.value = false
+  }
+}
+
 const handleRevoke = (subscription: UserSubscription) => {
   revokingSubscription.value = subscription
   showRevokeDialog.value = true
@@ -1311,6 +1442,12 @@ const getProgressClass = (used: number | null | undefined, limit: number | null)
   if (percentage >= 90) return 'bg-red-500'
   if (percentage >= 70) return 'bg-orange-500'
   return 'bg-green-500'
+}
+
+const getCountQuotaProgressWidth = (used: number | null | undefined, limit: number | null | undefined): string => {
+  if (!limit || limit <= 0) return '0%'
+  const usedValue = used ?? 0
+  return `${Math.min((usedValue / limit) * 100, 100)}%`
 }
 
 // Format reset time based on window start and period type

@@ -1214,7 +1214,7 @@ const showBalanceHistoryModal = ref(false)
 const balanceHistoryUser = ref<AdminUser | null>(null)
 
 // User disposition center
-type DispositionMode = 'freeze' | 'access' | 'ban' | 'note'
+type DispositionMode = 'pause' | 'freeze' | 'access' | 'ban' | 'note'
 type DispositionExtraKey = 'revoke_subscriptions' | 'clear_balance' | 'disable_user'
 
 const showDispositionModal = ref(false)
@@ -1230,6 +1230,11 @@ const dispositionForm = reactive({
 })
 
 const dispositionModeOptions = computed<Array<{ value: DispositionMode; title: string; description: string }>>(() => [
+  {
+    value: 'pause',
+    title: t('admin.users.disposition.modes.pause.title'),
+    description: t('admin.users.disposition.modes.pause.description')
+  },
   {
     value: 'freeze',
     title: t('admin.users.disposition.modes.freeze.title'),
@@ -1280,6 +1285,12 @@ const buildDispositionPayload = () => {
   }
 
   switch (dispositionForm.mode) {
+    case 'pause':
+      return {
+        ...base,
+        disable_user: true,
+        disable_api_keys: true
+      }
     case 'freeze':
       return {
         ...base,
@@ -1531,7 +1542,7 @@ const selectDispositionMode = (mode: DispositionMode) => {
 
 const handleDisposition = (user: AdminUser) => {
   dispositionUser.value = user
-  dispositionForm.mode = 'freeze'
+  dispositionForm.mode = 'pause'
   dispositionForm.revoke_subscriptions = false
   dispositionForm.clear_balance = false
   dispositionForm.disable_user = false

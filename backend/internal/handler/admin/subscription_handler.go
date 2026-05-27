@@ -59,6 +59,11 @@ type AdjustSubscriptionRequest struct {
 	Days int `json:"days" binding:"required,min=-36500,max=36500"` // negative to shorten, positive to extend
 }
 
+// AdjustSubscriptionTotalQuotaRequest represents a fixed-call quota adjustment.
+type AdjustSubscriptionTotalQuotaRequest struct {
+	Delta int `json:"delta" binding:"required,min=-10000000,max=10000000"` // negative to deduct, positive to add
+}
+
 // List handles listing all subscriptions with pagination and filters
 // GET /api/v1/admin/subscriptions
 func (h *SubscriptionHandler) List(c *gin.Context) {
@@ -210,6 +215,37 @@ func (h *SubscriptionHandler) Extend(c *gin.Context) {
 	}
 	executeAdminIdempotentJSON(c, "admin.subscriptions.extend", idempotencyPayload, service.DefaultWriteIdempotencyTTL(), func(ctx context.Context) (any, error) {
 		subscription, execErr := h.subscriptionService.ExtendSubscription(ctx, subscriptionID, req.Days)
+		if execErr != nil {
+			return nil, execErr
+		}
+		return dto.UserSubscriptionFromServiceAdmin(subscription), nil
+	})
+}
+
+// AdjustTotalQuota handles adjusting a subscription's total call quota.
+// POST /api/v1/admin/subscriptions/:id/adjust-total-quota
+func (h *SubscriptionHandler) AdjustTotalQuota(c *gin.Context) {
+	subscriptionID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid subscription ID")
+		return
+	}
+
+	var req AdjustSubscriptionTotalQuotaRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	idempotencyPayload := struct {
+		SubscriptionID int64                               `json:"subscription_id"`
+		Body           AdjustSubscriptionTotalQuotaRequest `json:"body"`
+	}{
+		SubscriptionID: subscriptionID,
+		Body:           req,
+	}
+	executeAdminIdempotentJSON(c, "admin.subscriptions.adjust_total_quota", idempotencyPayload, service.DefaultWriteIdempotencyTTL(), func(ctx context.Context) (any, error) {
+		subscription, execErr := h.subscriptionService.AdjustQuotaTotal(ctx, subscriptionID, req.Delta)
 		if execErr != nil {
 			return nil, execErr
 		}

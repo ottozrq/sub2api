@@ -2040,6 +2040,10 @@ export default {
 	        extraLabel: '附加选项',
 	        previewLabel: '将执行',
 	        modes: {
+	          pause: {
+	            title: '暂停用户',
+	            description: '禁用用户和 API Key，保留余额与订阅'
+	          },
 	          freeze: {
 	            title: '风控冻结',
 	            description: '保留余额，禁用用户和 API Key，阻止继续消费'
@@ -2951,7 +2955,8 @@ export default {
         user: '用户',
         group: '订阅分组',
         validityDays: '有效期（天）',
-        adjustDays: '调整天数'
+        adjustDays: '调整天数',
+        adjustTotalQuota: '调整次数'
       },
       selectUser: '选择用户',
       selectGroup: '选择订阅分组',
@@ -2959,17 +2964,26 @@ export default {
       validityHint: '订阅的有效天数',
       adjustingFor: '为以下用户调整订阅',
       currentExpiration: '当前到期时间',
+      currentTotalQuota: '当前总次数',
+      usedTotalQuota: '已用次数',
       adjustDaysPlaceholder: '正数延长，负数缩短',
+      adjustTotalQuotaPlaceholder: '正数增加，负数扣减',
       adjustHint: '输入正数延长订阅，负数缩短订阅（缩短后剩余天数需大于0）',
+      adjustTotalQuotaHint: '输入正数增加调用次数，负数扣减调用次数；总次数不会低于 0。',
+      totalQuotaAfter: '调整后总次数',
       assign: '分配',
       assigning: '分配中...',
       adjust: '调整',
+      adjustQuota: '调额度',
+      adjustTotalQuota: '调整总调用次数',
       adjusting: '调整中...',
       revoke: '撤销',
       resetQuota: '重置配额',
       resetQuotaTitle: '重置用量配额',
       resetQuotaConfirm: "确定要重置 '{user}' 的每日、每周和每月用量配额吗？用量将归零并从今天开始重新计算。",
       quotaResetSuccess: '配额重置成功',
+      totalQuota: '总次数',
+      totalQuotaAdjusted: '总次数调整成功',
       failedToResetQuota: '重置配额失败',
       noSubscriptionsYet: '暂无订阅',
       assignFirstSubscription: '分配一个订阅以开始使用。',
@@ -2979,6 +2993,7 @@ export default {
       failedToLoad: '加载订阅列表失败',
       failedToAssign: '分配订阅失败',
       failedToAdjust: '调整订阅失败',
+      failedToAdjustTotalQuota: '调整总次数失败',
       failedToRevoke: '撤销订阅失败',
       adjustWouldExpire: '调整后剩余天数必须大于0',
       adjustOutOfRange: '调整天数必须在 -36500 到 36500 之间',
@@ -3009,6 +3024,8 @@ export default {
         actions: {
           adjust: '调整',
           adjustDesc: '延长或缩短订阅有效期',
+          adjustQuota: '调额度',
+          adjustQuotaDesc: '增加或扣减次卡/固定调用总次数',
           resetQuota: '重置配额',
           resetQuotaDesc: '将日/周/月用量归零，重新开始计算',
           revoke: '撤销',

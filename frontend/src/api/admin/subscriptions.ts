@@ -112,6 +112,23 @@ export async function extend(
 }
 
 /**
+ * Adjust subscription total call quota
+ * @param id - Subscription ID
+ * @param request - Delta to add or deduct from total quota
+ * @returns Updated subscription
+ */
+export async function adjustTotalQuota(
+  id: number,
+  request: { delta: number }
+): Promise<UserSubscription> {
+  const { data } = await apiClient.post<UserSubscription>(
+    `/admin/subscriptions/${id}/adjust-total-quota`,
+    request
+  )
+  return data
+}
+
+/**
  * Revoke subscription
  * @param id - Subscription ID
  * @returns Success confirmation
@@ -187,6 +204,7 @@ export const subscriptionsAPI = {
   assign,
   bulkAssign,
   extend,
+  adjustTotalQuota,
   revoke,
   resetQuota,
   listByGroup,

@@ -79,6 +79,22 @@
           <span v-else class="text-sm text-gray-400 dark:text-gray-500">-</span>
         </template>
 
+        <template #cell-status="{ row }">
+          <div class="space-y-0.5">
+            <span
+              class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+              :class="row.request_success === false
+                ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
+                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'"
+            >
+              {{ row.request_success === false ? t('usage.failed') : t('usage.success') }}
+            </span>
+            <div v-if="row.error_type" class="max-w-[180px] truncate text-xs text-rose-600 dark:text-rose-300" :title="row.error_type">
+              {{ row.error_type }}
+            </div>
+          </div>
+        </template>
+
         <template #cell-stream="{ row }">
           <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" :class="getRequestTypeBadgeClass(row)">
             {{ getRequestTypeLabel(row) }}

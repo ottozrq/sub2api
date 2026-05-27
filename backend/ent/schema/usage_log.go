@@ -110,6 +110,14 @@ func (UsageLog) Fields() []ent.Field {
 		// 其他字段
 		field.Int8("billing_type").
 			Default(0),
+		field.Bool("request_success").
+			Default(true).
+			Comment("Whether the request completed successfully from the client perspective"),
+		field.String("error_type").
+			MaxLen(64).
+			Optional().
+			Nillable().
+			Comment("Normalized error type for failed requests"),
 		field.Bool("stream").
 			Default(false),
 		field.Int("duration_ms").

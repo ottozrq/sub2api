@@ -590,6 +590,40 @@ func (_u *UsageLogUpdate) AddBillingType(v int8) *UsageLogUpdate {
 	return _u
 }
 
+// SetRequestSuccess sets the "request_success" field.
+func (_u *UsageLogUpdate) SetRequestSuccess(v bool) *UsageLogUpdate {
+	_u.mutation.SetRequestSuccess(v)
+	return _u
+}
+
+// SetNillableRequestSuccess sets the "request_success" field if the given value is not nil.
+func (_u *UsageLogUpdate) SetNillableRequestSuccess(v *bool) *UsageLogUpdate {
+	if v != nil {
+		_u.SetRequestSuccess(*v)
+	}
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *UsageLogUpdate) SetErrorType(v string) *UsageLogUpdate {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *UsageLogUpdate) SetNillableErrorType(v *string) *UsageLogUpdate {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *UsageLogUpdate) ClearErrorType() *UsageLogUpdate {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
 // SetStream sets the "stream" field.
 func (_u *UsageLogUpdate) SetStream(v bool) *UsageLogUpdate {
 	_u.mutation.SetStream(v)
@@ -877,6 +911,11 @@ func (_u *UsageLogUpdate) check() error {
 			return &ValidationError{Name: "billing_mode", err: fmt.Errorf(`ent: validator failed for field "UsageLog.billing_mode": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := usagelog.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "UsageLog.error_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.UserAgent(); ok {
 		if err := usagelog.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "UsageLog.user_agent": %w`, err)}
@@ -1053,6 +1092,15 @@ func (_u *UsageLogUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedBillingType(); ok {
 		_spec.AddField(usagelog.FieldBillingType, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.RequestSuccess(); ok {
+		_spec.SetField(usagelog.FieldRequestSuccess, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(usagelog.FieldErrorType, field.TypeString, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(usagelog.FieldErrorType, field.TypeString)
 	}
 	if value, ok := _u.mutation.Stream(); ok {
 		_spec.SetField(usagelog.FieldStream, field.TypeBool, value)
@@ -1825,6 +1873,40 @@ func (_u *UsageLogUpdateOne) AddBillingType(v int8) *UsageLogUpdateOne {
 	return _u
 }
 
+// SetRequestSuccess sets the "request_success" field.
+func (_u *UsageLogUpdateOne) SetRequestSuccess(v bool) *UsageLogUpdateOne {
+	_u.mutation.SetRequestSuccess(v)
+	return _u
+}
+
+// SetNillableRequestSuccess sets the "request_success" field if the given value is not nil.
+func (_u *UsageLogUpdateOne) SetNillableRequestSuccess(v *bool) *UsageLogUpdateOne {
+	if v != nil {
+		_u.SetRequestSuccess(*v)
+	}
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *UsageLogUpdateOne) SetErrorType(v string) *UsageLogUpdateOne {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *UsageLogUpdateOne) SetNillableErrorType(v *string) *UsageLogUpdateOne {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *UsageLogUpdateOne) ClearErrorType() *UsageLogUpdateOne {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
 // SetStream sets the "stream" field.
 func (_u *UsageLogUpdateOne) SetStream(v bool) *UsageLogUpdateOne {
 	_u.mutation.SetStream(v)
@@ -2125,6 +2207,11 @@ func (_u *UsageLogUpdateOne) check() error {
 			return &ValidationError{Name: "billing_mode", err: fmt.Errorf(`ent: validator failed for field "UsageLog.billing_mode": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := usagelog.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "UsageLog.error_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.UserAgent(); ok {
 		if err := usagelog.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "UsageLog.user_agent": %w`, err)}
@@ -2318,6 +2405,15 @@ func (_u *UsageLogUpdateOne) sqlSave(ctx context.Context) (_node *UsageLog, err 
 	}
 	if value, ok := _u.mutation.AddedBillingType(); ok {
 		_spec.AddField(usagelog.FieldBillingType, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.RequestSuccess(); ok {
+		_spec.SetField(usagelog.FieldRequestSuccess, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(usagelog.FieldErrorType, field.TypeString, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(usagelog.FieldErrorType, field.TypeString)
 	}
 	if value, ok := _u.mutation.Stream(); ok {
 		_spec.SetField(usagelog.FieldStream, field.TypeBool, value)

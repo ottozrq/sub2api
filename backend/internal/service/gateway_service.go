@@ -8625,6 +8625,7 @@ func (s *GatewayService) buildRecordUsageLog(
 		RateMultiplier:        multiplier,
 		AccountRateMultiplier: &accountRateMultiplier,
 		BillingType:           billingType,
+		RequestSuccess:        true,
 		BillingMode:           resolveBillingMode(result, cost),
 		Stream:                result.Stream,
 		DurationMs:            &durationMs,

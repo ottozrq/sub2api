@@ -1193,6 +1193,8 @@ export interface UsageLog {
   billing_type: number
 
   request_type?: UsageRequestType
+  request_success: boolean
+  error_type?: string | null
   stream: boolean
   openai_ws_mode?: boolean
   duration_ms: number

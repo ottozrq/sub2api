@@ -379,6 +379,34 @@ func (_c *UsageLogCreate) SetNillableBillingType(v *int8) *UsageLogCreate {
 	return _c
 }
 
+// SetRequestSuccess sets the "request_success" field.
+func (_c *UsageLogCreate) SetRequestSuccess(v bool) *UsageLogCreate {
+	_c.mutation.SetRequestSuccess(v)
+	return _c
+}
+
+// SetNillableRequestSuccess sets the "request_success" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableRequestSuccess(v *bool) *UsageLogCreate {
+	if v != nil {
+		_c.SetRequestSuccess(*v)
+	}
+	return _c
+}
+
+// SetErrorType sets the "error_type" field.
+func (_c *UsageLogCreate) SetErrorType(v string) *UsageLogCreate {
+	_c.mutation.SetErrorType(v)
+	return _c
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableErrorType(v *string) *UsageLogCreate {
+	if v != nil {
+		_c.SetErrorType(*v)
+	}
+	return _c
+}
+
 // SetStream sets the "stream" field.
 func (_c *UsageLogCreate) SetStream(v bool) *UsageLogCreate {
 	_c.mutation.SetStream(v)
@@ -621,6 +649,10 @@ func (_c *UsageLogCreate) defaults() {
 		v := usagelog.DefaultBillingType
 		_c.mutation.SetBillingType(v)
 	}
+	if _, ok := _c.mutation.RequestSuccess(); !ok {
+		v := usagelog.DefaultRequestSuccess
+		_c.mutation.SetRequestSuccess(v)
+	}
 	if _, ok := _c.mutation.Stream(); !ok {
 		v := usagelog.DefaultStream
 		_c.mutation.SetStream(v)
@@ -732,6 +764,14 @@ func (_c *UsageLogCreate) check() error {
 	}
 	if _, ok := _c.mutation.BillingType(); !ok {
 		return &ValidationError{Name: "billing_type", err: errors.New(`ent: missing required field "UsageLog.billing_type"`)}
+	}
+	if _, ok := _c.mutation.RequestSuccess(); !ok {
+		return &ValidationError{Name: "request_success", err: errors.New(`ent: missing required field "UsageLog.request_success"`)}
+	}
+	if v, ok := _c.mutation.ErrorType(); ok {
+		if err := usagelog.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "UsageLog.error_type": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.Stream(); !ok {
 		return &ValidationError{Name: "stream", err: errors.New(`ent: missing required field "UsageLog.stream"`)}
@@ -887,6 +927,14 @@ func (_c *UsageLogCreate) createSpec() (*UsageLog, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.BillingType(); ok {
 		_spec.SetField(usagelog.FieldBillingType, field.TypeInt8, value)
 		_node.BillingType = value
+	}
+	if value, ok := _c.mutation.RequestSuccess(); ok {
+		_spec.SetField(usagelog.FieldRequestSuccess, field.TypeBool, value)
+		_node.RequestSuccess = value
+	}
+	if value, ok := _c.mutation.ErrorType(); ok {
+		_spec.SetField(usagelog.FieldErrorType, field.TypeString, value)
+		_node.ErrorType = &value
 	}
 	if value, ok := _c.mutation.Stream(); ok {
 		_spec.SetField(usagelog.FieldStream, field.TypeBool, value)
@@ -1544,6 +1592,36 @@ func (u *UsageLogUpsert) UpdateBillingType() *UsageLogUpsert {
 // AddBillingType adds v to the "billing_type" field.
 func (u *UsageLogUpsert) AddBillingType(v int8) *UsageLogUpsert {
 	u.Add(usagelog.FieldBillingType, v)
+	return u
+}
+
+// SetRequestSuccess sets the "request_success" field.
+func (u *UsageLogUpsert) SetRequestSuccess(v bool) *UsageLogUpsert {
+	u.Set(usagelog.FieldRequestSuccess, v)
+	return u
+}
+
+// UpdateRequestSuccess sets the "request_success" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateRequestSuccess() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldRequestSuccess)
+	return u
+}
+
+// SetErrorType sets the "error_type" field.
+func (u *UsageLogUpsert) SetErrorType(v string) *UsageLogUpsert {
+	u.Set(usagelog.FieldErrorType, v)
+	return u
+}
+
+// UpdateErrorType sets the "error_type" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateErrorType() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldErrorType)
+	return u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (u *UsageLogUpsert) ClearErrorType() *UsageLogUpsert {
+	u.SetNull(usagelog.FieldErrorType)
 	return u
 }
 
@@ -2300,6 +2378,41 @@ func (u *UsageLogUpsertOne) AddBillingType(v int8) *UsageLogUpsertOne {
 func (u *UsageLogUpsertOne) UpdateBillingType() *UsageLogUpsertOne {
 	return u.Update(func(s *UsageLogUpsert) {
 		s.UpdateBillingType()
+	})
+}
+
+// SetRequestSuccess sets the "request_success" field.
+func (u *UsageLogUpsertOne) SetRequestSuccess(v bool) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRequestSuccess(v)
+	})
+}
+
+// UpdateRequestSuccess sets the "request_success" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateRequestSuccess() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRequestSuccess()
+	})
+}
+
+// SetErrorType sets the "error_type" field.
+func (u *UsageLogUpsertOne) SetErrorType(v string) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetErrorType(v)
+	})
+}
+
+// UpdateErrorType sets the "error_type" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateErrorType() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateErrorType()
+	})
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (u *UsageLogUpsertOne) ClearErrorType() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.ClearErrorType()
 	})
 }
 
@@ -3246,6 +3359,41 @@ func (u *UsageLogUpsertBulk) AddBillingType(v int8) *UsageLogUpsertBulk {
 func (u *UsageLogUpsertBulk) UpdateBillingType() *UsageLogUpsertBulk {
 	return u.Update(func(s *UsageLogUpsert) {
 		s.UpdateBillingType()
+	})
+}
+
+// SetRequestSuccess sets the "request_success" field.
+func (u *UsageLogUpsertBulk) SetRequestSuccess(v bool) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRequestSuccess(v)
+	})
+}
+
+// UpdateRequestSuccess sets the "request_success" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateRequestSuccess() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRequestSuccess()
+	})
+}
+
+// SetErrorType sets the "error_type" field.
+func (u *UsageLogUpsertBulk) SetErrorType(v string) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetErrorType(v)
+	})
+}
+
+// UpdateErrorType sets the "error_type" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateErrorType() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateErrorType()
+	})
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (u *UsageLogUpsertBulk) ClearErrorType() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.ClearErrorType()
 	})
 }
 

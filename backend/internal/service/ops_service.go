@@ -138,6 +138,96 @@ func (s *OpsService) IsMonitoringEnabled(ctx context.Context) bool {
 	}
 }
 
+func (s *OpsService) RecordFailedUsage(ctx context.Context, entry *OpsInsertErrorLogInput) {
+	if s == nil || entry == nil || entry.UserID == nil || entry.APIKeyID == nil || entry.AccountID == nil {
+		return
+	}
+	repo := s.usageLogRepositoryForFailedUsage()
+	if repo == nil {
+		return
+	}
+
+	requestID := strings.TrimSpace(entry.RequestID)
+	if requestID == "" {
+		requestID = strings.TrimSpace(entry.ClientRequestID)
+	}
+	if requestID == "" {
+		requestID = "failed:" + generateRequestID()
+	}
+
+	model := strings.TrimSpace(entry.RequestedModel)
+	if model == "" {
+		model = strings.TrimSpace(entry.Model)
+	}
+	if model == "" {
+		model = "unknown"
+	}
+
+	errorType := strings.TrimSpace(entry.ErrorType)
+	if errorType == "" {
+		errorType = "api_error"
+	}
+	createdAt := entry.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = time.Now()
+	}
+
+	requestType := RequestTypeUnknown
+	if entry.RequestType != nil {
+		requestType = RequestTypeFromInt16(*entry.RequestType)
+	} else if entry.Stream {
+		requestType = RequestTypeStream
+	}
+	durationMs := intPtrFromInt64(entry.ResponseLatencyMs)
+	firstTokenMs := intPtrFromInt64(entry.TimeToFirstTokenMs)
+	upstreamModel := optionalNonEqualStringPtr(entry.UpstreamModel, model)
+
+	log := &UsageLog{
+		UserID:           *entry.UserID,
+		APIKeyID:         *entry.APIKeyID,
+		AccountID:        *entry.AccountID,
+		RequestID:        requestID,
+		Model:            model,
+		RequestedModel:   model,
+		UpstreamModel:    upstreamModel,
+		GroupID:          entry.GroupID,
+		RequestType:      requestType,
+		Stream:           entry.Stream,
+		DurationMs:       durationMs,
+		FirstTokenMs:     firstTokenMs,
+		UserAgent:        optionalTrimmedStringPtr(entry.UserAgent),
+		IPAddress:        entry.ClientIP,
+		InboundEndpoint:  optionalTrimmedStringPtr(entry.InboundEndpoint),
+		UpstreamEndpoint: optionalTrimmedStringPtr(entry.UpstreamEndpoint),
+		BillingType:      BillingTypeBalance,
+		RequestSuccess:   false,
+		ErrorType:        &errorType,
+		CreatedAt:        createdAt,
+	}
+	writeUsageLogBestEffort(ctx, repo, log, "service.ops")
+}
+
+func (s *OpsService) usageLogRepositoryForFailedUsage() UsageLogRepository {
+	if s == nil {
+		return nil
+	}
+	if s.gatewayService != nil && s.gatewayService.usageLogRepo != nil {
+		return s.gatewayService.usageLogRepo
+	}
+	if s.openAIGatewayService != nil && s.openAIGatewayService.usageLogRepo != nil {
+		return s.openAIGatewayService.usageLogRepo
+	}
+	return nil
+}
+
+func intPtrFromInt64(value *int64) *int {
+	if value == nil {
+		return nil
+	}
+	converted := int(*value)
+	return &converted
+}
+
 func (s *OpsService) RecordError(ctx context.Context, entry *OpsInsertErrorLogInput, rawRequestBody []byte) error {
 	prepared, ok, err := s.prepareErrorLogInput(ctx, entry, rawRequestBody)
 	if err != nil {

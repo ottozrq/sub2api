@@ -35054,6 +35054,8 @@ type UsageLogMutation struct {
 	addaccount_rate_multiplier  *float64
 	billing_type                *int8
 	addbilling_type             *int8
+	request_success             *bool
+	error_type                  *string
 	stream                      *bool
 	duration_ms                 *int
 	addduration_ms              *int
@@ -36627,6 +36629,91 @@ func (m *UsageLogMutation) ResetBillingType() {
 	m.addbilling_type = nil
 }
 
+// SetRequestSuccess sets the "request_success" field.
+func (m *UsageLogMutation) SetRequestSuccess(b bool) {
+	m.request_success = &b
+}
+
+// RequestSuccess returns the value of the "request_success" field in the mutation.
+func (m *UsageLogMutation) RequestSuccess() (r bool, exists bool) {
+	v := m.request_success
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestSuccess returns the old "request_success" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRequestSuccess(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestSuccess is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestSuccess requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestSuccess: %w", err)
+	}
+	return oldValue.RequestSuccess, nil
+}
+
+// ResetRequestSuccess resets all changes to the "request_success" field.
+func (m *UsageLogMutation) ResetRequestSuccess() {
+	m.request_success = nil
+}
+
+// SetErrorType sets the "error_type" field.
+func (m *UsageLogMutation) SetErrorType(s string) {
+	m.error_type = &s
+}
+
+// ErrorType returns the value of the "error_type" field in the mutation.
+func (m *UsageLogMutation) ErrorType() (r string, exists bool) {
+	v := m.error_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorType returns the old "error_type" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldErrorType(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorType: %w", err)
+	}
+	return oldValue.ErrorType, nil
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (m *UsageLogMutation) ClearErrorType() {
+	m.error_type = nil
+	m.clearedFields[usagelog.FieldErrorType] = struct{}{}
+}
+
+// ErrorTypeCleared returns if the "error_type" field was cleared in this mutation.
+func (m *UsageLogMutation) ErrorTypeCleared() bool {
+	_, ok := m.clearedFields[usagelog.FieldErrorType]
+	return ok
+}
+
+// ResetErrorType resets all changes to the "error_type" field.
+func (m *UsageLogMutation) ResetErrorType() {
+	m.error_type = nil
+	delete(m.clearedFields, usagelog.FieldErrorType)
+}
+
 // SetStream sets the "stream" field.
 func (m *UsageLogMutation) SetStream(b bool) {
 	m.stream = &b
@@ -37247,7 +37334,7 @@ func (m *UsageLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UsageLogMutation) Fields() []string {
-	fields := make([]string, 0, 37)
+	fields := make([]string, 0, 39)
 	if m.user != nil {
 		fields = append(fields, usagelog.FieldUserID)
 	}
@@ -37331,6 +37418,12 @@ func (m *UsageLogMutation) Fields() []string {
 	}
 	if m.billing_type != nil {
 		fields = append(fields, usagelog.FieldBillingType)
+	}
+	if m.request_success != nil {
+		fields = append(fields, usagelog.FieldRequestSuccess)
+	}
+	if m.error_type != nil {
+		fields = append(fields, usagelog.FieldErrorType)
 	}
 	if m.stream != nil {
 		fields = append(fields, usagelog.FieldStream)
@@ -37423,6 +37516,10 @@ func (m *UsageLogMutation) Field(name string) (ent.Value, bool) {
 		return m.AccountRateMultiplier()
 	case usagelog.FieldBillingType:
 		return m.BillingType()
+	case usagelog.FieldRequestSuccess:
+		return m.RequestSuccess()
+	case usagelog.FieldErrorType:
+		return m.ErrorType()
 	case usagelog.FieldStream:
 		return m.Stream()
 	case usagelog.FieldDurationMs:
@@ -37506,6 +37603,10 @@ func (m *UsageLogMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldAccountRateMultiplier(ctx)
 	case usagelog.FieldBillingType:
 		return m.OldBillingType(ctx)
+	case usagelog.FieldRequestSuccess:
+		return m.OldRequestSuccess(ctx)
+	case usagelog.FieldErrorType:
+		return m.OldErrorType(ctx)
 	case usagelog.FieldStream:
 		return m.OldStream(ctx)
 	case usagelog.FieldDurationMs:
@@ -37728,6 +37829,20 @@ func (m *UsageLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBillingType(v)
+		return nil
+	case usagelog.FieldRequestSuccess:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestSuccess(v)
+		return nil
+	case usagelog.FieldErrorType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorType(v)
 		return nil
 	case usagelog.FieldStream:
 		v, ok := value.(bool)
@@ -38080,6 +38195,9 @@ func (m *UsageLogMutation) ClearedFields() []string {
 	if m.FieldCleared(usagelog.FieldAccountRateMultiplier) {
 		fields = append(fields, usagelog.FieldAccountRateMultiplier)
 	}
+	if m.FieldCleared(usagelog.FieldErrorType) {
+		fields = append(fields, usagelog.FieldErrorType)
+	}
 	if m.FieldCleared(usagelog.FieldDurationMs) {
 		fields = append(fields, usagelog.FieldDurationMs)
 	}
@@ -38135,6 +38253,9 @@ func (m *UsageLogMutation) ClearField(name string) error {
 		return nil
 	case usagelog.FieldAccountRateMultiplier:
 		m.ClearAccountRateMultiplier()
+		return nil
+	case usagelog.FieldErrorType:
+		m.ClearErrorType()
 		return nil
 	case usagelog.FieldDurationMs:
 		m.ClearDurationMs()
@@ -38242,6 +38363,12 @@ func (m *UsageLogMutation) ResetField(name string) error {
 		return nil
 	case usagelog.FieldBillingType:
 		m.ResetBillingType()
+		return nil
+	case usagelog.FieldRequestSuccess:
+		m.ResetRequestSuccess()
+		return nil
+	case usagelog.FieldErrorType:
+		m.ResetErrorType()
 		return nil
 	case usagelog.FieldStream:
 		m.ResetStream()

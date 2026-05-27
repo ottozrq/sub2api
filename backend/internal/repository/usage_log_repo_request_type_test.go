@@ -69,6 +69,8 @@ func TestUsageLogRepositoryCreateSyncRequestTypeAndLegacyFields(t *testing.T) {
 			log.BillingType,
 			int16(service.RequestTypeWSV2),
 			true,
+			sqlmock.AnyArg(), // error_type
+			true,
 			true,
 			sqlmock.AnyArg(), // duration_ms
 			sqlmock.AnyArg(), // first_token_ms
@@ -147,6 +149,8 @@ func TestUsageLogRepositoryCreate_PersistsServiceTier(t *testing.T) {
 			log.AccountRateMultiplier,
 			log.BillingType,
 			int16(service.RequestTypeSync),
+			true,
+			sqlmock.AnyArg(),
 			false,
 			false,
 			sqlmock.AnyArg(),
@@ -559,6 +563,8 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullFloat64{}, // account_rate_multiplier
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeWSV2),
+			true,
+			sql.NullString{},
 			false, // legacy stream
 			false, // legacy openai ws
 			sql.NullInt64{},
@@ -608,6 +614,8 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeUnknown),
 			true,
+			sql.NullString{},
+			true,
 			false,
 			sql.NullInt64{},
 			sql.NullInt64{},
@@ -655,6 +663,8 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullFloat64{},
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeSync),
+			true,
+			sql.NullString{},
 			false,
 			false,
 			sql.NullInt64{},

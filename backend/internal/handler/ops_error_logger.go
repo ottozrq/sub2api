@@ -919,6 +919,7 @@ func OpsErrorLoggerMiddleware(ops *service.OpsService) gin.HandlerFunc {
 		entry.RequestHeadersJSON = extractOpsRetryRequestHeaders(c)
 		attachOpsRequestBodyToEntry(c, entry)
 
+		ops.RecordFailedUsage(c.Request.Context(), entry)
 		enqueueOpsErrorLog(ops, entry)
 	}
 }

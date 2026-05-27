@@ -195,6 +195,16 @@ func BillingType(v int8) predicate.UsageLog {
 	return predicate.UsageLog(sql.FieldEQ(FieldBillingType, v))
 }
 
+// RequestSuccess applies equality check predicate on the "request_success" field. It's identical to RequestSuccessEQ.
+func RequestSuccess(v bool) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldEQ(FieldRequestSuccess, v))
+}
+
+// ErrorType applies equality check predicate on the "error_type" field. It's identical to ErrorTypeEQ.
+func ErrorType(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldEQ(FieldErrorType, v))
+}
+
 // Stream applies equality check predicate on the "stream" field. It's identical to StreamEQ.
 func Stream(v bool) predicate.UsageLog {
 	return predicate.UsageLog(sql.FieldEQ(FieldStream, v))
@@ -1523,6 +1533,91 @@ func BillingTypeLT(v int8) predicate.UsageLog {
 // BillingTypeLTE applies the LTE predicate on the "billing_type" field.
 func BillingTypeLTE(v int8) predicate.UsageLog {
 	return predicate.UsageLog(sql.FieldLTE(FieldBillingType, v))
+}
+
+// RequestSuccessEQ applies the EQ predicate on the "request_success" field.
+func RequestSuccessEQ(v bool) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldEQ(FieldRequestSuccess, v))
+}
+
+// RequestSuccessNEQ applies the NEQ predicate on the "request_success" field.
+func RequestSuccessNEQ(v bool) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldNEQ(FieldRequestSuccess, v))
+}
+
+// ErrorTypeEQ applies the EQ predicate on the "error_type" field.
+func ErrorTypeEQ(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldEQ(FieldErrorType, v))
+}
+
+// ErrorTypeNEQ applies the NEQ predicate on the "error_type" field.
+func ErrorTypeNEQ(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldNEQ(FieldErrorType, v))
+}
+
+// ErrorTypeIn applies the In predicate on the "error_type" field.
+func ErrorTypeIn(vs ...string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeNotIn applies the NotIn predicate on the "error_type" field.
+func ErrorTypeNotIn(vs ...string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldNotIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeGT applies the GT predicate on the "error_type" field.
+func ErrorTypeGT(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldGT(FieldErrorType, v))
+}
+
+// ErrorTypeGTE applies the GTE predicate on the "error_type" field.
+func ErrorTypeGTE(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldGTE(FieldErrorType, v))
+}
+
+// ErrorTypeLT applies the LT predicate on the "error_type" field.
+func ErrorTypeLT(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldLT(FieldErrorType, v))
+}
+
+// ErrorTypeLTE applies the LTE predicate on the "error_type" field.
+func ErrorTypeLTE(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldLTE(FieldErrorType, v))
+}
+
+// ErrorTypeContains applies the Contains predicate on the "error_type" field.
+func ErrorTypeContains(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldContains(FieldErrorType, v))
+}
+
+// ErrorTypeHasPrefix applies the HasPrefix predicate on the "error_type" field.
+func ErrorTypeHasPrefix(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldHasPrefix(FieldErrorType, v))
+}
+
+// ErrorTypeHasSuffix applies the HasSuffix predicate on the "error_type" field.
+func ErrorTypeHasSuffix(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldHasSuffix(FieldErrorType, v))
+}
+
+// ErrorTypeIsNil applies the IsNil predicate on the "error_type" field.
+func ErrorTypeIsNil() predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldIsNull(FieldErrorType))
+}
+
+// ErrorTypeNotNil applies the NotNil predicate on the "error_type" field.
+func ErrorTypeNotNil() predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldNotNull(FieldErrorType))
+}
+
+// ErrorTypeEqualFold applies the EqualFold predicate on the "error_type" field.
+func ErrorTypeEqualFold(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldEqualFold(FieldErrorType, v))
+}
+
+// ErrorTypeContainsFold applies the ContainsFold predicate on the "error_type" field.
+func ErrorTypeContainsFold(v string) predicate.UsageLog {
+	return predicate.UsageLog(sql.FieldContainsFold(FieldErrorType, v))
 }
 
 // StreamEQ applies the EQ predicate on the "stream" field.

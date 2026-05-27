@@ -70,6 +70,10 @@ const (
 	FieldAccountRateMultiplier = "account_rate_multiplier"
 	// FieldBillingType holds the string denoting the billing_type field in the database.
 	FieldBillingType = "billing_type"
+	// FieldRequestSuccess holds the string denoting the request_success field in the database.
+	FieldRequestSuccess = "request_success"
+	// FieldErrorType holds the string denoting the error_type field in the database.
+	FieldErrorType = "error_type"
 	// FieldStream holds the string denoting the stream field in the database.
 	FieldStream = "stream"
 	// FieldDurationMs holds the string denoting the duration_ms field in the database.
@@ -168,6 +172,8 @@ var Columns = []string{
 	FieldRateMultiplier,
 	FieldAccountRateMultiplier,
 	FieldBillingType,
+	FieldRequestSuccess,
+	FieldErrorType,
 	FieldStream,
 	FieldDurationMs,
 	FieldFirstTokenMs,
@@ -232,6 +238,10 @@ var (
 	DefaultRateMultiplier float64
 	// DefaultBillingType holds the default value on creation for the "billing_type" field.
 	DefaultBillingType int8
+	// DefaultRequestSuccess holds the default value on creation for the "request_success" field.
+	DefaultRequestSuccess bool
+	// ErrorTypeValidator is a validator for the "error_type" field. It is called by the builders before save.
+	ErrorTypeValidator func(string) error
 	// DefaultStream holds the default value on creation for the "stream" field.
 	DefaultStream bool
 	// UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
@@ -394,6 +404,16 @@ func ByAccountRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
 // ByBillingType orders the results by the billing_type field.
 func ByBillingType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBillingType, opts...).ToFunc()
+}
+
+// ByRequestSuccess orders the results by the request_success field.
+func ByRequestSuccess(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequestSuccess, opts...).ToFunc()
+}
+
+// ByErrorType orders the results by the error_type field.
+func ByErrorType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldErrorType, opts...).ToFunc()
 }
 
 // ByStream orders the results by the stream field.

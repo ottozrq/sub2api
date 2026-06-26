@@ -916,7 +916,7 @@ func TestCompleteLinuxDoOAuthRegistrationBindsIdentityWithoutAdoptionFlags(t *te
 	require.Equal(t, http.StatusOK, recorder.Code)
 	responseData := decodeJSONBody(t, recorder)
 	require.NotEmpty(t, responseData["access_token"])
-	require.NotEmpty(t, responseData["refresh_token"])
+	requireRefreshTokenCookie(t, recorder.Result().Cookies())
 
 	userEntity, err := client.User.Query().
 		Where(dbuser.EmailEQ(session.ResolvedEmail)).

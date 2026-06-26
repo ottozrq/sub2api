@@ -32,6 +32,15 @@ func findCookie(cookies []*http.Cookie, name string) *http.Cookie {
 	return nil
 }
 
+func requireRefreshTokenCookie(t *testing.T, cookies []*http.Cookie) *http.Cookie {
+	t.Helper()
+	cookie := findCookie(cookies, refreshTokenCookieName)
+	require.NotNil(t, cookie)
+	require.NotEmpty(t, cookie.Value)
+	require.True(t, cookie.HttpOnly)
+	return cookie
+}
+
 func decodeCookieValueForTest(t *testing.T, value string) string {
 	t.Helper()
 	decoded, err := decodeCookieValue(value)

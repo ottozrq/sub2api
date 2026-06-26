@@ -18,6 +18,7 @@ type openAIRecordUsageLogRepoStub struct {
 	inserted   bool
 	err        error
 	calls      int
+	retryCalls int
 	lastLog    *UsageLog
 	lastCtxErr error
 }
@@ -27,6 +28,11 @@ func (s *openAIRecordUsageLogRepoStub) Create(ctx context.Context, log *UsageLog
 	s.lastLog = log
 	s.lastCtxErr = ctx.Err()
 	return s.inserted, s.err
+}
+
+func (s *openAIRecordUsageLogRepoStub) EnqueueUsageLogRetry(ctx context.Context, usageLog *UsageLog, logKey string, cause error) error {
+	s.retryCalls++
+	return nil
 }
 
 type openAIRecordUsageBillingRepoStub struct {

@@ -338,6 +338,8 @@ func TestAPIContracts(t *testing.T) {
 						"require_oauth_only": false,
 						"require_privacy_set": false,
 						"rpm_limit": 0,
+						"window_quota_count": 0,
+						"window_quota_minutes": 0,
 						"created_at": "2025-01-02T03:04:05Z",
 						"updated_at": "2025-01-02T03:04:05Z"
 					}
@@ -388,6 +390,12 @@ func TestAPIContracts(t *testing.T) {
 						"daily_usage_usd": 1.23,
 						"weekly_usage_usd": 2.34,
 						"monthly_usage_usd": 3.45,
+						"window_quota_count": 0,
+						"window_quota_minutes": 0,
+						"window_usage_count": 0,
+						"window_start": null,
+						"quota_total_count": 0,
+						"quota_used_count": 0,
 						"created_at": "2025-01-02T03:04:05Z",
 						"updated_at": "2025-01-02T03:04:05Z"
 					}
@@ -530,6 +538,7 @@ func TestAPIContracts(t *testing.T) {
 							"api_key_id": 100,
 							"account_id": 200,
 								"request_id": "req_123",
+								"request_success": false,
 								"model": "claude-3",
 								"request_type": "stream",
 								"openai_ws_mode": false,
@@ -1884,6 +1893,9 @@ func (stubUserSubscriptionRepo) UpdateStatus(ctx context.Context, subscriptionID
 	return errors.New("not implemented")
 }
 func (stubUserSubscriptionRepo) UpdateNotes(ctx context.Context, subscriptionID int64, notes string) error {
+	return errors.New("not implemented")
+}
+func (stubUserSubscriptionRepo) UpdateWindowQuotaPolicy(ctx context.Context, subscriptionID int64, count, minutes int) error {
 	return errors.New("not implemented")
 }
 func (stubUserSubscriptionRepo) AddQuotaTotal(ctx context.Context, subscriptionID int64, count int) error {

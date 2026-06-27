@@ -55,6 +55,7 @@ const qrCanvas = ref<HTMLCanvasElement | null>(null)
 const qrUrl = ref('')
 const payUrl = ref('')
 const orderId = ref(0)
+const outTradeNo = ref('')
 const remainingSeconds = ref(0)
 const expired = ref(false)
 const cancelling = ref(false)
@@ -132,8 +133,10 @@ async function renderQR() {
 }
 
 async function pollStatus() {
-  if (!orderId.value) return
-  const order = await paymentStore.pollOrderStatus(orderId.value)
+  if (!orderId.value && !outTradeNo.value) return
+  const order = outTradeNo.value
+    ? await paymentStore.verifyOrderStatus(outTradeNo.value) || (orderId.value ? await paymentStore.pollOrderStatus(orderId.value) : null)
+    : await paymentStore.pollOrderStatus(orderId.value)
   if (!order) return
   if (order.status === 'COMPLETED' || order.status === 'PAID') {
     cleanup()
@@ -182,6 +185,7 @@ watch(qrUrl, () => renderQR())
 
 onMounted(() => {
   orderId.value = Number(route.query.order_id) || 0
+  outTradeNo.value = String(route.query.out_trade_no || '')
   qrUrl.value = String(route.query.qr || '')
   payUrl.value = String(route.query.pay_url || '')
   paymentType.value = String(route.query.payment_type || '')

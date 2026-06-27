@@ -386,7 +386,7 @@ func TestWeChatPaymentOAuthCallbackRedirectsWithOpaqueResumeToken(t *testing.T) 
 	req.Host = "api.example.com"
 	req.AddCookie(encodedCookie(wechatPaymentOAuthStateName, "state-123"))
 	req.AddCookie(encodedCookie(wechatPaymentOAuthRedirect, "/purchase?from=wechat"))
-	req.AddCookie(encodedCookie(wechatPaymentOAuthContextName, `{"payment_type":"wxpay","amount":"12.5","order_type":"subscription","plan_id":7}`))
+	req.AddCookie(encodedCookie(wechatPaymentOAuthContextName, `{"payment_type":"wxpay","amount":"59.99","balance_credit_amount":"10","order_type":"subscription","plan_id":7}`))
 	req.AddCookie(encodedCookie(wechatPaymentOAuthScope, "snsapi_base"))
 	c.Request = req
 
@@ -410,7 +410,8 @@ func TestWeChatPaymentOAuthCallbackRedirectsWithOpaqueResumeToken(t *testing.T) 
 	require.NoError(t, err)
 	require.Equal(t, "openid-123", claims.OpenID)
 	require.Equal(t, payment.TypeWxpay, claims.PaymentType)
-	require.Equal(t, "12.5", claims.Amount)
+	require.Equal(t, "59.99", claims.Amount)
+	require.Equal(t, "10", claims.BalanceCreditAmount)
 	require.Equal(t, payment.OrderTypeSubscription, claims.OrderType)
 	require.EqualValues(t, 7, claims.PlanID)
 	require.Equal(t, "/purchase?from=wechat", claims.RedirectTo)
@@ -448,7 +449,7 @@ func TestWeChatPaymentOAuthCallbackUsesExplicitPaymentResumeSigningKeyWhenMixedK
 	req.Host = "api.example.com"
 	req.AddCookie(encodedCookie(wechatPaymentOAuthStateName, "state-mixed"))
 	req.AddCookie(encodedCookie(wechatPaymentOAuthRedirect, "/purchase?from=wechat"))
-	req.AddCookie(encodedCookie(wechatPaymentOAuthContextName, `{"payment_type":"wxpay","amount":"18.8","order_type":"subscription","plan_id":9}`))
+	req.AddCookie(encodedCookie(wechatPaymentOAuthContextName, `{"payment_type":"wxpay","amount":"119.99","balance_credit_amount":"20","order_type":"subscription","plan_id":9}`))
 	req.AddCookie(encodedCookie(wechatPaymentOAuthScope, "snsapi_base"))
 	c.Request = req
 
@@ -468,7 +469,8 @@ func TestWeChatPaymentOAuthCallbackUsesExplicitPaymentResumeSigningKeyWhenMixedK
 	require.NoError(t, err)
 	require.Equal(t, "openid-mixed-key", claims.OpenID)
 	require.Equal(t, payment.TypeWxpay, claims.PaymentType)
-	require.Equal(t, "18.8", claims.Amount)
+	require.Equal(t, "119.99", claims.Amount)
+	require.Equal(t, "20", claims.BalanceCreditAmount)
 	require.Equal(t, payment.OrderTypeSubscription, claims.OrderType)
 	require.EqualValues(t, 9, claims.PlanID)
 	require.Equal(t, "/purchase?from=wechat", claims.RedirectTo)

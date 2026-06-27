@@ -81,7 +81,7 @@ describe('WechatPaymentCallbackView', () => {
 
   it('redirects legacy openid callback payloads back to purchase while preserving resume context', async () => {
     locationState.current.hash =
-      '#openid=openid-123&state=oauth-state&scope=snsapi_base&payment_type=wxpay_direct&amount=128&order_type=subscription&plan_id=7&redirect=%2Fpayment%3Ffrom%3Dwechat'
+      '#openid=openid-123&state=oauth-state&scope=snsapi_base&payment_type=wxpay_direct&amount=59.99&balance_credit_amount=10&order_type=balance&redirect=%2Fpayment%3Ffrom%3Dwechat'
 
     mount(WechatPaymentCallbackView)
     await flushPromises()
@@ -95,9 +95,9 @@ describe('WechatPaymentCallbackView', () => {
         state: 'oauth-state',
         scope: 'snsapi_base',
         payment_type: 'wxpay_direct',
-        amount: '128',
-        order_type: 'subscription',
-        plan_id: '7',
+        amount: '59.99',
+        balance_credit_amount: '10',
+        order_type: 'balance',
       },
     })
   })

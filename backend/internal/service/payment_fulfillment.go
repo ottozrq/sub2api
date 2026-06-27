@@ -204,10 +204,15 @@ func (s *PaymentService) executeFulfillment(ctx context.Context, oid int64) erro
 	if err != nil {
 		return fmt.Errorf("get order: %w", err)
 	}
-	if o.OrderType == payment.OrderTypeSubscription {
+	switch o.OrderType {
+	case payment.OrderTypeSubscription:
 		return s.ExecuteSubscriptionFulfillment(ctx, oid)
+	case payment.OrderTypeBalance:
+		return s.ExecuteBalanceFulfillment(ctx, oid)
+	default:
+		s.writeAuditLog(ctx, o.ID, "FULFILLMENT_INVALID_ORDER_TYPE", "system", map[string]any{"orderType": o.OrderType})
+		return infraerrors.BadRequest("INVALID_ORDER_TYPE", "order type is invalid")
 	}
-	return s.ExecuteBalanceFulfillment(ctx, oid)
 }
 
 func (s *PaymentService) ExecuteBalanceFulfillment(ctx context.Context, oid int64) error {

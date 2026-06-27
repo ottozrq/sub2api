@@ -21,9 +21,7 @@ import (
 // --- Order Creation ---
 
 func (s *PaymentService) CreateOrder(ctx context.Context, req CreateOrderRequest) (*CreateOrderResponse, error) {
-	if req.OrderType == "" {
-		req.OrderType = payment.OrderTypeBalance
-	}
+	req.OrderType = normalizeCreateOrderType(req.OrderType)
 	if normalized := NormalizeVisibleMethod(req.PaymentType); normalized != "" {
 		req.PaymentType = normalized
 	}
@@ -54,7 +52,11 @@ func (s *PaymentService) CreateOrder(ctx context.Context, req CreateOrderRequest
 		orderAmount = plan.Price
 		limitAmount = plan.Price
 	} else if req.OrderType == payment.OrderTypeBalance {
-		orderAmount = calculateCreditedBalance(req.Amount, cfg.BalanceRechargeMultiplier)
+		if req.BalanceCreditAmount > 0 {
+			orderAmount = req.BalanceCreditAmount
+		} else {
+			orderAmount = calculateCreditedBalance(req.Amount, cfg.BalanceRechargeMultiplier)
+		}
 	}
 	feeRate := cfg.RechargeFeeRate
 	payAmountStr := payment.CalculatePayAmount(limitAmount, feeRate)
@@ -88,20 +90,44 @@ func (s *PaymentService) CreateOrder(ctx context.Context, req CreateOrderRequest
 }
 
 func (s *PaymentService) validateOrderInput(ctx context.Context, req CreateOrderRequest, cfg *PaymentConfig) (*dbent.SubscriptionPlan, error) {
-	if req.OrderType == payment.OrderTypeBalance && cfg.BalanceDisabled {
-		return nil, infraerrors.Forbidden("BALANCE_PAYMENT_DISABLED", "balance recharge has been disabled")
-	}
-	if req.OrderType == payment.OrderTypeSubscription {
+	req.OrderType = normalizeCreateOrderType(req.OrderType)
+	switch req.OrderType {
+	case payment.OrderTypeBalance:
+		if cfg.BalanceDisabled {
+			return nil, infraerrors.Forbidden("BALANCE_PAYMENT_DISABLED", "balance recharge has been disabled")
+		}
+	case payment.OrderTypeSubscription:
 		return s.validateSubOrder(ctx, req)
+	default:
+		return nil, infraerrors.BadRequest("INVALID_ORDER_TYPE", "order type is invalid")
 	}
 	if math.IsNaN(req.Amount) || math.IsInf(req.Amount, 0) || req.Amount <= 0 {
 		return nil, infraerrors.BadRequest("INVALID_AMOUNT", "amount must be a positive number")
+	}
+	if req.OrderType == payment.OrderTypeBalance && req.BalanceCreditAmount <= 0 {
+		return nil, infraerrors.BadRequest("INVALID_AMOUNT", "balance recharge requires a positive credit amount")
+	}
+	if req.BalanceCreditAmount > 0 {
+		if math.IsNaN(req.BalanceCreditAmount) || math.IsInf(req.BalanceCreditAmount, 0) {
+			return nil, infraerrors.BadRequest("INVALID_AMOUNT", "credit amount must be a positive number")
+		}
+		if !balanceRechargePaymentMatchesCredit(req.Amount, req.BalanceCreditAmount) {
+			return nil, infraerrors.BadRequest("INVALID_AMOUNT", "payment amount does not match credit amount")
+		}
 	}
 	if (cfg.MinAmount > 0 && req.Amount < cfg.MinAmount) || (cfg.MaxAmount > 0 && req.Amount > cfg.MaxAmount) {
 		return nil, infraerrors.BadRequest("INVALID_AMOUNT", "amount out of range").
 			WithMetadata(map[string]string{"min": fmt.Sprintf("%.2f", cfg.MinAmount), "max": fmt.Sprintf("%.2f", cfg.MaxAmount)})
 	}
 	return nil, nil
+}
+
+func normalizeCreateOrderType(orderType string) string {
+	orderType = strings.TrimSpace(orderType)
+	if orderType == "" {
+		return payment.OrderTypeBalance
+	}
+	return orderType
 }
 
 func (s *PaymentService) validateSubOrder(ctx context.Context, req CreateOrderRequest) (*dbent.SubscriptionPlan, error) {
@@ -621,6 +647,9 @@ func buildWeChatPaymentOAuthStartURL(req CreateOrderRequest, scope string) (stri
 	q.Set("payment_type", strings.TrimSpace(req.PaymentType))
 	if req.Amount > 0 {
 		q.Set("amount", strconv.FormatFloat(req.Amount, 'f', -1, 64))
+	}
+	if req.BalanceCreditAmount > 0 {
+		q.Set("balance_credit_amount", strconv.FormatFloat(req.BalanceCreditAmount, 'f', -1, 64))
 	}
 	if orderType := strings.TrimSpace(req.OrderType); orderType != "" {
 		q.Set("order_type", orderType)

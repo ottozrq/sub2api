@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
@@ -20,13 +21,22 @@ import (
 
 // Cancel rate limit configuration constants.
 const (
-	rateLimitUnitDay           = "day"
-	rateLimitUnitMinute        = "minute"
-	rateLimitUnitHour          = "hour"
-	rateLimitModeFixed         = "fixed"
-	checkPaidResultAlreadyPaid = "already_paid"
-	checkPaidResultCancelled   = "cancelled"
+	rateLimitUnitDay            = "day"
+	rateLimitUnitMinute         = "minute"
+	rateLimitUnitHour           = "hour"
+	rateLimitModeFixed          = "fixed"
+	checkPaidResultAlreadyPaid  = "already_paid"
+	checkPaidResultCancelled    = "cancelled"
+	verifyOrderUpstreamCooldown = 5 * time.Second
+	verifyOrderUpstreamTTL      = time.Minute
 )
+
+var verifyOrderUpstreamLastQueried sync.Map
+var verifyOrderUpstreamCleanup struct {
+	sync.Mutex
+	lastRun time.Time
+}
+var verifyOrderUpstreamMu sync.Mutex
 
 func (s *PaymentService) checkCancelRateLimit(ctx context.Context, userID int64, cfg *PaymentConfig) error {
 	if !cfg.CancelRateLimitEnabled || cfg.CancelRateLimitMax <= 0 {
@@ -268,16 +278,53 @@ func (s *PaymentService) VerifyOrderByOutTradeNo(ctx context.Context, outTradeNo
 	}
 	// Only verify orders that are still pending or recently expired
 	if o.Status == OrderStatusPending || o.Status == OrderStatusExpired {
-		result := s.checkPaid(ctx, o)
-		if result == checkPaidResultAlreadyPaid {
-			// Reload order to get updated status
-			o, err = s.entClient.PaymentOrder.Get(ctx, o.ID)
-			if err != nil {
-				return nil, fmt.Errorf("reload order: %w", err)
+		if shouldQueryUpstreamForVerifyOrder(outTradeNo, time.Now()) {
+			result := s.checkPaid(ctx, o)
+			if result == checkPaidResultAlreadyPaid {
+				// Reload order to get updated status
+				o, err = s.entClient.PaymentOrder.Get(ctx, o.ID)
+				if err != nil {
+					return nil, fmt.Errorf("reload order: %w", err)
+				}
 			}
 		}
 	}
 	return o, nil
+}
+
+func shouldQueryUpstreamForVerifyOrder(outTradeNo string, now time.Time) bool {
+	outTradeNo = strings.TrimSpace(outTradeNo)
+	if outTradeNo == "" {
+		return false
+	}
+	verifyOrderUpstreamMu.Lock()
+	defer verifyOrderUpstreamMu.Unlock()
+	cleanupVerifyOrderUpstreamCooldownLocked(now)
+	if value, ok := verifyOrderUpstreamLastQueried.Load(outTradeNo); ok {
+		if lastQueried, ok := value.(time.Time); ok && now.Sub(lastQueried) < verifyOrderUpstreamCooldown {
+			return false
+		}
+	}
+	verifyOrderUpstreamLastQueried.Store(outTradeNo, now)
+	return true
+}
+
+func cleanupVerifyOrderUpstreamCooldownLocked(now time.Time) {
+	verifyOrderUpstreamCleanup.Lock()
+	if !verifyOrderUpstreamCleanup.lastRun.IsZero() && now.Sub(verifyOrderUpstreamCleanup.lastRun) < verifyOrderUpstreamTTL {
+		verifyOrderUpstreamCleanup.Unlock()
+		return
+	}
+	verifyOrderUpstreamCleanup.lastRun = now
+	verifyOrderUpstreamCleanup.Unlock()
+
+	verifyOrderUpstreamLastQueried.Range(func(key, value any) bool {
+		lastQueried, ok := value.(time.Time)
+		if !ok || now.Sub(lastQueried) > verifyOrderUpstreamTTL {
+			verifyOrderUpstreamLastQueried.Delete(key)
+		}
+		return true
+	})
 }
 
 // VerifyOrderPublic returns the currently persisted public order state without

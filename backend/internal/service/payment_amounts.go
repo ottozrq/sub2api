@@ -7,6 +7,9 @@ import (
 )
 
 const defaultBalanceRechargeMultiplier = 1.0
+const balanceRechargeCNYPerUSD = 6.0
+const balanceRechargeDiscountCNY = 0.01
+const balanceRechargeMatchToleranceCNY = 0.005
 
 func normalizeBalanceRechargeMultiplier(multiplier float64) float64 {
 	if math.IsNaN(multiplier) || math.IsInf(multiplier, 0) || multiplier <= 0 {
@@ -20,6 +23,29 @@ func calculateCreditedBalance(paymentAmount, multiplier float64) float64 {
 		Mul(decimal.NewFromFloat(normalizeBalanceRechargeMultiplier(multiplier))).
 		Round(2).
 		InexactFloat64()
+}
+
+func calculateBalanceRechargePaymentAmount(creditAmount float64) float64 {
+	if creditAmount <= 0 {
+		return 0
+	}
+	amount := decimal.NewFromFloat(creditAmount).
+		Mul(decimal.NewFromFloat(balanceRechargeCNYPerUSD)).
+		Sub(decimal.NewFromFloat(balanceRechargeDiscountCNY)).
+		Round(2).
+		InexactFloat64()
+	if amount < 0 {
+		return 0
+	}
+	return amount
+}
+
+func balanceRechargePaymentMatchesCredit(paymentAmount, creditAmount float64) bool {
+	if creditAmount <= 0 {
+		return true
+	}
+	expected := calculateBalanceRechargePaymentAmount(creditAmount)
+	return math.Abs(paymentAmount-expected) < balanceRechargeMatchToleranceCNY
 }
 
 func calculateGatewayRefundAmount(orderAmount, payAmount, refundAmount float64) float64 {

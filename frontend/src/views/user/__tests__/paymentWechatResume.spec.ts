@@ -25,13 +25,15 @@ describe('parseWechatResumeRoute', () => {
       wechat_resume: '1',
       openid: 'openid-123',
       payment_type: 'wxpay',
-      amount: '12.5',
+      amount: '59.99',
+      balance_credit_amount: '10',
       order_type: 'balance',
     }, [], 88)).toEqual({
       openid: 'openid-123',
       paymentType: 'wxpay',
       orderType: 'balance',
-      orderAmount: 12.5,
+      orderAmount: 59.99,
+      balanceCreditAmount: 10,
       planId: undefined,
     })
   })
@@ -46,6 +48,7 @@ describe('stripWechatResumeQuery', () => {
       openid: 'openid-123',
       payment_type: 'wxpay',
       amount: '12.5',
+      balance_credit_amount: '10',
       order_type: 'subscription',
       plan_id: '7',
       state: 'state-123',

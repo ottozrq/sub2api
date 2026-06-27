@@ -582,13 +582,6 @@
                   <span class="text-gray-500 dark:text-dark-400">{{ t('home.pricing.windowQuota') }}</span>
                   <span class="font-medium text-gray-900 dark:text-white">{{ formatPlanWindow(plan) }}</span>
                 </div>
-                <div
-                  v-if="plan.rate_multiplier"
-                  class="flex items-center justify-between rounded-lg bg-dark-50 px-3 py-2 dark:bg-dark-900"
-                >
-                  <span class="text-gray-500 dark:text-dark-400">{{ t('payment.planCard.rate') }}</span>
-                  <span class="font-medium text-gray-900 dark:text-white">{{ plan.rate_multiplier }}x</span>
-                </div>
               </div>
 
               <ul class="mt-auto space-y-2">

@@ -113,6 +113,7 @@ onMounted(async () => {
   const scope = readParam('scope')
   const paymentType = readParam('payment_type')
   const amount = readParam('amount')
+  const balanceCreditAmount = readParam('balance_credit_amount')
   const orderType = readParam('order_type')
   const planId = readParam('plan_id')
   const redirectURL = new URL(
@@ -138,6 +139,7 @@ onMounted(async () => {
     appendQueryParam(query, 'scope', scope)
     appendQueryParam(query, 'payment_type', paymentType)
     appendQueryParam(query, 'amount', amount)
+    appendQueryParam(query, 'balance_credit_amount', balanceCreditAmount)
     appendQueryParam(query, 'order_type', orderType)
     appendQueryParam(query, 'plan_id', planId)
   }

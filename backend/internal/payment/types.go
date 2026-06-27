@@ -17,6 +17,7 @@ const (
 	TypeCard         PaymentType = "card"
 	TypeLink         PaymentType = "link"
 	TypeEasyPay      PaymentType = "easypay"
+	TypeLocalTest    PaymentType = "local_test"
 )
 
 // Order status constants shared across payment and service layers.

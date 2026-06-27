@@ -81,6 +81,24 @@ export const usePaymentStore = defineStore('payment', () => {
     }
   }
 
+  /** Actively verify order status with the upstream provider by merchant order number */
+  async function verifyOrderStatus(outTradeNo: string): Promise<PaymentOrder | null> {
+    const normalized = outTradeNo.trim()
+    if (!normalized) return null
+
+    try {
+      const response = await paymentAPI.verifyOrder(normalized)
+      const order = response.data
+      if (currentOrder.value?.id === order.id) {
+        currentOrder.value = order
+      }
+      return order
+    } catch (error: unknown) {
+      console.error('[payment] Failed to verify order status:', error)
+      return null
+    }
+  }
+
   /** Clear current order state */
   function clearCurrentOrder() {
     currentOrder.value = null
@@ -96,6 +114,7 @@ export const usePaymentStore = defineStore('payment', () => {
     fetchPlans,
     createOrder,
     pollOrderStatus,
+    verifyOrderStatus,
     clearCurrentOrder
   }
 })

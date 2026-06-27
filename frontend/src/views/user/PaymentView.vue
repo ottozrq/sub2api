@@ -20,6 +20,7 @@
             :expires-at="paymentState.expiresAt"
             :payment-type="paymentState.paymentType"
             :pay-url="paymentState.payUrl"
+            :out-trade-no="paymentState.outTradeNo"
             :order-type="paymentState.orderType"
             @done="onPaymentDone"
             @success="onPaymentSuccess"
@@ -43,9 +44,7 @@
             <div class="card p-6">
               <AmountInput
                 v-model="amount"
-                :amounts="[10, 20, 50, 100, 200, 500, 1000, 2000, 5000]"
-                :min="globalMinAmount"
-                :max="globalMaxAmount"
+                :amounts="rechargeCreditPresets"
               />
               <p v-if="amountError" class="mt-2 text-xs text-amber-600 dark:text-amber-300">{{ amountError }}</p>
             </div>
@@ -70,12 +69,12 @@
                   <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('payment.actualPay') }}</span>
                   <span class="text-lg font-bold text-primary-600 dark:text-primary-400">¥{{ totalAmount.toFixed(2) }}</span>
                 </div>
-                <div v-if="balanceRechargeMultiplier !== 1" class="flex justify-between" :class="{ 'border-t border-gray-200 pt-2 dark:border-dark-600': feeRate <= 0 }">
+                <div class="flex justify-between" :class="{ 'border-t border-gray-200 pt-2 dark:border-dark-600': feeRate <= 0 }">
                   <span class="text-gray-500 dark:text-gray-400">{{ t('payment.creditedBalance') }}</span>
                   <span class="text-gray-900 dark:text-white">${{ creditedAmount.toFixed(2) }}</span>
                 </div>
-                <p v-if="balanceRechargeMultiplier !== 1" class="border-t border-gray-200 pt-2 text-xs text-gray-500 dark:border-dark-600 dark:text-gray-400">
-                  {{ t('payment.rechargeRatePreview', { usd: balanceRechargeMultiplier.toFixed(2) }) }}
+                <p class="border-t border-gray-200 pt-2 text-xs text-gray-500 dark:border-dark-600 dark:text-gray-400">
+                  {{ t('payment.rechargeRatePreview', { usd: '6.00' }) }}
                 </p>
               </div>
             </div>
@@ -112,14 +111,8 @@
                 <p v-if="selectedPlan.description" class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
                   {{ selectedPlan.description }}
                 </p>
-                <!-- Rate + Limits grid -->
+                <!-- Limits grid -->
                 <div class="mt-3 grid grid-cols-2 gap-3">
-                  <div>
-                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.rate') }}</span>
-                    <div class="flex items-baseline">
-                      <span :class="['text-lg font-bold', planTextClass]">×{{ selectedPlan.rate_multiplier ?? 1 }}</span>
-                    </div>
-                  </div>
                   <div v-if="selectedPlan.daily_limit_usd != null">
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('payment.planCard.dailyLimit') }}</span>
                     <div class="text-lg font-semibold text-gray-800 dark:text-gray-200">${{ selectedPlan.daily_limit_usd }}</div>
@@ -200,7 +193,6 @@
                         <span :class="['shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium', platformBadgeLightClass(sub.group?.platform || '')]">{{ platformLabel(sub.group?.platform || '') }}</span>
                       </div>
                       <div class="flex flex-wrap gap-x-3 text-[11px] text-gray-400 dark:text-gray-500">
-                        <span>{{ t('payment.planCard.rate') }}: ×{{ sub.group?.rate_multiplier ?? 1 }}</span>
                         <span v-if="sub.group?.daily_limit_usd == null && sub.group?.weekly_limit_usd == null && sub.group?.monthly_limit_usd == null">{{ t('payment.planCard.quota') }}: {{ t('payment.planCard.unlimited') }}</span>
                         <span v-if="sub.expires_at">{{ t('userSubscriptions.daysRemaining', { days: getDaysRemaining(sub.expires_at) }) }}</span>
                         <span v-else>{{ t('userSubscriptions.noExpiration') }}</span>
@@ -320,6 +312,7 @@ interface CreateOrderOptions {
   paymentType?: string
   isResume?: boolean
   mobileQrFallbackAttempted?: boolean
+  balanceCreditAmount?: number
 }
 
 interface WeixinJSBridgeLike {
@@ -420,7 +413,7 @@ async function redirectToPaymentResult(state: PaymentRecoverySnapshot): Promise<
 
 function buildWechatOAuthAuthorizeUrl(
   authorizeUrl: string,
-  context: { paymentType: string; orderType: OrderType; planId?: number; orderAmount: number },
+  context: { paymentType: string; orderType: OrderType; planId?: number; orderAmount: number; balanceCreditAmount?: number },
 ): string {
   const normalizedUrl = authorizeUrl.trim()
   if (!normalizedUrl || typeof window === 'undefined') {
@@ -446,6 +439,11 @@ function buildWechatOAuthAuthorizeUrl(
       redirectUrl.searchParams.set('amount', String(context.orderAmount))
     } else {
       redirectUrl.searchParams.delete('amount')
+    }
+    if (context.balanceCreditAmount && context.balanceCreditAmount > 0) {
+      redirectUrl.searchParams.set('balance_credit_amount', String(context.balanceCreditAmount))
+    } else {
+      redirectUrl.searchParams.delete('balance_credit_amount')
     }
 
     targetUrl.searchParams.set('redirect', `${redirectUrl.pathname}${redirectUrl.search}`)
@@ -491,12 +489,14 @@ const tabs = computed(() => {
 
 const visibleMethods = computed(() => getVisibleMethods(checkout.value.methods))
 const enabledMethods = computed(() => Object.keys(visibleMethods.value))
-const validAmount = computed(() => amount.value ?? 0)
-const balanceRechargeMultiplier = computed(() => {
-  const multiplier = checkout.value.balance_recharge_multiplier
-  return multiplier > 0 ? multiplier : 1
-})
-const creditedAmount = computed(() => Math.round((validAmount.value * balanceRechargeMultiplier.value) * 100) / 100)
+const rechargeCreditPresets = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+const rechargeCreditAmount = computed(() => amount.value ?? 0)
+function calculateRechargePaymentAmount(creditAmount: number): number {
+  if (creditAmount <= 0) return 0
+  return Math.max(0, Math.round((creditAmount * 6 - 0.01) * 100) / 100)
+}
+const validAmount = computed(() => calculateRechargePaymentAmount(rechargeCreditAmount.value))
+const creditedAmount = computed(() => Math.round(rechargeCreditAmount.value * 100) / 100)
 
 // Adaptive grid: center single card, 2-col for 2 plans, 3-col for 3+
 const planGridClass = computed(() => {
@@ -514,20 +514,6 @@ function amountFitsMethod(amt: number, methodType: string): boolean {
   if (ml.single_max > 0 && amt > ml.single_max) return false
   return true
 }
-
-// Visible methods decide the amount range shown to users.
-const globalMinAmount = computed(() => {
-  const limits = Object.values(visibleMethods.value)
-  if (limits.length === 0) return 0
-  if (limits.some(limit => limit.single_min <= 0)) return 0
-  return Math.min(...limits.map(limit => limit.single_min))
-})
-const globalMaxAmount = computed(() => {
-  const limits = Object.values(visibleMethods.value)
-  if (limits.length === 0) return 0
-  if (limits.some(limit => limit.single_max <= 0)) return 0
-  return Math.max(...limits.map(limit => limit.single_max))
-})
 
 // Selected method's limits (for validation and error messages)
 const selectedLimit = computed(() => visibleMethods.value[selectedMethod.value])
@@ -662,6 +648,7 @@ const selectedPlanWindowQuotaText = computed(() => {
 function selectPlan(plan: SubscriptionPlan) {
   selectedPlan.value = plan
   errorMessage.value = ''
+  void autoStartSubscriptionPayment(plan)
 }
 
 function selectPlanFromModal(plan: SubscriptionPlan) {
@@ -669,6 +656,7 @@ function selectPlanFromModal(plan: SubscriptionPlan) {
   renewGroupId.value = null
   selectedPlan.value = plan
   errorMessage.value = ''
+  void autoStartSubscriptionPayment(plan)
 }
 
 function closeRenewalModal() {
@@ -676,9 +664,17 @@ function closeRenewalModal() {
   renewGroupId.value = null
 }
 
+async function autoStartSubscriptionPayment(plan: SubscriptionPlan) {
+  if (submitting.value || enabledMethods.value.length !== 1) return
+  const method = enabledMethods.value[0]
+  if (!amountFitsMethod(plan.price, method)) return
+  selectedMethod.value = method
+  await createOrder(plan.price, 'subscription', plan.id)
+}
+
 async function handleSubmitRecharge() {
   if (!canSubmit.value || submitting.value) return
-  await createOrder(validAmount.value, 'balance')
+  await createOrder(validAmount.value, 'balance', undefined, { balanceCreditAmount: creditedAmount.value })
 }
 
 async function confirmSubscribe() {
@@ -706,6 +702,9 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
     }
     if (options.wechatResumeToken) {
       payload.wechat_resume_token = options.wechatResumeToken
+    }
+    if (orderType === 'balance' && options.balanceCreditAmount && options.balanceCreditAmount > 0) {
+      payload.balance_credit_amount = options.balanceCreditAmount
     }
 
     const result = await paymentStore.createOrder(payload) as CreateOrderResult & { resume_token?: string }
@@ -747,6 +746,7 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
         orderType,
         planId,
         orderAmount,
+        balanceCreditAmount: options.balanceCreditAmount,
       })
       return
     }
@@ -784,6 +784,7 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
               orderType,
               planId,
               paymentType: visibleMethod,
+              balanceCreditAmount: options.balanceCreditAmount,
               attempted: options.mobileQrFallbackAttempted === true,
             },
           )
@@ -802,6 +803,7 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
           orderType,
           planId,
           paymentType: visibleMethod,
+          balanceCreditAmount: options.balanceCreditAmount,
           attempted: options.mobileQrFallbackAttempted === true,
         })
         if (!fallbackApplied) {
@@ -831,6 +833,7 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
       orderType,
       planId,
       paymentType: requestType,
+      balanceCreditAmount: options.balanceCreditAmount,
       attempted: options.mobileQrFallbackAttempted === true,
     })) {
       return
@@ -858,6 +861,7 @@ interface MobileQrFallbackContext {
   orderType: OrderType
   planId?: number
   paymentType: string
+  balanceCreditAmount?: number
   attempted: boolean
 }
 
@@ -910,6 +914,9 @@ async function attemptMobileQrFallback(err: unknown, context: MobileQrFallbackCo
       isMobile: false,
       isWechatBrowser: false,
     })
+    if (context.orderType === 'balance' && context.balanceCreditAmount && context.balanceCreditAmount > 0) {
+      payload.balance_credit_amount = context.balanceCreditAmount
+    }
     const result = await paymentStore.createOrder(payload) as CreateOrderResult & { resume_token?: string }
     const stripeMethod = visibleMethod === 'wxpay' ? 'wechat_pay' : 'alipay'
     const stripeRouteUrl = result.client_secret
@@ -973,7 +980,7 @@ async function resumeWechatPaymentFromQuery() {
 
   selectedMethod.value = resume.paymentType
   if (resume.orderType === 'balance' && resume.orderAmount > 0) {
-    amount.value = resume.orderAmount
+    amount.value = resume.balanceCreditAmount ?? resume.orderAmount
   }
   if (resume.orderType === 'subscription' && resume.planId) {
     selectedPlan.value = checkout.value.plans.find(plan => plan.id === resume.planId) ?? null
@@ -995,6 +1002,7 @@ async function resumeWechatPaymentFromQuery() {
       openid: resume.openid,
       paymentType: resume.paymentType,
       isResume: true,
+      balanceCreditAmount: resume.balanceCreditAmount,
     })
   }
 }

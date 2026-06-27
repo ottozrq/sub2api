@@ -157,6 +157,7 @@ export interface ProviderInstance {
 
 export interface CreateOrderRequest {
   amount: number
+  balance_credit_amount?: number
   payment_type: string
   order_type: string
   plan_id?: number

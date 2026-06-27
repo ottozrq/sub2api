@@ -4,6 +4,7 @@ import { normalizeVisibleMethod } from '@/components/payment/paymentFlow'
 
 export interface ParsedWechatResumeRoute {
   orderAmount: number
+  balanceCreditAmount?: number
   orderType: 'balance' | 'subscription'
   paymentType: string
   planId?: number
@@ -60,17 +61,22 @@ export function parseWechatResumeRoute(
   }
 
   const rawAmount = Number.parseFloat(readQueryString(query, 'amount'))
+  const rawBalanceCreditAmount = Number.parseFloat(readQueryString(query, 'balance_credit_amount'))
   const orderAmount = Number.isFinite(rawAmount) && rawAmount > 0
     ? rawAmount
     : (orderType === 'subscription'
       ? (plans.find(plan => plan.id === planId)?.price ?? 0)
       : fallbackBalanceAmount)
+  const balanceCreditAmount = Number.isFinite(rawBalanceCreditAmount) && rawBalanceCreditAmount > 0
+    ? rawBalanceCreditAmount
+    : undefined
 
   return {
     openid,
     paymentType,
     orderType,
     orderAmount,
+    balanceCreditAmount,
     planId: hasPlanId ? planId : undefined,
   }
 }
@@ -84,6 +90,7 @@ export function stripWechatResumeQuery(query: LocationQuery): LocationQueryRaw {
   delete nextQuery.scope
   delete nextQuery.payment_type
   delete nextQuery.amount
+  delete nextQuery.balance_credit_amount
   delete nextQuery.order_type
   delete nextQuery.plan_id
   return nextQuery

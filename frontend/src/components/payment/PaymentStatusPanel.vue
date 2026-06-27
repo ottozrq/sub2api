@@ -140,6 +140,7 @@ const props = defineProps<{
   qrCode: string
   expiresAt: string
   paymentType: string
+  outTradeNo?: string
   payUrl?: string
   orderType?: string
 }>()
@@ -227,7 +228,9 @@ async function renderQR() {
 
 async function pollStatus() {
   if (!props.orderId || outcome.value) return
-  const order = await paymentStore.pollOrderStatus(props.orderId)
+  const order = props.outTradeNo
+    ? await paymentStore.verifyOrderStatus(props.outTradeNo) || await paymentStore.pollOrderStatus(props.orderId)
+    : await paymentStore.pollOrderStatus(props.orderId)
   if (!order) return
   if (isSuccessStatus(order.status)) {
     cleanup()

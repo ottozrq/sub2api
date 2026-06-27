@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 
 const pollOrderStatus = vi.hoisted(() => vi.fn())
+const verifyOrderStatus = vi.hoisted(() => vi.fn())
 const cancelOrder = vi.hoisted(() => vi.fn())
 const showError = vi.hoisted(() => vi.fn())
 const toCanvas = vi.hoisted(() => vi.fn())
@@ -19,6 +20,7 @@ vi.mock('vue-i18n', async () => {
 vi.mock('@/stores/payment', () => ({
   usePaymentStore: () => ({
     pollOrderStatus,
+    verifyOrderStatus,
   }),
 }))
 
@@ -61,6 +63,7 @@ describe('PaymentStatusPanel', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     pollOrderStatus.mockReset()
+    verifyOrderStatus.mockReset()
     cancelOrder.mockReset()
     showError.mockReset()
     toCanvas.mockReset().mockResolvedValue(undefined)
@@ -95,6 +98,63 @@ describe('PaymentStatusPanel', () => {
     expect(pollOrderStatus).toHaveBeenCalledWith(42)
     expect(wrapper.text()).toContain('payment.result.success')
     expect(wrapper.emitted('success')).toHaveLength(1)
+  })
+
+  it('actively verifies provider status when out_trade_no is available', async () => {
+    verifyOrderStatus.mockResolvedValue(orderFactory('COMPLETED'))
+
+    const wrapper = mount(PaymentStatusPanel, {
+      props: {
+        orderId: 42,
+        qrCode: 'weixin://wxpay/test-order',
+        expiresAt: '2099-01-01T12:30:00Z',
+        paymentType: 'wxpay',
+        outTradeNo: 'sub2_20260420wxpay',
+        orderType: 'balance',
+      },
+      global: {
+        stubs: {
+          Icon: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    await vi.advanceTimersByTimeAsync(3000)
+    await flushPromises()
+
+    expect(verifyOrderStatus).toHaveBeenCalledWith('sub2_20260420wxpay')
+    expect(pollOrderStatus).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('payment.result.success')
+    expect(wrapper.emitted('success')).toHaveLength(1)
+  })
+
+  it('falls back to local polling when active provider verification cannot resolve the order', async () => {
+    verifyOrderStatus.mockResolvedValue(null)
+    pollOrderStatus.mockResolvedValue(orderFactory('RECHARGING'))
+
+    mount(PaymentStatusPanel, {
+      props: {
+        orderId: 42,
+        qrCode: 'weixin://wxpay/test-order',
+        expiresAt: '2099-01-01T12:30:00Z',
+        paymentType: 'wxpay',
+        outTradeNo: 'sub2_20260420fallback',
+        orderType: 'balance',
+      },
+      global: {
+        stubs: {
+          Icon: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    await vi.advanceTimersByTimeAsync(3000)
+    await flushPromises()
+
+    expect(verifyOrderStatus).toHaveBeenCalledWith('sub2_20260420fallback')
+    expect(pollOrderStatus).toHaveBeenCalledWith(42)
   })
 
   it('shows reopen button in QR mode when payUrl is also available', async () => {

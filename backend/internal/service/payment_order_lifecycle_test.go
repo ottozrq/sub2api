@@ -5,11 +5,15 @@ package service
 import (
 	"context"
 	"database/sql"
+	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/enttest"
+	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
 	"github.com/Wei-Shaw/sub2api/internal/payment"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
 	"github.com/stretchr/testify/require"
@@ -32,6 +36,54 @@ type paymentOrderLifecycleRedeemRepo struct {
 		id     int64
 		userID int64
 	}
+}
+
+func TestShouldQueryUpstreamForVerifyOrderCooldownAndCleanup(t *testing.T) {
+	now := time.Date(2026, 5, 21, 12, 0, 0, 0, time.UTC)
+	key := "unit-cooldown-order"
+	staleKey := "unit-stale-order"
+	t.Cleanup(func() {
+		verifyOrderUpstreamLastQueried.Delete(key)
+		verifyOrderUpstreamLastQueried.Delete(staleKey)
+	})
+	verifyOrderUpstreamLastQueried.Delete(key)
+	verifyOrderUpstreamLastQueried.Store(staleKey, now.Add(-2*verifyOrderUpstreamTTL))
+	verifyOrderUpstreamCleanup.Lock()
+	verifyOrderUpstreamCleanup.lastRun = time.Time{}
+	verifyOrderUpstreamCleanup.Unlock()
+
+	require.True(t, shouldQueryUpstreamForVerifyOrder(key, now))
+	require.False(t, shouldQueryUpstreamForVerifyOrder(key, now.Add(time.Second)))
+	require.True(t, shouldQueryUpstreamForVerifyOrder(key, now.Add(verifyOrderUpstreamCooldown+time.Millisecond)))
+	_, ok := verifyOrderUpstreamLastQueried.Load(staleKey)
+	require.False(t, ok)
+}
+
+func TestShouldQueryUpstreamForVerifyOrderAllowsOnlyOneConcurrentCaller(t *testing.T) {
+	now := time.Date(2026, 5, 21, 12, 0, 0, 0, time.UTC)
+	key := "unit-concurrent-order"
+	t.Cleanup(func() {
+		verifyOrderUpstreamLastQueried.Delete(key)
+	})
+	verifyOrderUpstreamLastQueried.Delete(key)
+
+	var allowed atomic.Int64
+	var wg sync.WaitGroup
+	start := make(chan struct{})
+	for range 32 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-start
+			if shouldQueryUpstreamForVerifyOrder(key, now) {
+				allowed.Add(1)
+			}
+		}()
+	}
+	close(start)
+	wg.Wait()
+
+	require.Equal(t, int64(1), allowed.Load())
 }
 
 func (p *paymentOrderLifecycleQueryProvider) Name() string {
@@ -243,6 +295,108 @@ func TestVerifyOrderByOutTradeNoBackfillsTradeNoFromPaidQuery(t *testing.T) {
 	require.Len(t, redeemRepo.useCalls, 1)
 	require.Equal(t, int64(1), redeemRepo.useCalls[0].id)
 	require.Equal(t, user.ID, redeemRepo.useCalls[0].userID)
+}
+
+func TestVerifyOrderByOutTradeNoThrottlesRepeatedUpstreamQueries(t *testing.T) {
+	ctx := context.Background()
+	client := newPaymentOrderLifecycleTestClient(t)
+
+	user, err := client.User.Create().
+		SetEmail("checkpaid-throttle@example.com").
+		SetPasswordHash("hash").
+		SetUsername("checkpaid-throttle-user").
+		Save(ctx)
+	require.NoError(t, err)
+
+	order, err := client.PaymentOrder.Create().
+		SetUserID(user.ID).
+		SetUserEmail(user.Email).
+		SetUserName(user.Username).
+		SetAmount(88).
+		SetPayAmount(88).
+		SetFeeRate(0).
+		SetRechargeCode("CHECKPAID-UPSTREAM-THROTTLE").
+		SetOutTradeNo("sub2_checkpaid_throttle").
+		SetPaymentType(payment.TypeAlipay).
+		SetPaymentTradeNo("").
+		SetOrderType(payment.OrderTypeBalance).
+		SetStatus(OrderStatusPending).
+		SetExpiresAt(time.Now().Add(time.Hour)).
+		SetClientIP("127.0.0.1").
+		SetSrcHost("api.example.com").
+		Save(ctx)
+	require.NoError(t, err)
+
+	registry := payment.NewRegistry()
+	provider := &paymentOrderLifecycleQueryProvider{
+		resp: &payment.QueryOrderResponse{
+			TradeNo: "upstream-throttle-pending",
+			Status:  payment.ProviderStatusPending,
+			Amount:  0,
+		},
+	}
+	registry.Register(provider)
+
+	svc := &PaymentService{
+		entClient:       client,
+		registry:        registry,
+		providersLoaded: true,
+	}
+
+	first, err := svc.VerifyOrderByOutTradeNo(ctx, order.OutTradeNo, user.ID)
+	require.NoError(t, err)
+	require.Equal(t, OrderStatusPending, first.Status)
+	require.Equal(t, 1, provider.queryCalls)
+
+	second, err := svc.VerifyOrderByOutTradeNo(ctx, order.OutTradeNo, user.ID)
+	require.NoError(t, err)
+	require.Equal(t, OrderStatusPending, second.Status)
+	require.Equal(t, 1, provider.queryCalls)
+}
+
+func TestExecuteFulfillmentRejectsInvalidOrderType(t *testing.T) {
+	ctx := context.Background()
+	client := newPaymentOrderLifecycleTestClient(t)
+
+	user, err := client.User.Create().
+		SetEmail("invalid-fulfillment@example.com").
+		SetPasswordHash("hash").
+		SetUsername("invalid-fulfillment-user").
+		Save(ctx)
+	require.NoError(t, err)
+
+	order, err := client.PaymentOrder.Create().
+		SetUserID(user.ID).
+		SetUserEmail(user.Email).
+		SetUserName(user.Username).
+		SetAmount(10).
+		SetPayAmount(10).
+		SetFeeRate(0).
+		SetRechargeCode("INVALID-FULFILLMENT").
+		SetOutTradeNo("sub2_invalid_fulfillment").
+		SetPaymentType(payment.TypeWxpay).
+		SetPaymentTradeNo("wx-paid-trade").
+		SetOrderType("topup").
+		SetStatus(OrderStatusPaid).
+		SetExpiresAt(time.Now().Add(time.Hour)).
+		SetClientIP("127.0.0.1").
+		SetSrcHost("api.example.com").
+		Save(ctx)
+	require.NoError(t, err)
+
+	svc := &PaymentService{entClient: client}
+	err = svc.executeFulfillment(ctx, order.ID)
+	require.Error(t, err)
+
+	reloaded, err := client.PaymentOrder.Get(ctx, order.ID)
+	require.NoError(t, err)
+	require.Equal(t, OrderStatusPaid, reloaded.Status)
+
+	auditCount, err := client.PaymentAuditLog.Query().
+		Where(paymentauditlog.OrderIDEQ(strconv.FormatInt(order.ID, 10)), paymentauditlog.ActionEQ("FULFILLMENT_INVALID_ORDER_TYPE")).
+		Count(ctx)
+	require.NoError(t, err)
+	require.Equal(t, 1, auditCount)
 }
 
 func TestVerifyOrderByOutTradeNoRetriesZeroAmountPaidQueryOnce(t *testing.T) {

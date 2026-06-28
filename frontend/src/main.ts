@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n, { initI18n } from './i18n'
+import { initUmami, enableUmamiClickTracking } from '@/utils/umami'
 import { useAppStore } from '@/stores/app'
 import './style.css'
 
@@ -35,6 +36,9 @@ async function bootstrap() {
   }
 
   await initI18n()
+
+  initUmami()
+  enableUmamiClickTracking()
 
   app.use(router)
   app.use(i18n)

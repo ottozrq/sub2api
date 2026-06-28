@@ -19,6 +19,10 @@ ARG GOSUMDB=sum.golang.google.cn
 # -----------------------------------------------------------------------------
 FROM ${NODE_IMAGE} AS frontend-builder
 ARG PNPM_VERSION
+ARG VITE_UMAMI_WEBSITE_ID
+ARG VITE_UMAMI_SCRIPT_URL
+ENV VITE_UMAMI_WEBSITE_ID=${VITE_UMAMI_WEBSITE_ID}
+ENV VITE_UMAMI_SCRIPT_URL=${VITE_UMAMI_SCRIPT_URL}
 
 WORKDIR /app/frontend
 

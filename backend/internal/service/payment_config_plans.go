@@ -161,9 +161,23 @@ func (s *PaymentConfigService) ListPlansForSale(ctx context.Context) ([]*dbent.S
 	return s.entClient.SubscriptionPlan.Query().Where(subscriptionplan.ForSaleEQ(true)).Order(subscriptionplan.BySortOrder()).All(ctx)
 }
 
+func (s *PaymentConfigService) validatePlanGroup(ctx context.Context, groupID int64) error {
+	g, err := s.entClient.Group.Query().Where(group.IDEQ(groupID)).Only(ctx)
+	if err != nil {
+		return infraerrors.BadRequest("PLAN_GROUP_NOT_FOUND", "plan group not found")
+	}
+	if g.SubscriptionType != SubscriptionTypeSubscription {
+		return infraerrors.BadRequest("PLAN_GROUP_TYPE_MISMATCH", "plan group must be a subscription type")
+	}
+	return nil
+}
+
 func (s *PaymentConfigService) CreatePlan(ctx context.Context, req CreatePlanRequest) (*dbent.SubscriptionPlan, error) {
 	req.PlanType = normalizePlanType(req.PlanType)
 	if err := validatePlanRequired(req.Name, req.GroupID, req.Price, req.ValidityDays, req.ValidityUnit, req.OriginalPrice, req.PlanType, req.QuotaCount); err != nil {
+		return nil, err
+	}
+	if err := s.validatePlanGroup(ctx, req.GroupID); err != nil {
 		return nil, err
 	}
 	b := s.entClient.SubscriptionPlan.Create().
@@ -199,6 +213,13 @@ func (s *PaymentConfigService) UpdatePlan(ctx context.Context, id int64, req Upd
 		quotaCount = *req.QuotaCount
 	}
 	if err := validatePlanTypeAndQuota(planType, quotaCount); err != nil {
+		return nil, err
+	}
+	groupID := current.GroupID
+	if req.GroupID != nil {
+		groupID = *req.GroupID
+	}
+	if err := s.validatePlanGroup(ctx, groupID); err != nil {
 		return nil, err
 	}
 	u := s.entClient.SubscriptionPlan.UpdateOneID(id)

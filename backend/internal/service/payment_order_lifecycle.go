@@ -127,7 +127,7 @@ func (s *PaymentService) AdminCancelOrder(ctx context.Context, orderID int64) (s
 
 func (s *PaymentService) cancelCore(ctx context.Context, o *dbent.PaymentOrder, fs, op, ad string) (string, error) {
 	if o.PaymentTradeNo != "" || o.PaymentType != "" {
-		if s.checkPaid(ctx, o) == checkPaidResultAlreadyPaid {
+		if s.checkPaid(ctx, o, true) == checkPaidResultAlreadyPaid {
 			return checkPaidResultAlreadyPaid, nil
 		}
 	}
@@ -145,7 +145,7 @@ func (s *PaymentService) cancelCore(ctx context.Context, o *dbent.PaymentOrder, 
 	return checkPaidResultCancelled, nil
 }
 
-func (s *PaymentService) checkPaid(ctx context.Context, o *dbent.PaymentOrder) string {
+func (s *PaymentService) checkPaid(ctx context.Context, o *dbent.PaymentOrder, closeUnpaid bool) string {
 	prov, err := s.getOrderProvider(ctx, o)
 	if err != nil {
 		return ""
@@ -192,8 +192,10 @@ func (s *PaymentService) checkPaid(ctx context.Context, o *dbent.PaymentOrder) s
 		}
 		return checkPaidResultAlreadyPaid
 	}
-	if cp, ok := prov.(payment.CancelableProvider); ok {
-		_ = cp.CancelPayment(ctx, queryRef)
+	if closeUnpaid {
+		if cp, ok := prov.(payment.CancelableProvider); ok {
+			_ = cp.CancelPayment(ctx, queryRef)
+		}
 	}
 	return ""
 }
@@ -279,7 +281,7 @@ func (s *PaymentService) VerifyOrderByOutTradeNo(ctx context.Context, outTradeNo
 	// Only verify orders that are still pending or recently expired
 	if o.Status == OrderStatusPending || o.Status == OrderStatusExpired {
 		if shouldQueryUpstreamForVerifyOrder(outTradeNo, time.Now()) {
-			result := s.checkPaid(ctx, o)
+			result := s.checkPaid(ctx, o, false)
 			if result == checkPaidResultAlreadyPaid {
 				// Reload order to get updated status
 				o, err = s.entClient.PaymentOrder.Get(ctx, o.ID)

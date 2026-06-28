@@ -46,7 +46,7 @@ func (s *PaymentService) GetPublicOrderByResumeToken(ctx context.Context, token 
 		return nil, invalidResumeTokenMatchError()
 	}
 	if order.Status == OrderStatusPending || order.Status == OrderStatusExpired {
-		result := s.checkPaid(ctx, order)
+		result := s.checkPaid(ctx, order, false)
 		if result == checkPaidResultAlreadyPaid {
 			order, err = s.entClient.PaymentOrder.Get(ctx, order.ID)
 			if err != nil {

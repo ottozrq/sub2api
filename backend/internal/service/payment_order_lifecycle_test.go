@@ -26,6 +26,7 @@ import (
 type paymentOrderLifecycleQueryProvider struct {
 	lastQueryTradeNo string
 	queryCalls       int
+	cancelCalls      int
 	responses        []*payment.QueryOrderResponse
 	resp             *payment.QueryOrderResponse
 }
@@ -111,6 +112,11 @@ func (p *paymentOrderLifecycleQueryProvider) QueryOrder(_ context.Context, trade
 		return resp, nil
 	}
 	return p.resp, nil
+}
+
+func (p *paymentOrderLifecycleQueryProvider) CancelPayment(context.Context, string) error {
+	p.cancelCalls++
+	return nil
 }
 
 func (p *paymentOrderLifecycleQueryProvider) VerifyNotification(context.Context, string, map[string]string) (*payment.PaymentNotification, error) {
@@ -347,11 +353,13 @@ func TestVerifyOrderByOutTradeNoThrottlesRepeatedUpstreamQueries(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, OrderStatusPending, first.Status)
 	require.Equal(t, 1, provider.queryCalls)
+	require.Equal(t, 0, provider.cancelCalls)
 
 	second, err := svc.VerifyOrderByOutTradeNo(ctx, order.OutTradeNo, user.ID)
 	require.NoError(t, err)
 	require.Equal(t, OrderStatusPending, second.Status)
 	require.Equal(t, 1, provider.queryCalls)
+	require.Equal(t, 0, provider.cancelCalls)
 }
 
 func TestExecuteFulfillmentRejectsInvalidOrderType(t *testing.T) {

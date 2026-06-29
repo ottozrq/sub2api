@@ -18,8 +18,8 @@ export default {
     heroBadge: 'Stable AI API gateway',
     heroHeadline: 'AI gateway access for everyone',
     // User-focused value proposition
-    heroSubtitle: 'One key for Claude, GPT, Gemini and more, with plans, quota packs, window limits, and realtime usage records.',
-    heroDescription: 'No need to manage multiple subscriptions. Access Claude, GPT, Gemini and more with a single API key',
+    heroSubtitle: 'Currently focused on GPT / Codex / Responses through an OpenAI-compatible API, with plans, quota packs, window limits, and realtime usage records.',
+    heroDescription: 'Use one API key for stable GPT-family and Codex access without managing multiple accounts',
     tags: {
       subscriptionToApi: 'Subscription to API',
       stickySession: 'Session Persistence',
@@ -74,7 +74,7 @@ export default {
         },
         call: {
           title: 'Change the Base URL and call',
-          description: 'Keep the OpenAI-compatible developer flow while routing Claude, GPT, Gemini, and more behind the scenes.'
+          description: 'Keep the OpenAI-compatible developer flow while routing GPT, Codex, and Responses capabilities behind the scenes.'
         }
       }
     },
@@ -84,15 +84,15 @@ export default {
       endpoints: {
         chat: 'Chat completions',
         responses: 'Responses compatible',
-        messages: 'Anthropic Messages',
+        models: 'Model list',
         images: 'Image generation'
       }
     },
     modelHub: {
       title: 'Manage access like a model hub',
-      description: 'Unify providers, model families, and API protocols behind one entry point. Users see clear plans and keys while routing and governance happen in the backend.',
+      description: 'Unify GPT, Codex, Responses, and other OpenAI-compatible capabilities behind one entry point. Users see clear plans and keys while routing and governance happen in the backend.',
       routingTitle: 'Smart routing and group policy',
-      routingDesc: 'Choose available upstream accounts by group, window quota, account state, and model capability to reduce single-account rate-limit impact.',
+      routingDesc: 'Choose available GPT upstream accounts by group, window quota, account state, and model capability to reduce single-account rate-limit impact.',
       capabilities: {
         chat: 'Chat',
         code: 'Code',
@@ -101,10 +101,10 @@ export default {
         audio: 'Audio'
       },
       providers: {
-        claude: 'Sonnet / Opus / Claude Code',
+        openai: 'OpenAI-compatible protocol',
         gpt: 'GPT / Codex / Responses',
-        gemini: 'Gemini / Imagen / long context',
-        antigravity: 'Antigravity / mixed routing'
+        codex: 'Codex / coding workflows',
+        responses: 'Responses / multimodal API'
       },
       policies: {
         failover: 'Automatic upstream failover',
@@ -181,13 +181,13 @@ export default {
       }
     },
     providers: {
-      title: 'Supported AI Models',
-      description: 'One API, Multiple Choices',
+      title: 'Currently Supported AI Models',
+      description: 'Production currently focuses on GPT, with more models rolling out gradually',
       supported: 'Supported',
       soon: 'Soon',
-      claude: 'Claude',
-      gemini: 'Gemini',
-      antigravity: 'Antigravity',
+      openai: 'OpenAI Compatible',
+      codex: 'Codex',
+      responses: 'Responses',
       more: 'More'
     },
     // CTA section

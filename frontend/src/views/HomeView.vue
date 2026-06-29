@@ -227,9 +227,9 @@
                 <div class="gateway-node gateway-node-bottom">
                   <span>Usage</span>
                 </div>
-                <div class="provider-chip provider-chip-claude">Claude</div>
+                <div class="provider-chip provider-chip-claude">OpenAI</div>
                 <div class="provider-chip provider-chip-gpt">GPT</div>
-                <div class="provider-chip provider-chip-gemini">Gemini</div>
+                <div class="provider-chip provider-chip-gemini">Codex</div>
               </div>
               <div class="terminal-window">
                 <!-- Window header -->
@@ -337,7 +337,7 @@
                 <p class="pl-4"><span class="text-white/60">apiKey:</span> <span class="text-primary-200">'sk-rongjian-...'</span></p>
                 <p><span class="text-white/60">})</span></p>
                 <p class="mt-4"><span class="text-white/45">await</span> <span class="text-white">client.chat.completions.create</span><span class="text-white/60">({</span></p>
-                <p class="pl-4"><span class="text-white/60">model:</span> <span class="text-primary-200">'claude-sonnet-4'</span><span class="text-white/60">,</span></p>
+                <p class="pl-4"><span class="text-white/60">model:</span> <span class="text-primary-200">'gpt-5.4'</span><span class="text-white/60">,</span></p>
                 <p class="pl-4"><span class="text-white/60">messages:</span> <span class="text-accent-200">[...]</span></p>
                 <p><span class="text-white/60">})</span></p>
               </div>
@@ -609,16 +609,16 @@
         </div>
 
         <div class="mb-16 flex flex-wrap items-center justify-center gap-4">
-          <!-- Claude - Supported -->
+          <!-- OpenAI Compatible - Supported -->
           <div
             class="flex items-center gap-2 rounded-lg border border-primary-200 bg-white/85 px-5 py-3 ring-1 ring-primary-500/15 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-900/75"
           >
             <div
               class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-accent"
             >
-              <span class="text-xs font-bold text-white">C</span>
+              <span class="text-xs font-bold text-white">O</span>
             </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.claude') }}</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.openai') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
               >{{ t('home.providers.supported') }}</span
@@ -639,7 +639,7 @@
               >{{ t('home.providers.supported') }}</span
             >
           </div>
-          <!-- Gemini - Supported -->
+          <!-- Codex - Supported -->
           <div
             class="flex items-center gap-2 rounded-lg border border-primary-200 bg-white/85 px-5 py-3 ring-1 ring-primary-500/15 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-900/75"
           >
@@ -648,22 +648,22 @@
             >
               <span class="text-xs font-bold text-white">G</span>
             </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.gemini') }}</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.codex') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
               >{{ t('home.providers.supported') }}</span
             >
           </div>
-          <!-- Antigravity - Supported -->
+          <!-- Responses - Supported -->
           <div
             class="flex items-center gap-2 rounded-lg border border-primary-200 bg-white/85 px-5 py-3 ring-1 ring-primary-500/15 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-900/75"
           >
             <div
               class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-accent"
             >
-              <span class="text-xs font-bold text-white">A</span>
+              <span class="text-xs font-bold text-white">R</span>
             </div>
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.antigravity') }}</span>
+            <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.responses') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
               >{{ t('home.providers.supported') }}</span
@@ -806,7 +806,7 @@ const gatewaySteps = computed(() => [
 const endpointRows = computed(() => [
   { path: '/v1/chat/completions', label: t('home.integration.endpoints.chat') },
   { path: '/v1/responses', label: t('home.integration.endpoints.responses') },
-  { path: '/v1/messages', label: t('home.integration.endpoints.messages') },
+  { path: '/v1/models', label: t('home.integration.endpoints.models') },
   { path: '/v1/images/generations', label: t('home.integration.endpoints.images') }
 ])
 
@@ -820,9 +820,9 @@ const modelCapabilities = computed(() => [
 
 const providerHighlights = computed(() => [
   {
-    name: 'Claude',
-    initial: 'C',
-    models: t('home.modelHub.providers.claude'),
+    name: 'OpenAI',
+    initial: 'O',
+    models: t('home.modelHub.providers.openai'),
     className: 'bg-gradient-accent'
   },
   {
@@ -832,15 +832,15 @@ const providerHighlights = computed(() => [
     className: 'bg-gradient-primary'
   },
   {
-    name: 'Gemini',
+    name: 'Codex',
     initial: 'G',
-    models: t('home.modelHub.providers.gemini'),
+    models: t('home.modelHub.providers.codex'),
     className: 'bg-gradient-primary'
   },
   {
-    name: 'Antigravity',
-    initial: 'A',
-    models: t('home.modelHub.providers.antigravity'),
+    name: 'Responses',
+    initial: 'R',
+    models: t('home.modelHub.providers.responses'),
     className: 'bg-gradient-accent'
   }
 ])

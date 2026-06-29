@@ -18,8 +18,8 @@ export default {
     heroBadge: '稳定 AI 服务中转站',
     heroHeadline: '人人可拥有的 AI 中转能力',
     // 新增：面向用户的价值主张
-    heroSubtitle: '一个密钥接入 Claude、GPT、Gemini 等主流模型，支持套餐、次卡、窗口额度和实时用量统计。',
-    heroDescription: '无需管理多个订阅账号，一站式接入 Claude、GPT、Gemini 等主流 AI 服务',
+    heroSubtitle: '当前聚焦 GPT / Codex / Responses 等 OpenAI 兼容模型，支持套餐、次卡、窗口额度和实时用量统计。',
+    heroDescription: '无需管理多个账号，一个 API Key 稳定接入 GPT 系列模型与 Codex 能力',
     tags: {
       subscriptionToApi: '订阅转 API',
       stickySession: '会话保持',
@@ -74,7 +74,7 @@ export default {
         },
         call: {
           title: '替换 Base URL 开始调用',
-          description: '保持 OpenAI 兼容调用体验，同时可转发 Claude、GPT、Gemini 等模型。'
+          description: '保持 OpenAI 兼容调用体验，当前优先稳定转发 GPT、Codex 与 Responses 能力。'
         }
       }
     },
@@ -84,15 +84,15 @@ export default {
       endpoints: {
         chat: '聊天补全',
         responses: 'Responses 兼容',
-        messages: 'Anthropic Messages',
+        models: '模型列表',
         images: '图片生成'
       }
     },
     modelHub: {
       title: '像模型广场一样管理能力入口',
-      description: '把不同服务商、不同模型和不同调用协议收敛到统一入口，用户看到的是清晰套餐和密钥，后台负责调度与治理。',
+      description: '先把 GPT、Codex、Responses 等 OpenAI 兼容能力收敛到统一入口，用户看到的是清晰套餐和密钥，后台负责调度与治理。',
       routingTitle: '智能路由与分组策略',
-      routingDesc: '按分组、窗口额度、账号状态和模型能力选择可用上游，减少单账号限流对业务的影响。',
+      routingDesc: '按分组、窗口额度、账号状态和模型能力选择可用 GPT 上游，减少单账号限流对业务的影响。',
       capabilities: {
         chat: '对话',
         code: '代码',
@@ -101,10 +101,10 @@ export default {
         audio: '音频'
       },
       providers: {
-        claude: 'Sonnet / Opus / Claude Code',
+        openai: 'OpenAI 兼容协议',
         gpt: 'GPT / Codex / Responses',
-        gemini: 'Gemini / Imagen / 长上下文',
-        antigravity: 'Antigravity / 混合调度'
+        codex: 'Codex / 编程场景',
+        responses: 'Responses / 多模态接口'
       },
       policies: {
         failover: '上游失败自动切换',
@@ -181,13 +181,13 @@ export default {
       }
     },
     providers: {
-      title: '已支持的 AI 模型',
-      description: '一个 API，多种选择',
+      title: '当前支持的 AI 模型',
+      description: '当前生产环境聚焦 GPT，更多模型陆续开放',
       supported: '已支持',
       soon: '即将推出',
-      claude: 'Claude',
-      gemini: 'Gemini',
-      antigravity: 'Antigravity',
+      openai: 'OpenAI 兼容',
+      codex: 'Codex',
+      responses: 'Responses',
       more: '更多'
     },
     // CTA 区块

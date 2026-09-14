@@ -226,6 +226,19 @@ func (s *BillingService) initFallbackPricing() {
 	s.fallbackPrices["gpt-5.6-sol"] = newGPT56ModelPricing(5e-6, 10e-6, 30e-6, 60e-6, 0.5e-6, 1e-6)
 	s.fallbackPrices["gpt-5.6-terra"] = newGPT56ModelPricing(2.5e-6, 5e-6, 15e-6, 30e-6, 0.25e-6, 0.5e-6)
 	s.fallbackPrices["gpt-5.6-luna"] = newGPT56ModelPricing(1e-6, 2e-6, 6e-6, 12e-6, 0.1e-6, 0.2e-6)
+	s.fallbackPrices["gpt-6-astra"] = &ModelPricing{
+		InputPricePerToken:                 10e-6,
+		InputPricePerTokenPriority:         20e-6,
+		OutputPricePerToken:                50e-6,
+		OutputPricePerTokenPriority:        100e-6,
+		CacheCreationPricePerToken:         12.5e-6,
+		CacheCreationPricePerTokenPriority: 25e-6,
+		CacheReadPricePerToken:             1e-6,
+		CacheReadPricePerTokenPriority:     2e-6,
+		LongContextInputThreshold:          272_000,
+		LongContextInputMultiplier:         2,
+		LongContextOutputMultiplier:        1.5,
+	}
 
 	s.fallbackPrices["gpt-5.4-mini"] = &ModelPricing{
 		InputPricePerToken:     7.5e-7,
@@ -319,6 +332,8 @@ func (s *BillingService) getFallbackPricing(model string) *ModelPricing {
 	// OpenAI 仅匹配已知 GPT-5/Codex 族，避免未知 OpenAI 型号误计价。
 	if normalized := normalizeKnownOpenAICodexModel(modelLower); normalized != "" {
 		switch normalized {
+		case "gpt-6-astra":
+			return s.fallbackPrices["gpt-6-astra"]
 		case "gpt-5.6-sol":
 			return s.fallbackPrices["gpt-5.6-sol"]
 		case "gpt-5.6-terra":

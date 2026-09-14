@@ -37,7 +37,23 @@ var (
 	openAIGPT56SolFallbackPricing   = newGPT56LiteLLMPricing(5e-6, 10e-6, 30e-6, 60e-6, 0.5e-6, 1e-6)
 	openAIGPT56TerraFallbackPricing = newGPT56LiteLLMPricing(2.5e-6, 5e-6, 15e-6, 30e-6, 0.25e-6, 0.5e-6)
 	openAIGPT56LunaFallbackPricing  = newGPT56LiteLLMPricing(1e-6, 2e-6, 6e-6, 12e-6, 0.1e-6, 0.2e-6)
-	openAIGPT54MiniFallbackPricing  = &LiteLLMModelPricing{
+	openAIGPT6AstraFallbackPricing  = &LiteLLMModelPricing{
+		InputCostPerToken:                   10e-6,
+		InputCostPerTokenPriority:           20e-6,
+		OutputCostPerToken:                  50e-6,
+		OutputCostPerTokenPriority:          100e-6,
+		CacheCreationInputTokenCost:         12.5e-6,
+		CacheCreationInputTokenCostPriority: 25e-6,
+		CacheReadInputTokenCost:             1e-6,
+		CacheReadInputTokenCostPriority:     2e-6,
+		LongContextInputTokenThreshold:      272_000,
+		LongContextInputCostMultiplier:      2,
+		LongContextOutputCostMultiplier:     1.5,
+		LiteLLMProvider:                     "openai",
+		Mode:                                "chat",
+		SupportsPromptCaching:               true,
+	}
+	openAIGPT54MiniFallbackPricing = &LiteLLMModelPricing{
 		InputCostPerToken:       7.5e-07,
 		OutputCostPerToken:      4.5e-06,
 		CacheReadInputTokenCost: 7.5e-08,
@@ -666,6 +682,9 @@ func normalizeModelNameForPricing(model string) string {
 
 	model = strings.TrimLeft(model, "/")
 	if canonical := canonicalizeOpenAIModelAliasSpelling(model); canonical != "" {
+		if canonical == "gpt-6" {
+			return "gpt-6-astra"
+		}
 		if canonical == "gpt-5.6" {
 			return "gpt-5.6-sol"
 		}
@@ -841,6 +860,12 @@ func (s *PricingService) matchOpenAIModel(model string) *LiteLLMModelPricing {
 				Info(fmt.Sprintf("[Pricing] OpenAI fallback matched %s -> %s", model, "gpt-5.2-codex"))
 			return pricing
 		}
+	}
+
+	if isOpenAIGPT6AstraModel(model) {
+		logger.With(zap.String("component", "service.pricing")).
+			Info(fmt.Sprintf("[Pricing] OpenAI fallback matched %s -> %s", model, "gpt-6-astra(static)"))
+		return openAIGPT6AstraFallbackPricing
 	}
 
 	if strings.HasPrefix(model, "gpt-5.6-sol") {
